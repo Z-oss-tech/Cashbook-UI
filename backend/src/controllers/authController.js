@@ -1,5 +1,6 @@
 const prisma = require('../config/prisma');
 const jwt = require('jsonwebtoken');
+const bcrypt = require('bcrypt');
 
 const generateToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -7,83 +8,34 @@ const generateToken = (id) => {
   });
 };
 
-const sendOtp = async (req, res, next) => {
+const register = async (req, res, next) => {
   try {
-    const { phone } = req.body;
-    if (!phone) {
+    const { phone, password, name, email } = req.body;
+    if (!phone || !password) {
       res.status(400);
-      throw new Error('Phone number is required');
+      throw new Error('Phone and password are required');
     }
 
-    // In a real app, generate a 4 digit OTP and send via SMS
-    // We generate a random 4 digit number for testing so it feels real
-    const otp = Math.floor(1000 + Math.random() * 9000).toString();
-    const otpHash = otp; // Usually bcrypt hash
-
-    const expiration = new Date();
-    expiration.setMinutes(expiration.getMinutes() + 10);
-
-    // clear existing OTPs for phone
-    await prisma.otpCode.deleteMany({
-      where: { phone }
-    });
-
-    await prisma.otpCode.create({
-      data: {
-        phone,
-        otpHash,
-        expiresAt: expiration
-      }
-    });
-
-    res.json({ message: 'OTP sent successfully', phone, devOtp: otp }); // devOtp included for dev/testing
-  } catch (error) {
-    next(error);
-  }
-};
-
-const verifyOtp = async (req, res, next) => {
-  try {
-    const { phone, otp } = req.body;
-    if (!phone || !otp) {
-      res.status(400);
-      throw new Error('Phone and OTP are required');
-    }
-
-    const otpCode = await prisma.otpCode.findFirst({
-      where: {
-        phone,
-        otpHash: otp, // In prod, use bcrypt.compare
-        expiresAt: {
-          gt: new Date()
-        }
-      }
-    });
-
-    if (!otpCode) {
-      res.status(401);
-      throw new Error('Invalid or expired OTP');
-    }
-
-    // Check if user exists
     let user = await prisma.user.findUnique({
       where: { phone }
     });
 
-    let isNewUser = false;
-    if (!user) {
-      isNewUser = true;
-      user = await prisma.user.create({
-        data: {
-          phone,
-          authProvider: 'phone'
-        }
-      });
+    if (user) {
+      res.status(400);
+      throw new Error('User with this phone number already exists');
     }
 
-    // Clean up OTP
-    await prisma.otpCode.deleteMany({
-      where: { phone }
+    const salt = await bcrypt.genSalt(10);
+    const passwordHash = await bcrypt.hash(password, salt);
+
+    user = await prisma.user.create({
+      data: {
+        phone,
+        passwordHash,
+        name: name || null,
+        email: email || null,
+        authProvider: 'password'
+      }
     });
 
     res.json({
@@ -95,7 +47,53 @@ const verifyOtp = async (req, res, next) => {
         phone: user.phone,
         avatarUrl: user.avatarUrl,
         token: generateToken(user.id),
-        isNewUser
+        isNewUser: true
+      }
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const login = async (req, res, next) => {
+  try {
+    const { phone, password } = req.body;
+    if (!phone || !password) {
+      res.status(400);
+      throw new Error('Phone and password are required');
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { phone }
+    });
+
+    if (!user) {
+      res.status(401);
+      throw new Error('Invalid phone number or password');
+    }
+
+    if (user.authProvider !== 'password' || !user.passwordHash) {
+      res.status(401);
+      throw new Error('Account was created using another method. Please use that method or reset password.');
+    }
+
+    const isMatch = await bcrypt.compare(password, user.passwordHash);
+
+    if (!isMatch) {
+      res.status(401);
+      throw new Error('Invalid phone number or password');
+    }
+
+    res.json({
+      success: true,
+      data: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        phone: user.phone,
+        avatarUrl: user.avatarUrl,
+        token: generateToken(user.id),
+        isNewUser: false
       }
     });
   } catch (error) {
@@ -204,8 +202,8 @@ const googleLogin = async (req, res, next) => {
 };
 
 module.exports = {
-  sendOtp,
-  verifyOtp,
+  register,
+  login,
   updateProfile,
   getProfile,
   googleLogin
