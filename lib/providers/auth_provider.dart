@@ -25,53 +25,53 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<String?> sendOtp(String phone) async {
+  Future<Map<String, dynamic>?> login(String username, String password) async {
     _setLoading(true);
     _setError(null);
     try {
-      final res = await _apiService.sendOtp(phone);
-      _setLoading(false);
-      print('OTP Sent: ${res['devOtp']}');
-      return res['devOtp']?.toString();
-    } catch (e) {
-      // Auto-fallback to offline mode if server fails
-      print('Server down, simulating OTP for offline mode: $e');
-      _setLoading(false);
-      return '1234'; // Dummy OTP to allow them to proceed offline
-    }
-  }
-
-  Future<bool> resendOtp(String phone) async {
-    _setLoading(true);
-    _setError(null);
-    try {
-      final res = await _apiService.resendOtp(phone);
-      _setLoading(false);
-      print('OTP Resent: ${res['devOtp']}');
-      return true;
-    } catch (e) {
-      _setError(e.toString().replaceAll('Exception: ', ''));
-      _setLoading(false);
-      return false;
-    }
-  }
-
-  Future<Map<String, dynamic>?> verifyOtp(String phone, String otp) async {
-    _setLoading(true);
-    _setError(null);
-    try {
-      final res = await _apiService.verifyOtp(phone, otp);
+      final res = await _apiService.login(username, password);
       _setLoading(false);
       if (res['token'] != null) {
-        return res; // Return the entire response so we know if isNewUser
+        return res;
       }
       return null;
     } catch (e) {
-      // Auto-fallback to offline mode instead of completely blocking the user
-      print("Server unavailable, auto-switching to offline mode for OTP verify: $e");
-      await loginOffline();
+      _setError(e.toString().replaceAll('Exception: ', ''));
       _setLoading(false);
-      return {'token': 'offline_token', 'isNewUser': false};
+      
+      // If server is down, fallback to offline
+      /*
+      if (e.toString().contains('network_error') || e.toString().contains('unavailable') || e.toString().contains('busy')) {
+        await loginOffline();
+        return {'token': 'offline_token', 'isNewUser': false};
+      }
+      */
+      return null;
+    }
+  }
+
+  Future<Map<String, dynamic>?> register(String username, String password, {String? name, String? email}) async {
+    _setLoading(true);
+    _setError(null);
+    try {
+      final res = await _apiService.register(username, password, name: name, email: email);
+      _setLoading(false);
+      if (res['token'] != null) {
+        return res;
+      }
+      return null;
+    } catch (e) {
+      _setError(e.toString().replaceAll('Exception: ', ''));
+      _setLoading(false);
+      
+      // If server is down, fallback to offline
+      /*
+      if (e.toString().contains('network_error') || e.toString().contains('unavailable') || e.toString().contains('busy')) {
+        await loginOffline();
+        return {'token': 'offline_token', 'isNewUser': false};
+      }
+      */
+      return null;
     }
   }
 
@@ -122,15 +122,28 @@ class AuthProvider extends ChangeNotifier {
   }
 
   Future<Map<String, dynamic>?> bypassGoogleLoginForDemo() async {
+    return bypassGoogleLoginForDemoWithArgs(
+      googleId: 'mock_google_id_99999_demo',
+      email: 'boss_demo@smartkhata.com',
+      name: 'Demo Boss 👑',
+      avatarUrl: 'https://lh3.googleusercontent.com/a/default-user=s96-c',
+    );
+  }
+
+  Future<Map<String, dynamic>?> bypassGoogleLoginForDemoWithArgs({
+    required String googleId,
+    required String email,
+    required String name,
+    required String avatarUrl,
+  }) async {
     _setLoading(true);
     _setError(null);
     try {
-      // Connect directly to live backend cloud API using a clean demo boss profile
       final res = await _apiService.googleLogin(
-        googleId: 'mock_google_id_99999_demo',
-        email: 'boss_demo@smartkhata.com',
-        name: 'Demo Boss 👑',
-        avatarUrl: 'https://lh3.googleusercontent.com/a/default-user=s96-c',
+        googleId: googleId,
+        email: email,
+        name: name,
+        avatarUrl: avatarUrl,
       );
       _setLoading(false);
       return res;

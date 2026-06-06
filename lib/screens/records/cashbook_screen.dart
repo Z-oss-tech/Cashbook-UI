@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'dart:ui';
 
 import '../../providers/record_provider.dart';
 import '../../models/transaction_model.dart';
@@ -29,15 +30,16 @@ class _CashbookScreenState extends State<CashbookScreen> {
   }
 
   void _showCashbooksBottomSheet(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) {
         return Container(
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.only(
+          decoration: BoxDecoration(
+            color: Theme.of(context).cardColor,
+            borderRadius: const BorderRadius.only(
               topLeft: Radius.circular(20),
               topRight: Radius.circular(20),
             ),
@@ -53,20 +55,20 @@ class _CashbookScreenState extends State<CashbookScreen> {
                   children: [
                     Text(
                       "Your Cashbooks",
-                      style: GoogleFonts.poppins(
+                      style: GoogleFonts.inter(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
-                        color: const Color(0xFF1F3255),
+                        color: isDark ? Colors.white : const Color(0xFF1F3255),
                       ),
                     ),
                     GestureDetector(
                       onTap: () => Navigator.pop(context),
-                      child: const Icon(Icons.cancel_outlined, color: Color(0xFF1F3255)),
+                      child: Icon(Icons.cancel_outlined, color: isDark ? Colors.white : const Color(0xFF1F3255)),
                     ),
                   ],
                 ),
               ),
-              const Divider(height: 1, thickness: 1, color: Color(0xFFE0E0E0)),
+              Divider(height: 1, thickness: 1, color: isDark ? Colors.white24 : const Color(0xFFE0E0E0)),
               
               // Cashbook List
               Padding(
@@ -78,6 +80,7 @@ class _CashbookScreenState extends State<CashbookScreen> {
                         return Padding(
                           padding: const EdgeInsets.only(bottom: 12.0),
                           child: _buildCashbookListItem(
+                            context: context,
                             title: cashbook.name,
                             date: cashbook.createdAt.toString(),
                             isSelected: selectedCashbook == cashbook.name,
@@ -103,31 +106,33 @@ class _CashbookScreenState extends State<CashbookScreen> {
   }
 
   Widget _buildCashbookListItem({
+    required BuildContext context,
     required String title,
     required String date,
     required bool isSelected,
     required VoidCallback onTap,
   }) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return GestureDetector(
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFF1F3255) : const Color(0xFFF5F7FA),
+          color: isSelected ? (isDark ? Colors.blueAccent : const Color(0xFF1F3255)) : (isDark ? Colors.white10 : const Color(0xFFF5F7FA)),
           borderRadius: BorderRadius.circular(12),
-          border: isSelected ? null : Border.all(color: Colors.grey.shade300),
+          border: isSelected ? null : Border.all(color: isDark ? Colors.grey.shade800 : Colors.grey.shade300),
         ),
         child: Row(
           children: [
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: isDark ? Colors.white12 : Colors.white,
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Icon(
                 Icons.book,
-                color: const Color(0xFF1F3255),
+                color: isDark ? Colors.white : const Color(0xFF1F3255),
                 size: 20,
               ),
             ),
@@ -138,18 +143,18 @@ class _CashbookScreenState extends State<CashbookScreen> {
                 children: [
                   Text(
                     title,
-                    style: GoogleFonts.poppins(
+                    style: GoogleFonts.inter(
                       fontWeight: FontWeight.bold,
                       fontSize: 16,
-                      color: isSelected ? Colors.white : const Color(0xFF1F3255),
+                      color: isSelected ? Colors.white : (isDark ? Colors.white : const Color(0xFF1F3255)),
                     ),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     "Created on: $date",
-                    style: GoogleFonts.poppins(
+                    style: GoogleFonts.inter(
                       fontSize: 12,
-                      color: isSelected ? Colors.white70 : Colors.grey.shade600,
+                      color: isSelected ? Colors.white70 : (isDark ? Colors.grey.shade400 : Colors.grey.shade600),
                     ),
                   ),
                 ],
@@ -157,7 +162,7 @@ class _CashbookScreenState extends State<CashbookScreen> {
             ),
             Icon(
               Icons.more_vert,
-              color: isSelected ? Colors.white : const Color(0xFF1F3255),
+              color: isSelected ? Colors.white : (isDark ? Colors.white : const Color(0xFF1F3255)),
             ),
           ],
         ),
@@ -171,12 +176,12 @@ class _CashbookScreenState extends State<CashbookScreen> {
       builder: (BuildContext dialogContext) {
         return AlertDialog(
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          title: Text("Delete Record", style: GoogleFonts.poppins(fontWeight: FontWeight.bold, color: Colors.red)),
-          content: Text("Are you sure you want to delete this transaction?", style: GoogleFonts.poppins()),
+          title: Text("Delete Record", style: GoogleFonts.inter(fontWeight: FontWeight.bold, color: Colors.red)),
+          content: Text("Are you sure you want to delete this transaction?", style: GoogleFonts.inter()),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(dialogContext),
-              child: Text("Cancel", style: GoogleFonts.poppins(color: Colors.grey)),
+              child: Text("Cancel", style: GoogleFonts.inter(color: Colors.grey)),
             ),
             ElevatedButton(
               onPressed: () async {
@@ -192,7 +197,7 @@ class _CashbookScreenState extends State<CashbookScreen> {
                 }
               },
               style: ElevatedButton.styleFrom(backgroundColor: Colors.red, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))),
-              child: Text("Delete", style: GoogleFonts.poppins(color: Colors.white)),
+              child: Text("Delete", style: GoogleFonts.inter(color: Colors.white)),
             ),
           ],
         );
@@ -209,7 +214,7 @@ class _CashbookScreenState extends State<CashbookScreen> {
       builder: (BuildContext dialogContext) {
         return AlertDialog(
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          title: Text("Edit Record", style: GoogleFonts.poppins(fontWeight: FontWeight.bold)),
+          title: Text("Edit Record", style: GoogleFonts.inter(fontWeight: FontWeight.bold)),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -234,7 +239,7 @@ class _CashbookScreenState extends State<CashbookScreen> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(dialogContext),
-              child: Text("Cancel", style: GoogleFonts.poppins(color: Colors.grey)),
+              child: Text("Cancel", style: GoogleFonts.inter(color: Colors.grey)),
             ),
             ElevatedButton(
               onPressed: () async {
@@ -259,7 +264,7 @@ class _CashbookScreenState extends State<CashbookScreen> {
                 }
               },
               style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF5B7FFF), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))),
-              child: Text("Save", style: GoogleFonts.poppins(color: Colors.white)),
+              child: Text("Save", style: GoogleFonts.inter(color: Colors.white)),
             ),
           ],
         );
@@ -270,6 +275,9 @@ class _CashbookScreenState extends State<CashbookScreen> {
   @override
   Widget build(BuildContext context) {
     final recordProvider = Provider.of<RecordProvider>(context);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final bgColor = isDark ? const Color(0xFF1B1B23) : const Color(0xFFF8FAFC);
+    final textColor = isDark ? Colors.white : const Color(0xFF1B1B23);
     
     // Filter records for the currently selected cashbook
     final allRecords = recordProvider.records;
@@ -285,193 +293,337 @@ class _CashbookScreenState extends State<CashbookScreen> {
     double balance = totalReceived - totalGiven;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF1F5F9), // Light grayish background
-      appBar: AppBar(
-        backgroundColor: const Color(0xFF1F3255), // Dark blue from screenshot
-        elevation: 0,
-        leading: Builder(
-          builder: (context) => IconButton(
-            icon: const Icon(Icons.arrow_back, color: Colors.white),
-            onPressed: () => Navigator.pop(context),
-          ),
-        ),
-        title: GestureDetector(
-          onTap: () => _showCashbooksBottomSheet(context),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Flexible(
-                child: Text(
-                  selectedCashbook,
-                  style: GoogleFonts.poppins(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 18,
+      backgroundColor: bgColor,
+      extendBodyBehindAppBar: true,
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(64),
+        child: ClipRRect(
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+            child: Container(
+              height: MediaQuery.of(context).padding.top + 64,
+              padding: EdgeInsets.only(
+                top: MediaQuery.of(context).padding.top,
+                left: 16,
+                right: 16,
+              ),
+              decoration: BoxDecoration(
+                color: isDark ? Colors.black.withOpacity(0.5) : Colors.white.withOpacity(0.7),
+                border: Border(
+                  bottom: BorderSide(
+                    color: isDark ? Colors.white.withOpacity(0.1) : Colors.white.withOpacity(0.3),
                   ),
-                  overflow: TextOverflow.ellipsis,
                 ),
               ),
-              const SizedBox(width: 4),
-              const Icon(Icons.arrow_drop_down, color: Colors.white),
-            ],
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      IconButton(
+                        icon: Icon(Icons.arrow_back_rounded, color: textColor),
+                        onPressed: () {
+                          if (Navigator.canPop(context)) {
+                            Navigator.pop(context);
+                          }
+                        },
+                      ),
+                      const SizedBox(width: 8),
+                      GestureDetector(
+                        onTap: () => _showCashbooksBottomSheet(context),
+                        child: Row(
+                          children: [
+                            Text(
+                              selectedCashbook,
+                              style: GoogleFonts.inter(
+                                fontSize: 20,
+                                fontWeight: FontWeight.w600,
+                                color: textColor,
+                              ),
+                            ),
+                            Icon(Icons.expand_more_rounded, color: isDark ? Colors.white54 : const Color(0xFF767586)),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      IconButton(
+                        icon: Icon(Icons.share_rounded, color: textColor),
+                        onPressed: () => ExportHelper.showExportOptions(context, cashbookName: selectedCashbook),
+                      ),
+                      IconButton(
+                        icon: Icon(Icons.analytics_rounded, color: textColor),
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (_) => ReportsScreen(cashbookName: selectedCashbook)),
+                          );
+                        },
+                      ),
+                      IconButton(
+                        icon: Icon(_filterDate == null ? Icons.calendar_today_rounded : Icons.event_busy_rounded, color: textColor),
+                        onPressed: () async {
+                          if (_filterDate != null) {
+                            setState(() => _filterDate = null);
+                            return;
+                          }
+                          final pickedDate = await showDatePicker(
+                            context: context,
+                            initialDate: DateTime.now(),
+                            firstDate: DateTime(2020),
+                            lastDate: DateTime(2030),
+                          );
+                          if (pickedDate != null) {
+                            setState(() => _filterDate = pickedDate);
+                          }
+                        },
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
           ),
         ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.ios_share, color: Colors.white),
-            onPressed: () {
-              ExportHelper.showExportOptions(context, cashbookName: selectedCashbook);
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.bar_chart, color: Colors.white),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => ReportsScreen(cashbookName: selectedCashbook)),
-              );
-            },
-          ),
-          IconButton(
-            icon: Icon(_filterDate == null ? Icons.calendar_month : Icons.event_busy, color: Colors.white),
-            onPressed: () async {
-              if (_filterDate != null) {
-                setState(() {
-                  _filterDate = null;
-                });
-                return;
-              }
-              final pickedDate = await showDatePicker(
-                context: context,
-                initialDate: DateTime.now(),
-                firstDate: DateTime(2020),
-                lastDate: DateTime(2030),
-              );
-              if (pickedDate != null) {
-                setState(() {
-                  _filterDate = pickedDate;
-                });
-              }
-            },
-          ),
-        ],
       ),
-      body: Column(
-        children: [
-          // The Summary Card
-          Container(
-            margin: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
-                  blurRadius: 10,
-                  offset: const Offset(0, 4),
+      body: SafeArea(
+        top: true,
+        bottom: false,
+        child: ListView(
+          padding: const EdgeInsets.fromLTRB(16, 24, 16, 120),
+          children: [
+            // Overview Card
+            Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(28),
+                gradient: const LinearGradient(
+                  colors: [Color(0xFF4143D5), Color(0xFF7459F7)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
                 ),
-              ],
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 25,
+                    offset: const Offset(0, 20),
+                  ),
+                ],
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(28),
+                child: Column(
+                  children: [
+                    IntrinsicHeight(
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: _buildOverviewTile(
+                              title: "Total IN",
+                              amount: "₹${totalReceived.toStringAsFixed(2)}",
+                              amountColor: const Color(0xFF86EFAC), // green-300
+                              borderRight: true,
+                              borderBottom: true,
+                            ),
+                          ),
+                          Expanded(
+                            child: _buildOverviewTile(
+                              title: "Total Out",
+                              amount: "₹${totalGiven.toStringAsFixed(2)}",
+                              amountColor: const Color(0xFFFCA5A5), // red-300
+                              alignRight: true,
+                              borderBottom: true,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    IntrinsicHeight(
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: _buildOverviewTile(
+                              title: "Balance",
+                              amount: "₹${balance.toStringAsFixed(2)}",
+                              amountColor: const Color(0xFFBFDBFE), // blue-200
+                              borderRight: true,
+                            ),
+                          ),
+                          Expanded(
+                            child: _buildOverviewTile(
+                              title: "Total Entry",
+                              amount: cashbookRecords.length.toString(),
+                              amountColor: Colors.white,
+                              alignRight: true,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ),
-            child: Column(
-              children: [
-                IntrinsicHeight(
-                  child: Row(
+            const SizedBox(height: 32),
+
+            // Transactions List Header
+            if (cashbookRecords.isNotEmpty)
+              Container(
+                decoration: BoxDecoration(
+                  color: isDark ? const Color(0xFF2D2D35) : Colors.white,
+                  borderRadius: BorderRadius.circular(28),
+                  border: Border.all(
+                    color: isDark ? Colors.white12 : const Color(0xFFE4E1ED),
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.05),
+                      blurRadius: 25,
+                      offset: const Offset(0, 20),
+                    ),
+                  ],
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(28),
+                  child: Column(
                     children: [
-                      Expanded(
-                        child: _buildSummaryBox(
-                          title: "Total IN",
-                          amount: totalReceived.toStringAsFixed(2),
-                          amountColor: const Color(0xFF4DB6AC), // Teal
+                      Container(
+                        color: isDark ? const Color(0xFF22222A) : const Color(0xFFF5F2FE),
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              flex: 2,
+                              child: Text(
+                                "DATE & NOTES",
+                                style: GoogleFonts.inter(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                  color: const Color(0xFF4143D5),
+                                  letterSpacing: 0.5,
+                                ),
+                              ),
+                            ),
+                            Expanded(
+                              flex: 1,
+                              child: Text(
+                                "AMOUNT",
+                                textAlign: TextAlign.right,
+                                style: GoogleFonts.inter(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                  color: isDark ? Colors.white54 : const Color(0xFF767586),
+                                  letterSpacing: 0.5,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 32),
+                          ],
                         ),
                       ),
-                      const VerticalDivider(width: 1, thickness: 1, color: Color(0xFFF0F0F0)),
-                      Expanded(
-                        child: _buildSummaryBox(
-                          title: "Total Out",
-                          amount: totalGiven.toStringAsFixed(2),
-                          amountColor: const Color(0xFFE57373), // Red
-                          alignRight: true,
-                        ),
+                      Divider(height: 1, color: isDark ? Colors.white12 : const Color(0xFFE4E1ED).withOpacity(0.5)),
+                      ListView.separated(
+                        physics: const NeverScrollableScrollPhysics(),
+                        shrinkWrap: true,
+                        itemCount: cashbookRecords.length,
+                        separatorBuilder: (context, index) => Divider(height: 1, color: isDark ? Colors.white12 : const Color(0xFFE4E1ED).withOpacity(0.3)),
+                        itemBuilder: (context, index) {
+                          final record = cashbookRecords[cashbookRecords.length - 1 - index]; // reversed
+                          final isCredit = !record.isGiven;
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Expanded(
+                                  flex: 2,
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        "${record.date.day}/${record.date.month}/${record.date.year}",
+                                        style: GoogleFonts.inter(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 14,
+                                          color: textColor,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 2),
+                                      Text(
+                                        record.note.isNotEmpty ? record.note : record.personName,
+                                        style: GoogleFonts.inter(
+                                          fontSize: 14,
+                                          color: isDark ? Colors.white54 : const Color(0xFF464555).withOpacity(0.8),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Expanded(
+                                  flex: 1,
+                                  child: Text(
+                                    "${isCredit ? '+' : '-'}${record.amount.toStringAsFixed(2)}",
+                                    textAlign: TextAlign.right,
+                                    style: GoogleFonts.inter(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 14,
+                                      color: isCredit ? const Color(0xFF86EFAC) : const Color(0xFFFCA5A5),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                SizedBox(
+                                  width: 24,
+                                  child: PopupMenuButton<String>(
+                                    icon: Icon(Icons.more_vert_rounded, color: isDark ? Colors.white54 : const Color(0xFF464555), size: 20),
+                                    padding: EdgeInsets.zero,
+                                    onSelected: (value) {
+                                      if (value == 'edit') {
+                                        _showEditRecordDialog(context, record);
+                                      } else if (value == 'delete') {
+                                        _showDeleteRecordDialog(context, record);
+                                      }
+                                    },
+                                    itemBuilder: (BuildContext context) => [
+                                      PopupMenuItem(
+                                        value: 'edit',
+                                        child: Row(
+                                          children: [
+                                            const Icon(Icons.edit_rounded, size: 18),
+                                            const SizedBox(width: 8),
+                                            Text('Edit', style: GoogleFonts.inter()),
+                                          ],
+                                        ),
+                                      ),
+                                      PopupMenuItem(
+                                        value: 'delete',
+                                        child: Row(
+                                          children: [
+                                            const Icon(Icons.delete_rounded, color: Colors.red, size: 18),
+                                            const SizedBox(width: 8),
+                                            Text('Delete', style: GoogleFonts.inter(color: Colors.red)),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
                       ),
                     ],
                   ),
                 ),
-                const Divider(height: 1, thickness: 1, color: Color(0xFFF0F0F0)),
-                IntrinsicHeight(
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: _buildSummaryBox(
-                          title: "Balance",
-                          amount: balance.toStringAsFixed(2),
-                          amountColor: const Color(0xFF9575CD), // Purple
-                        ),
-                      ),
-                      const VerticalDivider(width: 1, thickness: 1, color: Color(0xFFF0F0F0)),
-                      Expanded(
-                        child: _buildSummaryBox(
-                          title: "Total Entry",
-                          amount: cashbookRecords.length.toString(),
-                          amountColor: const Color(0xFF2196F3), // Blue
-                          alignRight: true,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-          
-          // The Headers
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-            child: Row(
-              children: [
-                Expanded(
-                  flex: 2,
-                  child: Text(
-                    "DATE",
-                    style: GoogleFonts.poppins(
-                      fontWeight: FontWeight.bold,
-                      color: const Color(0xFF512DA8),
-                      fontSize: 14,
-                    ),
-                  ),
-                ),
-                Expanded(
-                  flex: 3,
-                  child: Text(
-                    "CREDIT",
-                    textAlign: TextAlign.center,
-                    style: GoogleFonts.poppins(
-                      fontWeight: FontWeight.bold,
-                      color: const Color(0xFF4DB6AC),
-                      fontSize: 14,
-                    ),
-                  ),
-                ),
-                Expanded(
-                  flex: 2,
-                  child: Text(
-                    "DEBIT",
-                    textAlign: TextAlign.right,
-                    style: GoogleFonts.poppins(
-                      fontWeight: FontWeight.bold,
-                      color: const Color(0xFFE57373),
-                      fontSize: 14,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 32), // Placeholder to align with the PopupMenuButton
-              ],
-            ),
-          ),
-          
-          // Empty State or List
-          Expanded(
-            child: cashbookRecords.isEmpty
-              ? Center(
+              ),
+
+            // Empty State
+            if (cashbookRecords.isEmpty)
+              Padding(
+                padding: const EdgeInsets.only(top: 40),
+                child: Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -497,7 +649,7 @@ class _CashbookScreenState extends State<CashbookScreen> {
                         style: GoogleFonts.poppins(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
-                          color: const Color(0xFF1F3255),
+                          color: isDark ? Colors.white : const Color(0xFF1F3255),
                         ),
                       ),
                       const SizedBox(height: 8),
@@ -505,162 +657,96 @@ class _CashbookScreenState extends State<CashbookScreen> {
                         "Enter Your First Transaction",
                         style: GoogleFonts.poppins(
                           fontSize: 14,
-                          color: Colors.grey.shade500,
+                          color: isDark ? Colors.grey.shade400 : Colors.grey.shade500,
                         ),
                       ),
-                      const SizedBox(height: 60), // Space for bottom nav
                     ],
                   ),
-                )
-              : ListView.separated(
-                  padding: const EdgeInsets.only(bottom: 80), // Space for bottom nav
-                  itemCount: cashbookRecords.length,
-                  separatorBuilder: (context, index) => const Divider(height: 1),
-                  itemBuilder: (context, index) {
-                    final record = cashbookRecords[cashbookRecords.length - 1 - index]; // reversed
-                    final isCredit = !record.isGiven;
-                    return Container(
-                      color: Colors.white,
-                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            flex: 2,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  "${record.date.day}/${record.date.month}/${record.date.year}",
-                                  style: GoogleFonts.poppins(
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 13,
-                                    color: const Color(0xFF1F3255),
-                                  ),
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  record.note.isNotEmpty ? record.note : record.personName,
-                                  style: GoogleFonts.poppins(
-                                    fontSize: 12,
-                                    color: Colors.grey.shade600,
-                                  ),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ],
-                            ),
-                          ),
-                          Expanded(
-                            flex: 3,
-                            child: Text(
-                              isCredit ? record.amount.toStringAsFixed(2) : "-",
-                              textAlign: TextAlign.center,
-                              style: GoogleFonts.poppins(
-                                fontWeight: FontWeight.bold,
-                                color: isCredit ? const Color(0xFF4DB6AC) : Colors.grey.shade400,
-                                fontSize: 14,
-                              ),
-                            ),
-                          ),
-                          Expanded(
-                            flex: 2,
-                            child: Text(
-                              !isCredit ? record.amount.toStringAsFixed(2) : "-",
-                              textAlign: TextAlign.right,
-                              style: GoogleFonts.poppins(
-                                fontWeight: FontWeight.bold,
-                                color: !isCredit ? const Color(0xFFE57373) : Colors.grey.shade400,
-                                fontSize: 14,
-                              ),
-                            ),
-                          ),
-                          SizedBox(
-                            width: 32,
-                            child: PopupMenuButton<String>(
-                              icon: const Icon(Icons.more_vert, color: Colors.grey, size: 20),
-                              padding: EdgeInsets.zero,
-                              onSelected: (value) {
-                                if (value == 'edit') {
-                                  _showEditRecordDialog(context, record);
-                                } else if (value == 'delete') {
-                                  _showDeleteRecordDialog(context, record);
-                                }
-                              },
-                              itemBuilder: (BuildContext context) => [
-                                const PopupMenuItem(
-                                  value: 'edit',
-                                  child: Row(
-                                    children: [
-                                      Icon(Icons.edit, size: 18),
-                                      SizedBox(width: 8),
-                                      Text('Edit'),
-                                    ],
-                                  ),
-                                ),
-                                const PopupMenuItem(
-                                  value: 'delete',
-                                  child: Row(
-                                    children: [
-                                      Icon(Icons.delete, color: Colors.red, size: 18),
-                                      SizedBox(width: 8),
-                                      Text('Delete', style: TextStyle(color: Colors.red)),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-                  },
                 ),
-          ),
-        ],
+              ),
+          ],
+        ),
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
+      floatingActionButton: GestureDetector(
+        onTap: () {
           Navigator.push(
             context,
             MaterialPageRoute(builder: (_) => AddRecordScreen(cashbookName: selectedCashbook)),
           );
         },
-        backgroundColor: const Color(0xFF5B7FFF),
-        icon: const Icon(Icons.add, color: Colors.white),
-        label: Text(
-          "Add Record",
-          style: GoogleFonts.poppins(color: Colors.white, fontWeight: FontWeight.bold),
+        child: Container(
+          height: 56,
+          padding: const EdgeInsets.only(left: 20, right: 24),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(28),
+            gradient: const LinearGradient(
+              colors: [Color(0xFF4143D5), Color(0xFF7459F7)],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.05),
+                blurRadius: 25,
+                offset: const Offset(0, 10),
+              ),
+            ],
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.add_rounded, color: Colors.white, size: 28),
+              const SizedBox(width: 12),
+              Text(
+                "Add Transaction",
+                style: GoogleFonts.inter(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 16,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildSummaryBox({
+  Widget _buildOverviewTile({
     required String title,
     required String amount,
     required Color amountColor,
     bool alignRight = false,
+    bool borderRight = false,
+    bool borderBottom = false,
   }) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        border: Border(
+          right: borderRight ? BorderSide(color: Colors.white.withOpacity(0.1)) : BorderSide.none,
+          bottom: borderBottom ? BorderSide(color: Colors.white.withOpacity(0.1)) : BorderSide.none,
+        ),
+      ),
       child: Column(
         crossAxisAlignment: alignRight ? CrossAxisAlignment.end : CrossAxisAlignment.start,
         children: [
           Text(
-            title,
-            style: GoogleFonts.poppins(
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-              color: const Color(0xFF1F3255),
+            title.toUpperCase(),
+            style: GoogleFonts.inter(
+              color: Colors.white.withOpacity(0.8),
+              fontSize: 12,
+              fontWeight: FontWeight.bold,
+              letterSpacing: 0.5,
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 4),
           Text(
             amount,
-            style: GoogleFonts.poppins(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
+            style: GoogleFonts.inter(
               color: amountColor,
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
             ),
           ),
         ],

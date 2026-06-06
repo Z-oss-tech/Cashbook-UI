@@ -10,33 +10,49 @@ const generateToken = (id) => {
 
 const register = async (req, res, next) => {
   try {
-    const { phone, password, name, email } = req.body;
-    if (!phone || !password) {
+    const { username, password, name, email } = req.body;
+    if (!username || !password) {
       res.status(400);
-      throw new Error('Phone and password are required');
+      throw new Error('Username and password are required');
     }
 
     let user = await prisma.user.findUnique({
-      where: { phone }
+      where: { username }
     });
-
-    if (user) {
-      res.status(400);
-      throw new Error('User with this phone number already exists');
-    }
 
     const salt = await bcrypt.genSalt(10);
     const passwordHash = await bcrypt.hash(password, salt);
 
-    user = await prisma.user.create({
-      data: {
-        phone,
-        passwordHash,
-        name: name || null,
-        email: email || null,
-        authProvider: 'password'
+    let isNewUser = false;
+
+    if (user) {
+      // Allow legacy OTP users to set a password
+      if (user.authProvider === 'phone' && !user.passwordHash) {
+        user = await prisma.user.update({
+          where: { id: user.id },
+          data: {
+            passwordHash,
+            authProvider: 'password',
+            name: name || user.name,
+            email: email || user.email
+          }
+        });
+      } else {
+        res.status(400);
+        throw new Error('User with this username already exists');
       }
-    });
+    } else {
+      isNewUser = true;
+      user = await prisma.user.create({
+        data: {
+          username,
+          passwordHash,
+          name: name || null,
+          email: email || null,
+          authProvider: 'password'
+        }
+      });
+    }
 
     res.json({
       success: true,
@@ -44,10 +60,10 @@ const register = async (req, res, next) => {
         id: user.id,
         name: user.name,
         email: user.email,
-        phone: user.phone,
+        username: user.username,
         avatarUrl: user.avatarUrl,
         token: generateToken(user.id),
-        isNewUser: true
+        isNewUser: isNewUser
       }
     });
   } catch (error) {
@@ -57,31 +73,31 @@ const register = async (req, res, next) => {
 
 const login = async (req, res, next) => {
   try {
-    const { phone, password } = req.body;
-    if (!phone || !password) {
+    const { username, password } = req.body;
+    if (!username || !password) {
       res.status(400);
-      throw new Error('Phone and password are required');
+      throw new Error('Username and password are required');
     }
 
     const user = await prisma.user.findUnique({
-      where: { phone }
+      where: { username }
     });
 
     if (!user) {
       res.status(401);
-      throw new Error('Invalid phone number or password');
+      throw new Error('User not found, please register first.');
     }
 
     if (user.authProvider !== 'password' || !user.passwordHash) {
       res.status(401);
-      throw new Error('Account was created using another method. Please use that method or reset password.');
+      throw new Error('Please go to Register to set a new password for your old account.');
     }
 
     const isMatch = await bcrypt.compare(password, user.passwordHash);
 
     if (!isMatch) {
       res.status(401);
-      throw new Error('Invalid phone number or password');
+      throw new Error('Invalid username or password');
     }
 
     res.json({
@@ -90,10 +106,10 @@ const login = async (req, res, next) => {
         id: user.id,
         name: user.name,
         email: user.email,
-        phone: user.phone,
+        username: user.username,
         avatarUrl: user.avatarUrl,
         token: generateToken(user.id),
-        isNewUser: false
+        isNewUser: !user.name
       }
     });
   } catch (error) {
@@ -119,7 +135,7 @@ const updateProfile = async (req, res, next) => {
       data: {
         id: user.id,
         name: user.name,
-        phone: user.phone,
+        username: user.username,
         email: user.email,
         avatarUrl: user.avatarUrl,
       }
@@ -190,7 +206,7 @@ const googleLogin = async (req, res, next) => {
         id: user.id,
         name: user.name,
         email: user.email,
-        phone: user.phone,
+        username: user.username,
         avatarUrl: user.avatarUrl,
         token: generateToken(user.id),
         isNewUser

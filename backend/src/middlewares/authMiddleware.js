@@ -19,7 +19,7 @@ const protect = async (req, res, next) => {
           id: true,
           name: true,
           email: true,
-          phone: true,
+          username: true,
           avatarUrl: true,
           authProvider: true
         }

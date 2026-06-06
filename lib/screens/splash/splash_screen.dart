@@ -206,7 +206,7 @@ class _SplashScreenState extends State<SplashScreen>
             left: 0,
             right: 0,
             child: Text(
-              "Powered by AI",
+              "100% Safe & Secure",
               textAlign: TextAlign.center,
               style: GoogleFonts.poppins(
                 color: Colors.white38,

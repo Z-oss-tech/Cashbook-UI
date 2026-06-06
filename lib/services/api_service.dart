@@ -5,9 +5,14 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiService {
-  // Local Node.js + PostgreSQL + Prisma backend (WiFi IP)
-  static const String baseUrl = 'http://192.168.29.174:3000/api';
-  // static const String baseUrl = 'https://smartkhata-backend-c3fz.onrender.com';
+  // Use Localtunnel to securely bypass Windows Firewall so your real phone can connect instantly
+  // static const String baseUrl = 'https://stupid-geckos-obey.loca.lt/api';
+  
+  // Local LAN IP for reliable development
+  static const String baseUrl = 'http://192.168.29.173:3000/api';
+  
+  // Live Production Server
+  // static const String baseUrl = 'https://cashbook-a3kn.onrender.com/api';
 
   static const String _tokenKey = 'auth_token';
 
@@ -31,22 +36,28 @@ class ApiService {
     return {
       'Content-Type': 'application/json',
       'Accept': 'application/json',
+      'Bypass-Tunnel-Reminder': 'true', // Required for Localtunnel API access
       if (token != null) 'Authorization': 'Bearer $token',
     };
   }
 
   // --- Auth ---
 
-  Future<Map<String, dynamic>> sendOtp(String phone) async {
-    return await _post('/auth/send-otp', {'phone': phone});
+  Future<Map<String, dynamic>> login(String username, String password) async {
+    final res = await _post('/auth/login', {'username': username, 'password': password});
+    if (res['token'] != null) {
+      await saveToken(res['token']);
+    }
+    return res;
   }
 
-  Future<Map<String, dynamic>> resendOtp(String phone) async {
-    return await _post('/auth/resend-otp', {'phone': phone});
-  }
-
-  Future<Map<String, dynamic>> verifyOtp(String phone, String otp) async {
-    final res = await _post('/auth/verify-otp', {'phone': phone, 'otp': otp});
+  Future<Map<String, dynamic>> register(String username, String password, {String? name, String? email}) async {
+    final res = await _post('/auth/register', {
+      'username': username, 
+      'password': password,
+      if (name != null) 'name': name,
+      if (email != null) 'email': email,
+    });
     if (res['token'] != null) {
       await saveToken(res['token']);
     }
@@ -128,7 +139,7 @@ class ApiService {
   // --- Base HTTP Methods ---
 
   Future<dynamic> _get(String path) async {
-    int retries = 6;
+    int retries = 15;
     while (retries > 0) {
       try {
         final response = await http
@@ -164,7 +175,7 @@ class ApiService {
   }
 
   Future<dynamic> _post(String path, Map<String, dynamic> body) async {
-    int retries = 6;
+    int retries = 15;
     while (retries > 0) {
       try {
         final response = await http
@@ -204,7 +215,7 @@ class ApiService {
   }
 
   Future<dynamic> _put(String path, Map<String, dynamic> body) async {
-    int retries = 6;
+    int retries = 15;
     while (retries > 0) {
       try {
         final response = await http
@@ -244,7 +255,7 @@ class ApiService {
   }
 
   Future<dynamic> _delete(String path) async {
-    int retries = 6;
+    int retries = 15;
     while (retries > 0) {
       try {
         final response = await http

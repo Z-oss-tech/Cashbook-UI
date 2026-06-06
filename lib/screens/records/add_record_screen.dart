@@ -8,6 +8,7 @@ import '../../providers/record_provider.dart';
 import '../../models/transaction_model.dart';
 import '../../core/utils/animation_helper.dart';
 import '../../core/utils/toast_helper.dart';
+import '../../widgets/calculator_dialog.dart';
 
 class AddRecordScreen extends StatefulWidget {
   final String cashbookName;
@@ -23,6 +24,35 @@ class _AddRecordScreenState
     extends State<AddRecordScreen> {
 
   bool isGiven = true;
+  bool _isLoading = false;
+  String? selectedReason;
+
+  final List<String> givenReasons = [
+    'Supplier / Vendor Payment',
+    'Groceries & Supplies',
+    'Rent / EMI',
+    'Utilities / Bills',
+    'Transportation',
+    'Food / Dining',
+    'Loan Given',
+    'Health / Medical',
+    'Maintenance & Repairs',
+    'Entertainment',
+    'Other'
+  ];
+
+  final List<String> receivedReasons = [
+    'Sales / Business Income',
+    'Salary / Wages',
+    'Freelance / Project Advance',
+    'Loan Repayment',
+    'Rental Income',
+    'Cashback / Reward',
+    'Sold Item',
+    'Interest / Dividends',
+    'Pocket Money',
+    'Other'
+  ];
 
   final TextEditingController amountController =
   TextEditingController();
@@ -56,18 +86,24 @@ class _AddRecordScreenState
           : CashbookModel(id: '', name: widget.cashbookName, createdAt: DateTime.now())
     );
 
+    final String defaultTitle = selectedReason ?? (isGiven ? 'Expense' : 'Income');
+    final String finalTitle = note.isEmpty ? defaultTitle : note;
+    
     final record = RecordModel(
       id: '',
       cashbookId: cashbook.id,
-      title: note.isEmpty ? (isGiven ? 'Expense' : 'Income') : note,
+      title: finalTitle,
       amount: amount,
       type: isGiven ? 'expense' : 'income',
-      note: note.isEmpty ? (isGiven ? 'You Gave' : 'You Received') : note,
+      category: selectedReason,
+      note: note.isEmpty ? defaultTitle : note,
       date: selectedDate,
       cashbookName: widget.cashbookName,
     );
 
+    setState(() { _isLoading = true; });
     await recordProvider.addRecord(record);
+    if (mounted) setState(() { _isLoading = false; });
 
     if (!mounted) return;
 
@@ -103,6 +139,24 @@ class _AddRecordScreenState
         ),
 
         centerTitle: true,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.calculate_outlined, color: AppColors.primary, size: 28),
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (context) => CalculatorDialog(
+                  onResult: (result) {
+                    if (result.isNotEmpty && result != '0') {
+                      amountController.text = result;
+                    }
+                  },
+                ),
+              );
+            },
+          ),
+          const SizedBox(width: 8),
+        ],
       ),
 
       body: SingleChildScrollView(
@@ -205,9 +259,12 @@ class _AddRecordScreenState
                 Expanded(
                   child: GestureDetector(
                     onTap: () {
-                      setState(() {
-                        isGiven = true;
-                      });
+                      if (!isGiven) {
+                        setState(() {
+                          isGiven = true;
+                          selectedReason = null;
+                        });
+                      }
                     },
 
                     child: AnimatedContainer(
@@ -251,9 +308,12 @@ class _AddRecordScreenState
                 Expanded(
                   child: GestureDetector(
                     onTap: () {
-                      setState(() {
-                        isGiven = false;
-                      });
+                      if (isGiven) {
+                        setState(() {
+                          isGiven = false;
+                          selectedReason = null;
+                        });
+                      }
                     },
 
                     child: AnimatedContainer(
@@ -295,6 +355,45 @@ class _AddRecordScreenState
             ),
 
             const SizedBox(height: 30),
+
+            // Category Dropdown
+            _buildLabel("Category / Reason"),
+            const SizedBox(height: 10),
+
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+              decoration: BoxDecoration(
+                color: Theme.of(context).cardColor,
+                borderRadius: BorderRadius.circular(18),
+              ),
+              child: DropdownButtonHideUnderline(
+                child: DropdownButton<String>(
+                  isExpanded: true,
+                  value: selectedReason,
+                  hint: Text(
+                    "Select a reason",
+                    style: GoogleFonts.poppins(color: Colors.grey),
+                  ),
+                  icon: const Icon(Icons.arrow_drop_down_rounded, color: AppColors.primary),
+                  items: (isGiven ? givenReasons : receivedReasons).map((String reason) {
+                    return DropdownMenuItem<String>(
+                      value: reason,
+                      child: Text(
+                        reason,
+                        style: GoogleFonts.poppins(),
+                      ),
+                    );
+                  }).toList(),
+                  onChanged: (String? newValue) {
+                    setState(() {
+                      selectedReason = newValue;
+                    });
+                  },
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 24),
 
             // Note
             _buildLabel(AppLocalizations.of(context)!.note),
@@ -383,17 +482,23 @@ color: Theme.of(context).cardColor,
                   ),
                 ),
 
-                onPressed: _saveRecord,
+                onPressed: _isLoading ? null : _saveRecord,
 
-                child: Text(
-                  "Save Record",
+                child: _isLoading 
+                    ? const SizedBox(
+                        height: 24,
+                        width: 24,
+                        child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                      )
+                    : Text(
+                        "Save Record",
 
-                  style: GoogleFonts.poppins(
-                    color: Colors.white,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
+                        style: GoogleFonts.poppins(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
               ),
             ),
 

@@ -18,7 +18,7 @@ class LockScreenWrapper extends StatefulWidget {
   State<LockScreenWrapper> createState() => _LockScreenWrapperState();
 }
 
-class _LockScreenWrapperState extends State<LockScreenWrapper> with WidgetsBindingObserver {
+class _LockScreenWrapperState extends State<LockScreenWrapper> {
   bool _isLocked = false;
   bool _isAuthenticating = false;
   final LocalAuthentication _auth = LocalAuthentication();
@@ -26,7 +26,6 @@ class _LockScreenWrapperState extends State<LockScreenWrapper> with WidgetsBindi
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addObserver(this);
     // Check initially when wrapper is created, if the app just started
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _checkInitialLockState();
@@ -40,30 +39,6 @@ class _LockScreenWrapperState extends State<LockScreenWrapper> with WidgetsBindi
         _isLocked = true;
       });
       _authenticate();
-    }
-  }
-
-  @override
-  void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
-    super.dispose();
-  }
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.paused || state == AppLifecycleState.inactive) {
-      if (!_isAuthenticating) {
-        final settings = Provider.of<SettingsProvider>(context, listen: false);
-        if (settings.biometricLock) {
-          setState(() {
-            _isLocked = true;
-          });
-        }
-      }
-    } else if (state == AppLifecycleState.resumed) {
-      if (_isLocked && !_isAuthenticating) {
-        _authenticate();
-      }
     }
   }
 

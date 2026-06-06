@@ -3,6 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../models/transaction_model.dart';
 import '../services/api_service.dart';
 import '../services/local_storage_service.dart';
+import '../services/recovery_service.dart';
 
 class RecordProvider extends ChangeNotifier {
   final ApiService _apiService = ApiService();
@@ -194,11 +195,14 @@ class RecordProvider extends ChangeNotifier {
   }
 
   Future<void> deleteCashbook(String id) async {
-    // Save backup state for local restore in case of major failure
     final bookIndex = _cashbooks.indexWhere((c) => c.id == id);
     if (bookIndex == -1) return;
     
     final deletedBook = _cashbooks[bookIndex];
+    final associatedRecords = _records.where((r) => r.cashbookId == id).toList();
+
+    // Save backup state for local restore in Recovery Bin
+    await RecoveryService.saveDeletedCashbook(deletedBook, associatedRecords);
 
     // Optimistic delete
     _cashbooks.removeWhere((c) => c.id == id);
@@ -348,6 +352,12 @@ class RecordProvider extends ChangeNotifier {
   }
 
   Future<void> deleteRecord(String id) async {
+    // Save to recovery service first
+    final recordIndex = _records.indexWhere((r) => r.id == id);
+    if (recordIndex != -1) {
+      await RecoveryService.saveDeletedRecord(_records[recordIndex]);
+    }
+
     // Optimistic delete
     _records.removeWhere((record) => record.id == id);
     await _saveLocalRecords();

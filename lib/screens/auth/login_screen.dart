@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../core/constants/app_colors.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/settings_provider.dart';
 import '../bottom_nav/main_navigation_screen.dart';
 import '../../core/utils/toast_helper.dart';
-import 'otp_screen.dart';
+import 'complete_profile_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -17,30 +18,92 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final TextEditingController _phoneController = TextEditingController();
+  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  bool _isFirstTime = false;
+  bool _isLogin = true;
+  bool _obscurePassword = true;
 
-  void _handleLogin() async {
-    final phone = _phoneController.text.trim();
-    if (phone.isEmpty) {
-      ToastHelper.showToast(context, 'Please enter a phone number', isError: true);
+  @override
+  void initState() {
+    super.initState();
+    _checkFirstTime();
+  }
+
+  Future<void> _checkFirstTime() async {
+    final prefs = await SharedPreferences.getInstance();
+    final hasRunBefore = prefs.getBool('hasRunBefore') ?? false;
+    
+    if (mounted) {
+      setState(() {
+        _isFirstTime = !hasRunBefore;
+      });
+    }
+
+    if (!hasRunBefore) {
+      await prefs.setBool('hasRunBefore', true);
+    }
+  }
+
+  void _handleAuth() async {
+    final username = _usernameController.text.trim();
+    final password = _passwordController.text.trim();
+    if (username.isEmpty || password.isEmpty) {
+      ToastHelper.showToast(context, 'Please enter username and password', isError: true);
+      return;
+    }
+
+    if (password.length < 6) {
+      ToastHelper.showToast(context, 'Password must be at least 6 characters', isError: true);
       return;
     }
 
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    final devOtp = await authProvider.sendOtp(phone);
+    
+    Map<String, dynamic>? res;
+    if (_isLogin) {
+      res = await authProvider.login(username, password);
+    } else {
+      res = await authProvider.register(username, password);
+    }
 
-    if (devOtp != null && mounted) {
-      // Show the OTP in a SnackBar since we aren't sending real SMS yet
-      ToastHelper.showToast(context, 'TESTING: Your OTP is $devOtp');
+    if (res != null && mounted) {
+      if (!_isLogin) {
+        // User just registered. First ask for register, then ask for login.
+        ToastHelper.showToast(context, 'Registration successful. Please login to continue.');
+        await authProvider.logout(); // Clear the automatically saved token
+        setState(() {
+          _isLogin = true;
+          _passwordController.clear();
+        });
+        return;
+      }
 
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (_) => OtpScreen(phone: phone),
-        ),
-      );
+      final isNewUser = res['isNewUser'] == true;
+      
+      if (isNewUser) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const CompleteProfileScreen()),
+        );
+      } else {
+        if (res['name'] != null) {
+          Provider.of<SettingsProvider>(context, listen: false).setUserName(res['name']);
+        }
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const MainNavigationScreen()),
+        );
+      }
     } else if (mounted) {
-      ToastHelper.showToast(context, authProvider.error ?? 'Failed to send OTP', isError: true);
+      final errorMsg = authProvider.error ?? 'Authentication failed';
+      ToastHelper.showToast(context, errorMsg, isError: true);
+      
+      if (_isLogin && errorMsg.toLowerCase().contains('user not found')) {
+        setState(() {
+          _isLogin = false;
+        });
+      }
     }
   }
 
@@ -63,7 +126,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
                         // Top Text
                         Text(
-                          "Welcome Back 👋",
+                          _isFirstTime ? "Welcome 👋" : "Welcome Back 👋",
                           style: GoogleFonts.poppins(
                             fontSize: 32,
                             fontWeight: FontWeight.bold,
@@ -114,9 +177,9 @@ class _LoginScreenState extends State<LoginScreen> {
 
                         const SizedBox(height: 50),
 
-                        // Phone Field
+                        // Username Field
                         Text(
-                          "Phone Number",
+                          "Username",
                           style: GoogleFonts.poppins(
                             fontWeight: FontWeight.w500,
                           ),
@@ -138,13 +201,61 @@ class _LoginScreenState extends State<LoginScreen> {
                             ],
                           ),
                           child: TextField(
-                            controller: _phoneController,
-                            keyboardType: TextInputType.phone,
+                            controller: _usernameController,
                             decoration: InputDecoration(
                               border: InputBorder.none,
-                              hintText: "Enter phone number",
+                              hintText: "Enter username",
                               hintStyle: GoogleFonts.poppins(),
-                              icon: const Icon(Icons.phone),
+                              icon: const Icon(Icons.person),
+                              counterText: "",
+                            ),
+                          ),
+                        ),
+
+                        const SizedBox(height: 20),
+
+                        // Password Field
+                        Text(
+                          "Password",
+                          style: GoogleFonts.poppins(
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+
+                        const SizedBox(height: 10),
+
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 18),
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).cardColor,
+                            borderRadius: BorderRadius.circular(18),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.03),
+                                blurRadius: 8,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
+                          ),
+                          child: TextField(
+                            controller: _passwordController,
+                            obscureText: _obscurePassword,
+                            decoration: InputDecoration(
+                              border: InputBorder.none,
+                              hintText: "Enter password",
+                              hintStyle: GoogleFonts.poppins(),
+                              icon: const Icon(Icons.lock_rounded),
+                              suffixIcon: IconButton(
+                                icon: Icon(
+                                  _obscurePassword ? Icons.visibility_off : Icons.visibility,
+                                  color: Colors.grey,
+                                ),
+                                onPressed: () {
+                                  setState(() {
+                                    _obscurePassword = !_obscurePassword;
+                                  });
+                                },
+                              ),
                             ),
                           ),
                         ),
@@ -165,7 +276,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                     borderRadius: BorderRadius.circular(18),
                                   ),
                                 ),
-                                onPressed: authProvider.isLoading ? null : _handleLogin,
+                                onPressed: authProvider.isLoading ? null : _handleAuth,
                                 child: authProvider.isLoading
                                     ? const SizedBox(
                                         width: 24,
@@ -176,7 +287,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                         ),
                                       )
                                     : Text(
-                                        "Continue",
+                                        _isLogin ? "Login" : "Register",
                                         style: GoogleFonts.poppins(
                                           fontSize: 16,
                                           fontWeight: FontWeight.w600,
@@ -188,7 +299,26 @@ class _LoginScreenState extends State<LoginScreen> {
                           },
                         ),
 
-                        const SizedBox(height: 30),
+                        const SizedBox(height: 16),
+
+                        Center(
+                          child: TextButton(
+                            onPressed: () {
+                              setState(() {
+                                _isLogin = !_isLogin;
+                              });
+                            },
+                            child: Text(
+                              _isLogin ? "Don't have an account? Register" : "Already have an account? Login",
+                              style: GoogleFonts.poppins(
+                                color: AppColors.primary,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ),
+
+                        const SizedBox(height: 20),
 
                         // Divider
                         Row(
@@ -224,27 +354,23 @@ class _LoginScreenState extends State<LoginScreen> {
                               onTap: authProvider.isLoading
                                   ? null
                                   : () async {
-                                      // Try real Google Login first
-                                      var res = await authProvider.googleLogin();
-                                      
-                                      // If it fails (due to missing SHA-1 configuration on this APK), fall back to the Demo Bypass so the app works flawlessly!
-                                      if (res == null && mounted) {
-                                        final errorMsg = authProvider.error ?? 'Unknown error';
-                                        ToastHelper.showToast(context, 'Real Google Login failed ($errorMsg). Using demo bypass...');
-                                        res = await authProvider.bypassGoogleLoginForDemo();
-                                      }
-                                      
+                                      final res = await authProvider.googleLogin();
                                       if (res != null && mounted) {
-                                        final user = res;
-                                        if (user['name'] != null) {
-                                          Provider.of<SettingsProvider>(context, listen: false).setUserName(user['name']);
+                                        final isNewUser = res['isNewUser'] == true;
+                                        if (isNewUser) {
+                                          Navigator.pushReplacement(
+                                            context,
+                                            MaterialPageRoute(builder: (_) => const CompleteProfileScreen()),
+                                          );
+                                        } else {
+                                          if (res['name'] != null) {
+                                            Provider.of<SettingsProvider>(context, listen: false).setUserName(res['name']);
+                                          }
+                                          Navigator.pushReplacement(
+                                            context,
+                                            MaterialPageRoute(builder: (_) => const MainNavigationScreen()),
+                                          );
                                         }
-                                        Navigator.pushReplacement(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (_) => const MainNavigationScreen(),
-                                          ),
-                                        );
                                       } else if (mounted && authProvider.error != null) {
                                         ToastHelper.showToast(context, authProvider.error!, isError: true);
                                       }
@@ -262,8 +388,11 @@ class _LoginScreenState extends State<LoginScreen> {
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    const Icon(Icons.g_mobiledata, size: 34),
-                                    const SizedBox(width: 8),
+                                    Image.network(
+                                      'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/120px-Google_%22G%22_logo.svg.png',
+                                      height: 24,
+                                    ),
+                                    const SizedBox(width: 12),
                                     Text(
                                       "Continue with Google",
                                       style: GoogleFonts.poppins(

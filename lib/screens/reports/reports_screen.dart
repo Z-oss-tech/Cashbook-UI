@@ -22,6 +22,26 @@ class ReportsScreen extends StatelessWidget {
     return '₹ ${amount.toStringAsFixed(0)}';
   }
 
+  String formatCurrency(double amount) {
+    final String sign = amount < 0 ? '-' : '';
+    final double absoluteAmount = amount.abs();
+    final List<String> parts = absoluteAmount.toStringAsFixed(2).split('.');
+    String beforeDecimal = parts[0];
+    final String afterDecimal = parts[1];
+    
+    if (beforeDecimal.length > 3) {
+      String formatted = beforeDecimal.substring(beforeDecimal.length - 3);
+      beforeDecimal = beforeDecimal.substring(0, beforeDecimal.length - 3);
+      while (beforeDecimal.length > 2) {
+        formatted = '${beforeDecimal.substring(beforeDecimal.length - 2)},$formatted';
+        beforeDecimal = beforeDecimal.substring(0, beforeDecimal.length - 2);
+      }
+      formatted = '$beforeDecimal,$formatted';
+      beforeDecimal = formatted;
+    }
+    return '$sign₹ $beforeDecimal.$afterDecimal';
+  }
+
   @override
   Widget build(BuildContext context) {
     final recordProvider = Provider.of<RecordProvider>(context);
@@ -83,51 +103,11 @@ class ReportsScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-               Container(
-                 width: double.infinity,
-                 padding: const EdgeInsets.all(24),
-                 decoration: BoxDecoration(
-                   borderRadius: BorderRadius.circular(30),
-                   gradient: const LinearGradient(
-                     colors: [AppColors.primary, AppColors.secondary],
-                     begin: Alignment.topLeft,
-                     end: Alignment.bottomRight,
-                   ),
-                   boxShadow: [
-                     BoxShadow(
-                       color: AppColors.primary.withOpacity(0.3),
-                       blurRadius: 20,
-                       offset: const Offset(0, 10),
-                     ),
-                   ],
-                 ),
-                 child: Column(
-                   crossAxisAlignment: CrossAxisAlignment.start,
-                   children: [
-                     Text(
-                       "Overview",
-                       style: GoogleFonts.poppins(color: Colors.white70, fontSize: 15),
-                     ),
-                     const SizedBox(height: 18),
-                     Text(
-                       "₹ ${balance.abs().toStringAsFixed(0)}",
-                       style: GoogleFonts.poppins(
-                         color: Colors.white,
-                         fontSize: 36,
-                         fontWeight: FontWeight.bold,
-                       ),
-                     ),
-                     const SizedBox(height: 28),
-                     Row(
-                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                       children: [
-                         _buildOverviewItem(title: AppLocalizations.of(context)!.given, amount: formatCurrencyShort(totalGiven), icon: Icons.arrow_upward),
-                         _buildOverviewItem(title: AppLocalizations.of(context)!.received, amount: formatCurrencyShort(totalReceived), icon: Icons.arrow_downward),
-                         _buildOverviewItem(title: "Balance", amount: formatCurrencyShort(balance), icon: Icons.account_balance_wallet),
-                       ],
-                     ),
-                   ],
-                 ),
+               _buildMainBalanceCard(
+                 context,
+                 balance,
+                 totalReceived,
+                 totalGiven,
                ),
                
                const SizedBox(height: 30),
@@ -285,27 +265,204 @@ class ReportsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildOverviewItem({
+  Widget _buildMainBalanceCard(BuildContext context, double balance, double income, double expense) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(32),
+        gradient: const LinearGradient(
+          colors: [
+            Color(0xFF3B82F6), // Vibrant premium blue
+            Color(0xFF1D4ED8), // Deep blue
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF2563EB).withOpacity(0.35),
+            blurRadius: 24,
+            offset: const Offset(0, 12),
+          ),
+        ],
+        border: Border.all(
+          color: Colors.white.withOpacity(0.2),
+          width: 1.2,
+        ),
+      ),
+      child: Stack(
+        children: [
+          // Abstract geometric shapes for a modern look
+          Positioned(
+            right: -20,
+            top: -20,
+            child: Container(
+              height: 120,
+              width: 120,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: LinearGradient(
+                  colors: [Colors.white.withOpacity(0.2), Colors.white.withOpacity(0.0)],
+                  begin: Alignment.topRight,
+                  end: Alignment.bottomLeft,
+                ),
+              ),
+            ),
+          ),
+          Positioned(
+            left: -40,
+            bottom: -40,
+            child: Container(
+              height: 140,
+              width: 140,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: LinearGradient(
+                  colors: [Colors.white.withOpacity(0.0), Colors.white.withOpacity(0.15)],
+                  begin: Alignment.topRight,
+                  end: Alignment.bottomLeft,
+                ),
+              ),
+            ),
+          ),
+          Positioned(
+            right: 40,
+            bottom: -10,
+            child: Container(
+              height: 70,
+              width: 70,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.white.withOpacity(0.05),
+              ),
+            ),
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                AppLocalizations.of(context)!.totalBalance,
+                style: GoogleFonts.poppins(
+                  color: Colors.white.withOpacity(0.85),
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  letterSpacing: 0.5,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                formatCurrency(balance),
+                style: GoogleFonts.poppins(
+                  color: Colors.white,
+                  fontSize: 38,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: -1,
+                ),
+              ),
+              const SizedBox(height: 28),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.12),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: Colors.white.withOpacity(0.15), width: 1),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: _buildBalanceItem(
+                        context: context,
+                        title: AppLocalizations.of(context)!.totalReceived,
+                        amount: formatCurrencyShort(income),
+                        icon: Icons.south_west_rounded,
+                        isIncome: true,
+                        iconColor: const Color(0xFF68D391), // Soft Green
+                      ),
+                    ),
+                    Container(
+                      height: 40,
+                      width: 1,
+                      color: Colors.white.withOpacity(0.2),
+                    ),
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.only(left: 16.0),
+                        child: _buildBalanceItem(
+                          context: context,
+                          title: AppLocalizations.of(context)!.totalGiven,
+                          amount: formatCurrencyShort(expense),
+                          icon: Icons.north_east_rounded,
+                          isIncome: false,
+                          iconColor: const Color(0xFFFC8181), // Soft Red
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBalanceItem({
+    required BuildContext context,
     required String title,
     required String amount,
     required IconData icon,
+    required bool isIncome,
+    required Color iconColor,
   }) {
-    return Column(
+    return Row(
       children: [
-        Icon(icon, color: Colors.white, size: 22),
-        const SizedBox(height: 10),
-        Text(
-          amount,
-          style: GoogleFonts.poppins(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-            fontSize: 15,
+        Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: iconColor.withOpacity(0.2),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Icon(
+            icon,
+            color: iconColor,
+            size: 16,
           ),
         ),
-        const SizedBox(height: 4),
-        Text(
-          title,
-          style: GoogleFonts.poppins(color: Colors.white70, fontSize: 12),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  title,
+                  style: GoogleFonts.poppins(
+                    color: Colors.white.withOpacity(0.85),
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 2),
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  amount,
+                  style: GoogleFonts.poppins(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ],
     );
