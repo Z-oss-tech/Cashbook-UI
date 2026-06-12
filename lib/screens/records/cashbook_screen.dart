@@ -8,6 +8,8 @@ import '../../models/transaction_model.dart';
 import '../../core/utils/toast_helper.dart';
 import 'add_record_screen.dart';
 import '../reports/reports_screen.dart';
+import '../../core/utils/date_helper.dart';
+import 'package:flutter/services.dart';
 import '../../core/utils/export_helper.dart';
 
 class CashbookScreen extends StatefulWidget {
@@ -391,9 +393,18 @@ class _CashbookScreenState extends State<CashbookScreen> {
       body: SafeArea(
         top: true,
         bottom: false,
-        child: ListView(
-          padding: const EdgeInsets.fromLTRB(16, 24, 16, 120),
-          children: [
+        child: RefreshIndicator(
+          color: const Color(0xFF4143D5),
+          onRefresh: () async {
+            HapticFeedback.lightImpact();
+            await Future.delayed(const Duration(milliseconds: 800));
+            // Trigger rebuild
+            setState((){});
+          },
+          child: ListView(
+            padding: const EdgeInsets.fromLTRB(16, 24, 16, 120),
+            physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+            children: [
             // Overview Card
             Container(
               decoration: BoxDecoration(
@@ -494,9 +505,9 @@ class _CashbookScreenState extends State<CashbookScreen> {
                         child: Row(
                           children: [
                             Expanded(
-                              flex: 2,
+                              flex: 3,
                               child: Text(
-                                "DATE & NOTES",
+                                "DATE & CATEGORY",
                                 style: GoogleFonts.inter(
                                   fontSize: 12,
                                   fontWeight: FontWeight.bold,
@@ -506,7 +517,19 @@ class _CashbookScreenState extends State<CashbookScreen> {
                               ),
                             ),
                             Expanded(
-                              flex: 1,
+                              flex: 2,
+                              child: Text(
+                                "NOTES",
+                                style: GoogleFonts.inter(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                  color: const Color(0xFF4143D5),
+                                  letterSpacing: 0.5,
+                                ),
+                              ),
+                            ),
+                            Expanded(
+                              flex: 2,
                               child: Text(
                                 "AMOUNT",
                                 textAlign: TextAlign.right,
@@ -531,85 +554,166 @@ class _CashbookScreenState extends State<CashbookScreen> {
                         itemBuilder: (context, index) {
                           final record = cashbookRecords[cashbookRecords.length - 1 - index]; // reversed
                           final isCredit = !record.isGiven;
-                          return Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Expanded(
-                                  flex: 2,
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        "${record.date.day}/${record.date.month}/${record.date.year}",
-                                        style: GoogleFonts.inter(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 14,
-                                          color: textColor,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 2),
-                                      Text(
-                                        record.note.isNotEmpty ? record.note : record.personName,
-                                        style: GoogleFonts.inter(
-                                          fontSize: 14,
-                                          color: isDark ? Colors.white54 : const Color(0xFF464555).withOpacity(0.8),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
+                          
+                          return Dismissible(
+                            key: Key(record.id),
+                            direction: DismissDirection.endToStart,
+                            background: Container(
+                              alignment: Alignment.centerRight,
+                              padding: const EdgeInsets.symmetric(horizontal: 20),
+                              color: Colors.red,
+                              child: const Icon(Icons.delete, color: Colors.white),
+                            ),
+                            confirmDismiss: (direction) async {
+                              HapticFeedback.heavyImpact();
+                              bool confirm = false;
+                              await showDialog(
+                                context: context,
+                                builder: (dialogContext) => AlertDialog(
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                                  title: Text("Delete Record", style: GoogleFonts.inter(fontWeight: FontWeight.bold, color: Colors.red)),
+                                  content: Text("Are you sure you want to delete this transaction?", style: GoogleFonts.inter()),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () {
+                                        Navigator.pop(dialogContext);
+                                      },
+                                      child: Text("Cancel", style: GoogleFonts.inter(color: Colors.grey)),
+                                    ),
+                                    ElevatedButton(
+                                      onPressed: () {
+                                        confirm = true;
+                                        Navigator.pop(dialogContext);
+                                      },
+                                      style: ElevatedButton.styleFrom(backgroundColor: Colors.red, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))),
+                                      child: Text("Delete", style: GoogleFonts.inter(color: Colors.white)),
+                                    ),
+                                  ],
                                 ),
-                                Expanded(
-                                  flex: 1,
-                                  child: Text(
-                                    "${isCredit ? '+' : '-'}${record.amount.toStringAsFixed(2)}",
-                                    textAlign: TextAlign.right,
-                                    style: GoogleFonts.inter(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 14,
-                                      color: isCredit ? const Color(0xFF86EFAC) : const Color(0xFFFCA5A5),
+                              );
+                              return confirm;
+                            },
+                            onDismissed: (direction) async {
+                              final recordProvider = Provider.of<RecordProvider>(context, listen: false);
+                              await recordProvider.deleteRecord(record.id);
+                              
+                              if (mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: const Text("Transaction deleted"),
+                                    action: SnackBarAction(
+                                      label: "UNDO",
+                                      textColor: Colors.blue,
+                                      onPressed: () {
+                                        // Simple undo logic
+                                        recordProvider.addRecord(record);
+                                      },
+                                    ),
+                                    behavior: SnackBarBehavior.floating,
+                                  )
+                                );
+                              }
+                            },
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Expanded(
+                                    flex: 3,
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          DateHelper.formatDateTime(record.date),
+                                          style: GoogleFonts.inter(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 12,
+                                            color: textColor,
+                                          ),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                        const SizedBox(height: 2),
+                                        Text(
+                                          (record.category != null && record.category!.isNotEmpty) ? record.category! : record.title,
+                                          style: GoogleFonts.inter(
+                                            fontSize: 12,
+                                            color: isDark ? Colors.white54 : const Color(0xFF464555).withOpacity(0.8),
+                                          ),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ],
                                     ),
                                   ),
-                                ),
-                                const SizedBox(width: 8),
-                                SizedBox(
-                                  width: 24,
-                                  child: PopupMenuButton<String>(
-                                    icon: Icon(Icons.more_vert_rounded, color: isDark ? Colors.white54 : const Color(0xFF464555), size: 20),
-                                    padding: EdgeInsets.zero,
-                                    onSelected: (value) {
-                                      if (value == 'edit') {
-                                        _showEditRecordDialog(context, record);
-                                      } else if (value == 'delete') {
-                                        _showDeleteRecordDialog(context, record);
-                                      }
-                                    },
-                                    itemBuilder: (BuildContext context) => [
-                                      PopupMenuItem(
-                                        value: 'edit',
-                                        child: Row(
-                                          children: [
-                                            const Icon(Icons.edit_rounded, size: 18),
-                                            const SizedBox(width: 8),
-                                            Text('Edit', style: GoogleFonts.inter()),
-                                          ],
-                                        ),
+                                  Expanded(
+                                    flex: 2,
+                                    child: Text(
+                                      record.note.isNotEmpty ? record.note : '-',
+                                      style: GoogleFonts.inter(
+                                        fontSize: 12,
+                                        color: isDark ? Colors.white54 : const Color(0xFF464555).withOpacity(0.8),
                                       ),
-                                      PopupMenuItem(
-                                        value: 'delete',
-                                        child: Row(
-                                          children: [
-                                            const Icon(Icons.delete_rounded, color: Colors.red, size: 18),
-                                            const SizedBox(width: 8),
-                                            Text('Delete', style: GoogleFonts.inter(color: Colors.red)),
-                                          ],
-                                        ),
-                                      ),
-                                    ],
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
                                   ),
-                                ),
-                              ],
+                                  Expanded(
+                                    flex: 2,
+                                    child: Text(
+                                      "${isCredit ? '+' : '-'}${record.amount.toStringAsFixed(2)}",
+                                      textAlign: TextAlign.right,
+                                      style: GoogleFonts.inter(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 12,
+                                        color: isCredit 
+                                            ? (isDark ? const Color(0xFF86EFAC) : const Color(0xFF008339)) 
+                                            : (isDark ? const Color(0xFFFCA5A5) : const Color(0xFFE53935)),
+                                      ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  SizedBox(
+                                    width: 24,
+                                    child: PopupMenuButton<String>(
+                                      icon: Icon(Icons.more_vert_rounded, color: isDark ? Colors.white54 : const Color(0xFF464555), size: 20),
+                                      padding: EdgeInsets.zero,
+                                      onSelected: (value) {
+                                        if (value == 'edit') {
+                                          _showEditRecordDialog(context, record);
+                                        } else if (value == 'delete') {
+                                          _showDeleteRecordDialog(context, record);
+                                        }
+                                      },
+                                      itemBuilder: (BuildContext context) => [
+                                        PopupMenuItem(
+                                          value: 'edit',
+                                          child: Row(
+                                            children: [
+                                              const Icon(Icons.edit_rounded, size: 18),
+                                              const SizedBox(width: 8),
+                                              Text('Edit', style: GoogleFonts.inter()),
+                                            ],
+                                          ),
+                                        ),
+                                        PopupMenuItem(
+                                          value: 'delete',
+                                          child: Row(
+                                            children: [
+                                              const Icon(Icons.delete_rounded, color: Colors.red, size: 18),
+                                              const SizedBox(width: 8),
+                                              Text('Delete', style: GoogleFonts.inter(color: Colors.red)),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           );
                         },
@@ -667,8 +771,10 @@ class _CashbookScreenState extends State<CashbookScreen> {
           ],
         ),
       ),
+      ),
       floatingActionButton: GestureDetector(
         onTap: () {
+          HapticFeedback.lightImpact();
           Navigator.push(
             context,
             MaterialPageRoute(builder: (_) => AddRecordScreen(cashbookName: selectedCashbook)),

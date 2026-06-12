@@ -122,6 +122,11 @@ class RecordProvider extends ChangeNotifier {
       return;
     }
 
+    // Do NOT block the UI. Fire and forget the API call.
+    _syncNewCashbook(tempId, name);
+  }
+
+  Future<void> _syncNewCashbook(String tempId, String name) async {
     try {
       final res = await _apiService.createCashbook({'name': name});
       if (res['cashbook'] != null) {
@@ -171,6 +176,11 @@ class RecordProvider extends ChangeNotifier {
       return;
     }
 
+    // Do NOT block the UI. Fire and forget.
+    _syncUpdateCashbook(id, newName);
+  }
+
+  Future<void> _syncUpdateCashbook(String id, String newName) async {
     try {
       final res = await _apiService.updateCashbook(id, {'name': newName});
       if (res['cashbook'] != null) {
@@ -222,6 +232,11 @@ class RecordProvider extends ChangeNotifier {
       return;
     }
 
+    // Do NOT block the UI. Fire and forget.
+    _syncDeleteCashbook(id, deletedBook.name);
+  }
+
+  Future<void> _syncDeleteCashbook(String id, String name) async {
     try {
       await _apiService.deleteCashbook(id);
     } catch (e) {
@@ -229,7 +244,7 @@ class RecordProvider extends ChangeNotifier {
       _isOfflineMode = true;
       await _localStorageService.addPendingSyncAction(
         action: 'delete_cashbook',
-        payload: {'name': deletedBook.name},
+        payload: {'name': name},
         targetId: id,
       );
       _pendingCount++;
@@ -272,6 +287,11 @@ class RecordProvider extends ChangeNotifier {
       return;
     }
 
+    // Do NOT block the UI. Fire and forget the API call.
+    _syncNewRecord(tempId, newRecord);
+  }
+
+  Future<void> _syncNewRecord(String tempId, RecordModel newRecord) async {
     try {
       final res = await _apiService.createRecord(newRecord.toMap());
       if (res['record'] != null) {
@@ -328,6 +348,11 @@ class RecordProvider extends ChangeNotifier {
       return;
     }
 
+    // Do NOT block the UI. Fire and forget.
+    _syncUpdateRecord(id, data);
+  }
+
+  Future<void> _syncUpdateRecord(String id, Map<String, dynamic> data) async {
     try {
       final res = await _apiService.updateRecord(id, data);
       if (res['record'] != null) {
@@ -374,6 +399,11 @@ class RecordProvider extends ChangeNotifier {
       return;
     }
 
+    // Do NOT block the UI. Fire and forget.
+    _syncDeleteRecord(id);
+  }
+
+  Future<void> _syncDeleteRecord(String id) async {
     try {
       await _apiService.deleteRecord(id);
     } catch (e) {

@@ -12,6 +12,10 @@ import '../people/people_list_screen.dart';
 import '../records/cashbook_screen.dart';
 import '../reports/reports_screen.dart';
 import '../settings/backup_restore_screen.dart';
+import '../voice/voice_entry_screen.dart';
+import '../../core/utils/export_helper.dart';
+import '../../core/utils/date_helper.dart';
+import 'package:flutter/services.dart';
 
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
@@ -81,6 +85,284 @@ class DashboardScreen extends StatelessWidget {
     }
   }
 
+  void _showCreateCashbookDialog(BuildContext context) {
+    final TextEditingController nameController = TextEditingController();
+    final TextEditingController descController = TextEditingController();
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    bool isCreating = false;
+    
+    int selectedIconIndex = 0;
+    int selectedColorIndex = 0;
+    
+    final List<IconData> icons = [Icons.account_balance_wallet, Icons.business, Icons.home, Icons.shopping_bag, Icons.directions_car];
+    final List<Color> colors = [const Color(0xFF4143D5), const Color(0xFFFF6B6B), const Color(0xFF34D399), const Color(0xFFFBBF24), const Color(0xFFA855F7)];
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext dialogContext) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return Dialog(
+              backgroundColor: Colors.transparent,
+              child: Container(
+                padding: const EdgeInsets.all(0),
+                decoration: BoxDecoration(
+                  color: isDark ? const Color(0xFF1E1E26) : Colors.white,
+                  borderRadius: BorderRadius.circular(28),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(isDark ? 0.4 : 0.1),
+                      blurRadius: 30,
+                      offset: const Offset(0, 15),
+                    ),
+                  ],
+                ),
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // Header
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(24, 24, 16, 16),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              "Create Cashbook",
+                              style: GoogleFonts.hankenGrotesk(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                                color: isDark ? Colors.white : const Color(0xFF191C1E),
+                              ),
+                            ),
+                            GestureDetector(
+                              onTap: () => Navigator.pop(dialogContext),
+                              child: Container(
+                                padding: const EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  color: isDark ? Colors.white10 : const Color(0xFFF5F2FE),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Icon(
+                                  Icons.close_rounded,
+                                  size: 20,
+                                  color: isDark ? Colors.white70 : const Color(0xFF4143D5),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Divider(height: 1, thickness: 1, color: isDark ? Colors.white10 : const Color(0xFFE4E1ED)),
+                      // Body
+                      Padding(
+                        padding: const EdgeInsets.all(24),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "Cashbook Name",
+                              style: GoogleFonts.hankenGrotesk(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                color: isDark ? Colors.white70 : const Color(0xFF464555),
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            TextField(
+                              controller: nameController,
+                              style: GoogleFonts.manrope(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                color: isDark ? Colors.white : const Color(0xFF191C1E),
+                              ),
+                              decoration: InputDecoration(
+                                hintText: 'E.g. Office Expenses',
+                                hintStyle: GoogleFonts.manrope(
+                                  color: isDark ? Colors.white30 : Colors.grey.shade400,
+                                ),
+                                filled: true,
+                                fillColor: isDark ? Colors.white.withOpacity(0.05) : const Color(0xFFF8FAFC),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                  borderSide: BorderSide.none,
+                                ),
+                                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            
+                            Text(
+                              "Description (Optional)",
+                              style: GoogleFonts.hankenGrotesk(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                color: isDark ? Colors.white70 : const Color(0xFF464555),
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            TextField(
+                              controller: descController,
+                              style: GoogleFonts.manrope(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                color: isDark ? Colors.white : const Color(0xFF191C1E),
+                              ),
+                              decoration: InputDecoration(
+                                hintText: 'What is this cashbook for?',
+                                hintStyle: GoogleFonts.manrope(
+                                  color: isDark ? Colors.white30 : Colors.grey.shade400,
+                                ),
+                                filled: true,
+                                fillColor: isDark ? Colors.white.withOpacity(0.05) : const Color(0xFFF8FAFC),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                  borderSide: BorderSide.none,
+                                ),
+                                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                              ),
+                            ),
+                            const SizedBox(height: 24),
+                            
+                            Text(
+                              "Select Icon",
+                              style: GoogleFonts.hankenGrotesk(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                color: isDark ? Colors.white70 : const Color(0xFF464555),
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: List.generate(icons.length, (index) {
+                                final isSelected = selectedIconIndex == index;
+                                return GestureDetector(
+                                  onTap: () {
+                                    HapticFeedback.selectionClick();
+                                    setState(() => selectedIconIndex = index);
+                                  },
+                                  child: Container(
+                                    width: 48,
+                                    height: 48,
+                                    decoration: BoxDecoration(
+                                      color: isSelected ? colors[selectedColorIndex].withOpacity(0.15) : (isDark ? Colors.white10 : const Color(0xFFF5F2FE)),
+                                      shape: BoxShape.circle,
+                                      border: isSelected ? Border.all(color: colors[selectedColorIndex], width: 2) : null,
+                                    ),
+                                    child: Icon(
+                                      icons[index],
+                                      color: isSelected ? colors[selectedColorIndex] : (isDark ? Colors.white54 : const Color(0xFF464555)),
+                                      size: 24,
+                                    ),
+                                  ),
+                                );
+                              }),
+                            ),
+                            const SizedBox(height: 24),
+                            
+                            Text(
+                              "Select Color",
+                              style: GoogleFonts.hankenGrotesk(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                color: isDark ? Colors.white70 : const Color(0xFF464555),
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: List.generate(colors.length, (index) {
+                                final isSelected = selectedColorIndex == index;
+                                return GestureDetector(
+                                  onTap: () {
+                                    HapticFeedback.selectionClick();
+                                    setState(() => selectedColorIndex = index);
+                                  },
+                                  child: Container(
+                                    width: 40,
+                                    height: 40,
+                                    decoration: BoxDecoration(
+                                      color: colors[index],
+                                      shape: BoxShape.circle,
+                                      border: isSelected ? Border.all(color: Colors.white, width: 3) : null,
+                                      boxShadow: isSelected ? [
+                                        BoxShadow(
+                                          color: colors[index].withOpacity(0.4),
+                                          blurRadius: 8,
+                                          offset: const Offset(0, 2),
+                                        )
+                                      ] : null,
+                                    ),
+                                  ),
+                                );
+                              }),
+                            ),
+                            const SizedBox(height: 32),
+                            SizedBox(
+                              width: double.infinity,
+                              height: 56,
+                              child: ElevatedButton(
+                                onPressed: isCreating ? null : () async {
+                                  HapticFeedback.mediumImpact();
+                                  final cashbookName = nameController.text.trim().isEmpty 
+                                      ? "New Cashbook" 
+                                      : nameController.text.trim();
+                                  
+                                  setState(() => isCreating = true);
+                                  await Provider.of<RecordProvider>(context, listen: false).addCashbook(cashbookName);
+                                  setState(() => isCreating = false);
+                                  
+                                  if (context.mounted) {
+                                    Navigator.pop(dialogContext); // Close dialog
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (_) => CashbookScreen(cashbookName: cashbookName),
+                                      ),
+                                    );
+                                  }
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: colors[selectedColorIndex],
+                                  foregroundColor: Colors.white,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                  ),
+                                  elevation: 4,
+                                  shadowColor: colors[selectedColorIndex].withOpacity(0.5),
+                                ),
+                                child: isCreating
+                                    ? const SizedBox(
+                                        height: 24,
+                                        width: 24,
+                                        child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5),
+                                      )
+                                    : Text(
+                                        "CREATE CASHBOOK",
+                                        style: GoogleFonts.manrope(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 16,
+                                          letterSpacing: 1.0,
+                                        ),
+                                      ),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+          },
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final recordProvider = Provider.of<RecordProvider>(context);
@@ -102,30 +384,38 @@ class DashboardScreen extends StatelessWidget {
           children: [
             _buildTopHeader(context),
             Expanded(
-              child: SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const SizedBox(height: 24),
-                      _buildPremiumBalanceCard(
-                        context,
-                        recordProvider.balance,
-                        recordProvider.totalReceived,
-                        recordProvider.totalGiven,
-                      ),
-                      const SizedBox(height: 32),
-                      _buildQuickStats(context, thisWeekAmount, recordProvider.cashbooks.length),
-                      const SizedBox(height: 32),
-                      _buildQuickActions(context),
-                      const SizedBox(height: 32),
-                      _buildCashbookListHeader(context),
-                      const SizedBox(height: 16),
-                      _buildCashbookList(context),
-                      const SizedBox(height: 100),
-                    ],
+              child: RefreshIndicator(
+                color: const Color(0xFF4143D5),
+                onRefresh: () async {
+                  HapticFeedback.lightImpact();
+                  // Simulate refresh or re-fetch logic if any
+                  await Future.delayed(const Duration(milliseconds: 800));
+                },
+                child: SingleChildScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const SizedBox(height: 24),
+                        _buildPremiumBalanceCard(
+                          context,
+                          recordProvider.balance,
+                          recordProvider.totalReceived,
+                          recordProvider.totalGiven,
+                        ),
+                        const SizedBox(height: 32),
+                        _buildQuickStats(context, thisWeekAmount, recordProvider.cashbooks.length, recordProvider.records.length),
+                        const SizedBox(height: 32),
+                        _buildProductivitySection(context),
+                        const SizedBox(height: 32),
+                        _buildCashbookListHeader(context),
+                        const SizedBox(height: 16),
+                        _buildCashbookList(context),
+                        const SizedBox(height: 100),
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -154,6 +444,8 @@ class DashboardScreen extends StatelessWidget {
               },
               child: Row(
                 children: [
+                  Icon(Icons.menu_rounded, color: textColor, size: 28),
+                  const SizedBox(width: 16),
                   Container(
                     width: 44,
                     height: 44,
@@ -211,43 +503,7 @@ class DashboardScreen extends StatelessWidget {
               ),
             ),
           ),
-          Row(
-            children: [
-              Container(
-                width: 40,
-                height: 40,
-                decoration: const BoxDecoration(shape: BoxShape.circle),
-                child: Icon(Icons.search_rounded, color: subTextColor),
-              ),
-              const SizedBox(width: 8),
-              Stack(
-                children: [
-                  Container(
-                    width: 40,
-                    height: 40,
-                    decoration: const BoxDecoration(shape: BoxShape.circle),
-                    child: Icon(Icons.notifications_rounded, color: subTextColor),
-                  ),
-                  Positioned(
-                    top: 10,
-                    right: 10,
-                    child: Container(
-                      width: 8,
-                      height: 8,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFBA1A1A),
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: isDark ? const Color(0xFF191C1E) : const Color(0xFFF7F9FB), 
-                          width: 2,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
+          const SizedBox(width: 40),
         ],
       ),
     );
@@ -384,154 +640,140 @@ class DashboardScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildQuickStats(BuildContext context, double thisWeekAmount, int booksCount) {
+  Widget _buildQuickStats(BuildContext context, double thisWeekAmount, int booksCount, int totalTxns) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final cardColor = isDark ? const Color(0xFF2D3133) : Colors.white;
     final borderColor = isDark ? const Color(0xFF464555) : const Color(0xFFE6E8EA);
     final textColor = isDark ? Colors.white : const Color(0xFF191C1E);
     final subTextColor = isDark ? Colors.white70 : const Color(0xFF464555);
 
-    return Row(
-      children: [
-        Expanded(
-          child: Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: cardColor,
-              borderRadius: BorderRadius.circular(24),
-              border: Border.all(color: borderColor),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.02),
-                  blurRadius: 30,
-                  offset: const Offset(0, 10),
-                ),
-              ],
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Container(
-                      width: 40,
-                      height: 40,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF4143D5).withOpacity(0.1),
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(Icons.insights_rounded, color: Color(0xFF4143D5), size: 20),
-                    ),
-                    Row(
-                      children: [
-                        const Icon(Icons.trending_up_rounded, color: Color(0xFF008339), size: 14),
-                        const SizedBox(width: 4),
-                        Text(
-                          "12%",
-                          style: GoogleFonts.inter(
-                            color: const Color(0xFF008339),
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  "Weekly Summary",
-                  style: GoogleFonts.inter(
-                    color: subTextColor,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  formatCurrencyShort(thisWeekAmount),
-                  style: GoogleFonts.inter(
-                    color: textColor,
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      physics: const BouncingScrollPhysics(),
+      clipBehavior: Clip.none,
+      child: Row(
+        children: [
+          _buildStatCard(
+            context,
+            title: "Weekly Summary",
+            value: formatCurrencyShort(thisWeekAmount),
+            icon: Icons.insights_rounded,
+            color: const Color(0xFF4143D5),
+            cardColor: cardColor,
+            borderColor: borderColor,
+            textColor: textColor,
+            subTextColor: subTextColor,
           ),
-        ),
-        const SizedBox(width: 16),
-        Expanded(
-          child: GestureDetector(
+          const SizedBox(width: 16),
+          _buildStatCard(
+            context,
+            title: "Active Cashbooks",
+            value: "$booksCount",
+            icon: Icons.book_rounded,
+            color: const Color(0xFF5B3CDD),
+            cardColor: cardColor,
+            borderColor: borderColor,
+            textColor: textColor,
+            subTextColor: subTextColor,
             onTap: () {
+              HapticFeedback.lightImpact();
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => const PeopleListScreen()),
               );
             },
-            child: Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: cardColor,
-                borderRadius: BorderRadius.circular(24),
-                border: Border.all(color: borderColor),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.02),
-                    blurRadius: 30,
-                    offset: const Offset(0, 10),
-                  ),
-                ],
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF5B3CDD).withOpacity(0.1),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(Icons.book_rounded, color: Color(0xFF5B3CDD), size: 20),
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    "Cashbooks",
-                    style: GoogleFonts.inter(
-                      color: subTextColor,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    "$booksCount Active",
-                    style: GoogleFonts.inter(
-                      color: textColor,
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
-            ),
           ),
-        ),
-      ],
+          const SizedBox(width: 16),
+          _buildStatCard(
+            context,
+            title: "Total Transactions",
+            value: "$totalTxns",
+            icon: Icons.swap_horiz_rounded,
+            color: const Color(0xFF008339),
+            cardColor: cardColor,
+            borderColor: borderColor,
+            textColor: textColor,
+            subTextColor: subTextColor,
+          ),
+        ],
+      ),
     );
   }
 
-  Widget _buildQuickActions(BuildContext context) {
+  Widget _buildStatCard(BuildContext context, {
+    required String title,
+    required String value,
+    required IconData icon,
+    required Color color,
+    required Color cardColor,
+    required Color borderColor,
+    required Color textColor,
+    required Color subTextColor,
+    VoidCallback? onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 150,
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: cardColor,
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(color: borderColor),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.02),
+              blurRadius: 30,
+              offset: const Offset(0, 10),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: color.withOpacity(0.1),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(icon, color: color, size: 20),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              title,
+              style: GoogleFonts.inter(
+                color: subTextColor,
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              value,
+              style: GoogleFonts.inter(
+                color: textColor,
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildProductivitySection(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final textColor = isDark ? Colors.white : const Color(0xFF191C1E);
+    final recordProvider = Provider.of<RecordProvider>(context, listen: false);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          "Quick Actions",
+          "Productivity",
           style: GoogleFonts.inter(
             color: textColor,
             fontSize: 18,
@@ -539,76 +781,125 @@ class DashboardScreen extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 16),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            _buildActionItem(
-              context,
-              icon: Icons.library_add_rounded,
-              label: "Add Book",
-              onTap: () {
-                Navigator.push(context, MaterialPageRoute(builder: (_) => const PeopleListScreen()));
-              },
-            ),
-            _buildActionItem(
-              context,
-              icon: Icons.cloud_upload_rounded,
-              label: "Backup",
-              onTap: () {
-                Navigator.push(context, MaterialPageRoute(builder: (_) => const BackupRestoreScreen()));
-              },
-            ),
-            _buildActionItem(
-              context,
-              icon: Icons.file_download_rounded,
-              label: "Export",
-              onTap: () {
-                Navigator.push(context, MaterialPageRoute(builder: (_) => const ReportsScreen()));
-              },
-            ),
-            _buildActionItem(
-              context,
-              icon: Icons.bar_chart_rounded,
-              label: "Reports",
-              onTap: () {
-                Navigator.push(context, MaterialPageRoute(builder: (_) => const ReportsScreen()));
-              },
-            ),
-          ],
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          physics: const BouncingScrollPhysics(),
+          clipBehavior: Clip.none,
+          child: Row(
+            children: [
+              _buildProductivityCard(
+                context,
+                title: "Continue Last Book",
+                icon: Icons.play_arrow_rounded,
+                color: const Color(0xFF4143D5),
+                onTap: () {
+                  if (recordProvider.cashbooks.isNotEmpty) {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => CashbookScreen(cashbookName: recordProvider.cashbooks.first.name),
+                      ),
+                    );
+                  } else {
+                    _showCreateCashbookDialog(context);
+                  }
+                },
+              ),
+              const SizedBox(width: 16),
+              _buildProductivityCard(
+                context,
+                title: "Smart Insights",
+                icon: Icons.auto_awesome_rounded,
+                color: const Color(0xFF008339),
+                onTap: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (_) => const ReportsScreen()));
+                },
+              ),
+              const SizedBox(width: 16),
+              _buildProductivityCard(
+                context,
+                title: "PDF Export",
+                icon: Icons.picture_as_pdf_rounded,
+                color: const Color(0xFFE53935),
+                onTap: () {
+                  HapticFeedback.lightImpact();
+                  ExportHelper.showExportOptions(context);
+                },
+              ),
+              const SizedBox(width: 16),
+              _buildProductivityCard(
+                context,
+                title: "Pending Sync",
+                icon: Icons.cloud_upload_rounded,
+                color: const Color(0xFF5B3CDD),
+                onTap: () {
+                  recordProvider.syncOfflineQueue();
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Manual sync triggered')),
+                  );
+                },
+              ),
+            ],
+          ),
         ),
       ],
     );
   }
 
-  Widget _buildActionItem(BuildContext context, {required IconData icon, required String label, required VoidCallback onTap}) {
+  Widget _buildProductivityCard(
+    BuildContext context, {
+    required String title,
+    required IconData icon,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final subTextColor = isDark ? Colors.white70 : const Color(0xFF464555);
+    final cardColor = isDark ? const Color(0xFF2D3133) : Colors.white;
+    final borderColor = isDark ? const Color(0xFF464555) : const Color(0xFFE6E8EA);
+    final textColor = isDark ? Colors.white : const Color(0xFF191C1E);
 
     return GestureDetector(
-      onTap: onTap,
-      child: Column(
-        children: [
-          Container(
-            width: 60,
-            height: 60,
-            decoration: BoxDecoration(
-              color: isDark ? const Color(0xFF2D3133) : const Color(0xFFF2F4F6),
-              shape: BoxShape.circle,
+      onTap: () {
+        HapticFeedback.lightImpact();
+        onTap();
+      },
+      child: Container(
+        width: 140,
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: cardColor,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: borderColor),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.02),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
             ),
-            child: Center(
-              child: Icon(icon, color: const Color(0xFF4143D5), size: 24),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: color.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(icon, color: color, size: 20),
             ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            label,
-            style: GoogleFonts.inter(
-              color: subTextColor,
-              fontSize: 11,
-              fontWeight: FontWeight.w600,
+            const SizedBox(height: 16),
+            Text(
+              title,
+              style: GoogleFonts.inter(
+                color: textColor,
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -678,7 +969,7 @@ class DashboardScreen extends StatelessWidget {
         return _buildCashbookTile(
           context: context,
           cashbook: cashbook,
-          date: "${cashbook.createdAt.day}/${cashbook.createdAt.month}/${cashbook.createdAt.year}",
+          date: DateHelper.formatDateTime(cashbook.createdAt),
           amount: amountText,
           isPositive: isPositive,
         );

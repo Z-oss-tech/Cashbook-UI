@@ -37,6 +37,43 @@ class AppDrawer extends StatelessWidget {
             ),
           ),
           
+          // Theme gradient glow
+          Positioned(
+            bottom: 0,
+            right: 0,
+            left: 0,
+            height: MediaQuery.of(context).size.height * 0.5,
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: RadialGradient(
+                  center: Alignment.bottomRight,
+                  radius: 1.5,
+                  colors: [
+                    AppColors.primary.withOpacity(isDark ? 0.15 : 0.05),
+                    Colors.transparent,
+                  ],
+                  stops: const [0.0, 0.7],
+                ),
+              ),
+            ),
+          ),
+
+          // Watermark background illustration
+          Positioned(
+            bottom: MediaQuery.of(context).size.height * 0.1,
+            right: -20,
+            width: MediaQuery.of(context).size.width * 0.6,
+            height: MediaQuery.of(context).size.height * 0.6,
+            child: Opacity(
+              opacity: 0.15, // Increased visibility
+              child: Image.network(
+                'https://lh3.googleusercontent.com/aida-public/AB6AXuCvPkNvoPKKWqX9DSQ428WeUX6ccQsgQFec3XjfbB0ChmQOvzYrPSv-1f4SYkxNH1jghXV8jv6o59zh9-q5pefn556N3pBk_IZosbFEhFsiiTtZVYOsJiXgZ6NgSRS959l1k-MoaCrn_R7Vx6ydTNEdvYfv8LNkveGYeSr_WLSFbSTTewwG15s3PexmThf5hoHTXwBYteROsm0I4wTziXD1aN1qlUmmYLZ2tXyyA5sxztKnBrxruISIabn9on8DUAFCifm4NvfVZT5f',
+                fit: BoxFit.contain,
+                alignment: Alignment.bottomRight,
+              ),
+            ),
+          ),
+          
           SafeArea(
             child: Column(
               children: [
@@ -59,21 +96,19 @@ class AppDrawer extends StatelessWidget {
                         ),
                       ],
                     ),
-                    child: Row(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         Stack(
                           clipBehavior: Clip.none,
                           children: [
                             Container(
-                              width: 56,
-                              height: 56,
+                              width: 80,
+                              height: 80,
                               decoration: const BoxDecoration(
                                 shape: BoxShape.circle,
-                                gradient: LinearGradient(
-                                  colors: [AppColors.primary, AppColors.secondary],
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight,
-                                ),
+                                color: Color(0xFF8B5CF6), // Tailwind violet-500
                               ),
                               child: Center(
                                 child: Consumer<SettingsProvider>(
@@ -82,7 +117,7 @@ class AppDrawer extends StatelessWidget {
                                       settings.userAvatar,
                                       style: GoogleFonts.poppins(
                                         color: Colors.white,
-                                        fontSize: 20,
+                                        fontSize: 32,
                                         fontWeight: FontWeight.bold,
                                       ),
                                     );
@@ -94,45 +129,42 @@ class AppDrawer extends StatelessWidget {
                               bottom: -4,
                               right: -4,
                               child: Container(
-                                width: 24,
-                                height: 24,
+                                padding: const EdgeInsets.all(6),
                                 decoration: BoxDecoration(
-                                  color: isDark ? AppColors.black : Colors.white,
+                                  color: Colors.white,
                                   shape: BoxShape.circle,
                                   border: Border.all(
-                                    color: isDark ? Colors.white.withOpacity(0.2) : Colors.grey.withOpacity(0.3),
+                                    color: Colors.grey.withOpacity(0.1),
                                   ),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Colors.black.withOpacity(0.1),
-                                      blurRadius: 2,
+                                      color: Colors.black.withOpacity(0.05),
+                                      blurRadius: 4,
                                     ),
                                   ],
                                 ),
                                 child: const Icon(
                                   Icons.edit_rounded,
-                                  size: 14,
-                                  color: AppColors.primary,
+                                  size: 16,
+                                  color: Colors.grey,
                                 ),
                               ),
                             ),
                           ],
                         ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: Consumer<SettingsProvider>(
-                            builder: (context, settings, child) {
-                              return Text(
-                                settings.userName,
-                                style: GoogleFonts.poppins(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              );
-                            },
-                          ),
+                        const SizedBox(height: 16),
+                        Consumer<SettingsProvider>(
+                          builder: (context, settings, child) {
+                            return Text(
+                              settings.userName,
+                              style: GoogleFonts.inter(
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                                color: isDark ? Colors.white : Colors.black87,
+                              ),
+                              textAlign: TextAlign.center,
+                            );
+                          },
                         ),
                       ],
                     ),

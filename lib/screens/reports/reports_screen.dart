@@ -8,6 +8,8 @@ import '../../core/constants/app_colors.dart';
 import 'package:provider/provider.dart';
 import '../../providers/record_provider.dart';
 import '../../models/transaction_model.dart';
+import '../../core/utils/export_helper.dart';
+import 'package:flutter/services.dart';
 
 class ReportsScreen extends StatelessWidget {
   final String? cashbookName;
@@ -93,6 +95,15 @@ class ReportsScreen extends StatelessWidget {
             fontWeight: FontWeight.bold,
           ),
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.file_download_rounded),
+            onPressed: () {
+              HapticFeedback.lightImpact();
+              ExportHelper.showExportOptions(context);
+            },
+          ),
+        ],
       ),
 
       body: SingleChildScrollView(
@@ -224,7 +235,7 @@ class ReportsScreen extends StatelessWidget {
                        color: Colors.blue,
                      ),
                    ),
-                   const SizedBox(width: 16),
+                   const SizedBox(width: 12),
                    Expanded(
                      child: _buildStatsCard(
                        context: context,
@@ -246,7 +257,7 @@ class ReportsScreen extends StatelessWidget {
                        color: Colors.orange,
                      ),
                    ),
-                   const SizedBox(width: 16),
+                   const SizedBox(width: 12),
                    Expanded(
                      child: _buildStatsCard(
                        context: context,
@@ -536,10 +547,10 @@ class ReportsScreen extends StatelessWidget {
     required Color color,
   }) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.03),
@@ -559,20 +570,28 @@ class ReportsScreen extends StatelessWidget {
               shape: BoxShape.circle,
             ),
           ),
-          const SizedBox(height: 16),
-          Text(
-            value,
-            style: GoogleFonts.poppins(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
+          const SizedBox(height: 12),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.centerLeft,
+            child: Text(
+              value,
+              style: GoogleFonts.poppins(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
-          const SizedBox(height: 6),
-          Text(
-            title,
-            style: GoogleFonts.poppins(
-              color: Colors.grey.shade600,
-              fontSize: 13,
+          const SizedBox(height: 4),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.centerLeft,
+            child: Text(
+              title,
+              style: GoogleFonts.poppins(
+                color: Colors.grey.shade600,
+                fontSize: 12,
+              ),
             ),
           ),
         ],

@@ -10,7 +10,7 @@ import '../dashboard/dashboard_screen.dart';
 import '../voice/voice_entry_screen.dart';
 import '../records/cashbook_screen.dart';
 import '../reports/reports_screen.dart';
-import '../settings/settings_screen.dart';
+import '../settings/profile_screen.dart';
 import 'app_drawer.dart';
 
 class MainNavigationScreen extends StatefulWidget {
@@ -31,7 +31,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> with Single
     const DashboardScreen(),
     const VoiceEntryScreen(),
     const ReportsScreen(),
-    const SettingsScreen(),
+    const ProfileScreen(),
   ];
 
   @override

@@ -141,6 +141,10 @@ const updateProfile = async (req, res, next) => {
       }
     });
   } catch (error) {
+    if (error.code === 'P2002') {
+      res.status(400);
+      return next(new Error('This email address is already registered to another account.'));
+    }
     next(error);
   }
 };

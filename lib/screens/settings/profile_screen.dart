@@ -11,14 +11,14 @@ import '../../providers/record_provider.dart';
 import '../../core/utils/toast_helper.dart';
 import '../auth/login_screen.dart';
 
-class SettingsScreen extends StatefulWidget {
-  const SettingsScreen({super.key});
+class ProfileScreen extends StatefulWidget {
+  const ProfileScreen({super.key});
 
   @override
-  State<SettingsScreen> createState() => _SettingsScreenState();
+  State<ProfileScreen> createState() => _ProfileScreenState();
 }
 
-class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProviderStateMixin {
+class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProviderStateMixin {
   final LocalAuthentication _auth = LocalAuthentication();
 
   @override
@@ -41,65 +41,35 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
                 child: Column(
                   children: [
-                    const SizedBox(height: 16),
+                    _buildProfileCard(context, settings),
+                    const SizedBox(height: 32),
                     
-                    _buildSectionHeader(AppLocalizations.of(context)!.preferences, outlineColor),
+                    _buildSectionHeader("GENERAL", outlineColor),
                     const SizedBox(height: 8),
                     _buildGlassCard(
                       context,
                       child: Column(
                         children: [
-                          _buildSwitchTile(
+                          _buildMenuTile(
                             context: context,
-                            icon: Icons.dark_mode_rounded,
-                            iconBgColor: const Color(0xFFE1E0FF),
-                            iconColor: const Color(0xFF4143D5),
-                            title: AppLocalizations.of(context)!.darkMode,
-                            subtitle: AppLocalizations.of(context)!.enableDarkAppearance,
-                            value: settings.darkMode,
-                            onChanged: (value) => settings.setDarkMode(value),
-                            showBorder: true,
-                          ),
-                          _buildSwitchTile(
-                            context: context,
-                            icon: Icons.notifications_rounded,
+                            icon: Icons.info_rounded,
                             iconBgColor: isDark ? Colors.white12 : const Color(0xFFDCE9FF),
                             iconColor: const Color(0xFF4143D5),
-                            title: AppLocalizations.of(context)!.notifications,
-                            subtitle: AppLocalizations.of(context)!.getReminders,
-                            value: settings.notifications,
-                            onChanged: (value) => settings.setNotifications(value),
-                            showBorder: true,
-                          ),
-                          _buildSwitchTile(
-                            context: context,
-                            icon: Icons.fingerprint_rounded,
-                            iconBgColor: isDark ? Colors.white12 : const Color(0xFFDCE9FF),
-                            iconColor: const Color(0xFF4143D5),
-                            title: AppLocalizations.of(context)!.biometricLock,
-                            subtitle: AppLocalizations.of(context)!.protectSecurely,
-                            value: settings.biometricLock,
-                            onChanged: (value) async {
-                              if (value) {
-                                bool authenticated = false;
-                                try {
-                                  authenticated = await _auth.authenticate(
-                                    localizedReason: 'Authenticate to enable biometric lock',
-                                    persistAcrossBackgrounding: true,
-                                  );
-                                } catch (e) {
-                                  if (context.mounted) {
-                                    ToastHelper.showToast(context, 'Biometrics not available.', isError: true);
-                                  }
-                                  return;
-                                }
-                                if (authenticated) {
-                                  settings.setBiometricLock(true);
-                                }
-                              } else {
-                                settings.setBiometricLock(false);
-                              }
+                            title: "About App",
+                            subtitle: "Version 1.0.0",
+                            onTap: () {
+                              ToastHelper.showToast(context, 'SmartKhata v1.0.0');
                             },
+                            showBorder: true,
+                          ),
+                          _buildMenuTile(
+                            context: context,
+                            icon: Icons.system_update_rounded,
+                            iconBgColor: isDark ? Colors.white12 : const Color(0xFFDCE9FF),
+                            iconColor: const Color(0xFF4143D5),
+                            title: "App Updates",
+                            subtitle: "Check for new versions",
+                            onTap: () => _showUpdateDialog(context),
                             showBorder: false,
                           ),
                         ],
@@ -107,45 +77,33 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                     ),
                     const SizedBox(height: 32),
 
-                    _buildSectionHeader(AppLocalizations.of(context)!.general, outlineColor),
+                    _buildSectionHeader("SECURITY & DATA", outlineColor),
                     const SizedBox(height: 8),
-                    _buildGlassCard(
-                      context,
-                      child: Column(
-                        children: [
-                          _buildMenuTile(
-                            context: context,
-                            icon: Icons.language_rounded,
-                            iconBgColor: isDark ? Colors.white12 : const Color(0xFFDCE9FF),
-                            iconColor: const Color(0xFF4143D5),
-                            title: AppLocalizations.of(context)!.language,
-                            subtitle: settings.locale.languageCode == 'hi' 
-                                ? AppLocalizations.of(context)!.hindi 
-                                : AppLocalizations.of(context)!.english,
-                            subtitleColor: const Color(0xFF4143D5),
-                            onTap: () => _showLanguageDialog(context, settings),
-                            showBorder: true,
-                          ),
-                          _buildMenuTile(
-                            context: context,
-                            icon: Icons.cloud_done_rounded,
-                            iconBgColor: isDark ? Colors.white12 : const Color(0xFFDCE9FF),
-                            iconColor: const Color(0xFF4143D5),
-                            title: AppLocalizations.of(context)!.backupRestore,
-                            subtitle: "Auto-synced to cloud",
-                            onTap: () async {
-                              ToastHelper.showToast(context, 'Syncing with secure cloud...');
-                              await Provider.of<RecordProvider>(context, listen: false).fetchData();
-                              if (context.mounted) {
-                                ToastHelper.showToast(context, 'All data is fully backed up to the cloud!');
-                              }
-                            },
-                            showBorder: false,
-                          ),
-                        ],
-                      ),
+                    Row(
+                      children: [
+                        Expanded(child: _buildSquareCard(
+                          context: context,
+                          icon: Icons.shield_rounded,
+                          iconBgColor: const Color(0xFF4143D5).withOpacity(0.1),
+                          iconColor: const Color(0xFF4143D5),
+                          title: "Privacy",
+                          subtitle: "Data usage controls",
+                        )),
+                        const SizedBox(width: 16),
+                        Expanded(child: _buildSquareCard(
+                          context: context,
+                          icon: Icons.storage_rounded,
+                          iconBgColor: const Color(0xFF5B3CDD).withOpacity(0.1),
+                          iconColor: const Color(0xFF5B3CDD),
+                          title: "Data Storage",
+                          subtitle: "Manage locally",
+                        )),
+                      ],
                     ),
                     const SizedBox(height: 32),
+
+                    _buildLogoutButton(context, settings),
+                    const SizedBox(height: 48),
 
                     _buildFooter(outlineColor),
                     const SizedBox(height: 100),
@@ -258,33 +216,15 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
   Widget _buildTopAppBar(BuildContext context, Color textColor) {
     return Container(
       height: 64,
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          IconButton(
-            icon: const Icon(Icons.arrow_back_rounded),
-            color: textColor,
-            onPressed: () {
-              if (Navigator.canPop(context)) {
-                Navigator.pop(context);
-              }
-            },
-          ),
-          Text(
-            "Settings",
-            style: GoogleFonts.inter(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: textColor,
-            ),
-          ),
-          IconButton(
-            icon: const Icon(Icons.search_rounded),
-            color: textColor,
-            onPressed: () {},
-          ),
-        ],
+      padding: const EdgeInsets.symmetric(horizontal: 24),
+      alignment: Alignment.centerLeft,
+      child: Text(
+        "My Profile",
+        style: GoogleFonts.inter(
+          fontSize: 24,
+          fontWeight: FontWeight.bold,
+          color: textColor,
+        ),
       ),
     );
   }

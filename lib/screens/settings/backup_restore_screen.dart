@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 
 import '../../core/constants/app_colors.dart';
 import '../../providers/record_provider.dart';
+import '../../core/utils/date_helper.dart';
 import '../../services/backup_service.dart';
 import '../../services/recovery_service.dart';
 import '../../core/utils/toast_helper.dart';
@@ -130,7 +131,7 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> with SingleTi
                     ),
                     Text(
                       _history.isNotEmpty
-                          ? DateFormat('dd MMM yyyy, hh:mm a').format(DateTime.parse(_history.first['timestamp']))
+                          ? DateHelper.formatDateTime(DateTime.parse(_history.first['timestamp']))
                           : "No backups yet",
                       style: GoogleFonts.poppins(
                         color: isDark ? Colors.white : Colors.black,
@@ -303,7 +304,7 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> with SingleTi
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  DateFormat('dd MMM yyyy, hh:mm a').format(DateTime.parse(item['timestamp'])),
+                  DateHelper.formatDateTime(DateTime.parse(item['timestamp'])),
                   style: GoogleFonts.poppins(color: Colors.grey.shade400, fontSize: 11),
                 ),
               ],

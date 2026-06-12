@@ -9,9 +9,11 @@ import 'package:share_plus/share_plus.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 
-import '../../providers/record_provider.dart';
 import '../../models/transaction_model.dart';
 import 'toast_helper.dart';
+import 'premium_pdf_generator.dart';
+import 'date_helper.dart';
+import '../../providers/record_provider.dart';
 
 class ExportHelper {
   static void showExportOptions(BuildContext context, {String? cashbookName}) {
@@ -78,7 +80,7 @@ class ExportHelper {
 
       for (var record in records) {
         csvData.add([
-          record.date.toIso8601String().split('T')[0],
+          DateHelper.formatDateTime(record.date),
           record.personName,
           record.isGiven ? 'Given' : 'Received',
           record.amount.toString(),
@@ -104,58 +106,6 @@ class ExportHelper {
   }
 
   static Future<void> _exportToPdf(BuildContext context, List<RecordModel> records, String? cashbookName) async {
-    try {
-      final pdf = pw.Document();
-      final title = cashbookName != null ? "$cashbookName Records" : "SmartKhata Records";
-
-      pdf.addPage(
-        pw.MultiPage(
-          pageFormat: PdfPageFormat.a4,
-          build: (pw.Context context) {
-            return [
-              pw.Header(
-                level: 0,
-                child: pw.Text(title, style: pw.TextStyle(fontSize: 24, fontWeight: pw.FontWeight.bold)),
-              ),
-              pw.SizedBox(height: 10),
-              pw.Text("Generated on: ${DateTime.now().toString().split('.')[0]}"),
-              pw.SizedBox(height: 20),
-              pw.TableHelper.fromTextArray(
-                headers: ['Date', 'Name', 'Type', 'Amount', 'Note'],
-                data: records.map((record) {
-                  return [
-                    record.date.toIso8601String().split('T')[0],
-                    record.personName,
-                    record.isGiven ? 'Given' : 'Received',
-                    record.amount.toStringAsFixed(2),
-                    record.note,
-                  ];
-                }).toList(),
-                headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold, color: PdfColors.white),
-                headerDecoration: const pw.BoxDecoration(color: PdfColors.blue800),
-                rowDecoration: const pw.BoxDecoration(
-                  border: pw.Border(bottom: pw.BorderSide(color: PdfColors.grey300, width: 0.5)),
-                ),
-                cellAlignment: pw.Alignment.centerLeft,
-                cellStyle: const pw.TextStyle(fontSize: 10),
-              ),
-            ];
-          },
-        ),
-      );
-
-      final directory = await getApplicationDocumentsDirectory();
-      final prefix = cashbookName != null ? cashbookName.replaceAll(' ', '_').toLowerCase() : 'smartkhata';
-      final path = '${directory.path}/${prefix}_records_${DateTime.now().millisecondsSinceEpoch}.pdf';
-      final file = File(path);
-      await file.writeAsBytes(await pdf.save());
-      
-      // ignore: deprecated_member_use
-      await Share.shareXFiles([XFile(path)], text: cashbookName != null ? '$cashbookName Records (PDF)' : 'My SmartKhata Records (PDF)');
-    } catch (e) {
-      if (context.mounted) {
-        ToastHelper.showToast(context, 'PDF Export failed: $e', isError: true);
-      }
-    }
+    await PremiumPdfGenerator.generateAndSharePdf(context, records, cashbookName);
   }
 }

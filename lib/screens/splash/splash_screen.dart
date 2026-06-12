@@ -24,9 +24,12 @@ class _SplashScreenState extends State<SplashScreen>
   late Animation<double> _fadeAnimation;
   late Animation<double> _scaleAnimation;
 
+  String _appVersion = "1.0.0";
+
   @override
   void initState() {
     super.initState();
+    _initAppVersion();
 
     _animationController = AnimationController(
       vsync: this,
@@ -75,6 +78,16 @@ class _SplashScreenState extends State<SplashScreen>
     });
   }
 
+  Future<void> _initAppVersion() async {
+    try {
+      setState(() {
+        _appVersion = "1.0.0";
+      });
+    } catch (e) {
+      // Ignore
+    }
+  }
+
   @override
   void dispose() {
     _animationController.dispose();
@@ -121,20 +134,19 @@ class _SplashScreenState extends State<SplashScreen>
             child: FadeTransition(
               opacity: _fadeAnimation,
 
-              child: ScaleTransition(
-                scale: _scaleAnimation,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
 
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
+                  // Logo Container
+                    ScaleTransition(
+                      scale: _scaleAnimation,
+                      child: Container(
+                        height: 120,
+                        width: 120,
 
-                    // Logo Container
-                    Container(
-                      height: 120,
-                      width: 120,
-
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(30),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(30),
 
                         gradient: const LinearGradient(
                           colors: [
@@ -155,10 +167,11 @@ class _SplashScreenState extends State<SplashScreen>
                         ],
                       ),
 
-                      child: const Icon(
-                        Icons.account_balance_wallet_rounded,
-                        size: 60,
-                        color: Colors.white,
+                        child: const Icon(
+                          Icons.account_balance_wallet_rounded,
+                          size: 60,
+                          color: Colors.white,
+                        ),
                       ),
                     ),
 
@@ -190,28 +203,46 @@ class _SplashScreenState extends State<SplashScreen>
                     const SizedBox(height: 50),
 
                     // Loader
-                    const CircularProgressIndicator(
-                      color: Colors.white,
-                      strokeWidth: 3,
+                    SizedBox(
+                      width: 40,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(10),
+                        child: const LinearProgressIndicator(
+                          color: Colors.white,
+                          backgroundColor: Colors.white24,
+                          minHeight: 4,
+                        ),
+                      ),
                     ),
                   ],
                 ),
               ),
             ),
-          ),
-
           // Bottom Text
           Positioned(
             bottom: 30,
             left: 0,
             right: 0,
-            child: Text(
-              "100% Safe & Secure",
-              textAlign: TextAlign.center,
-              style: GoogleFonts.poppins(
-                color: Colors.white38,
-                fontSize: 13,
-              ),
+            child: Column(
+              children: [
+                Text(
+                  "100% Safe & Secure",
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.poppins(
+                    color: Colors.white38,
+                    fontSize: 13,
+                  ),
+                ),
+                const SizedBox(height: 5),
+                Text(
+                  "Version $_appVersion",
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.poppins(
+                    color: Colors.white24,
+                    fontSize: 11,
+                  ),
+                ),
+              ],
             ),
           ),
         ],
