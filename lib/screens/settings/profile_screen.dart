@@ -8,6 +8,7 @@ import 'dart:ui';
 import '../../core/constants/app_colors.dart';
 import '../../providers/settings_provider.dart';
 import '../../providers/record_provider.dart';
+import '../../providers/auth_provider.dart';
 import '../../core/utils/toast_helper.dart';
 import '../auth/login_screen.dart';
 
@@ -99,6 +100,24 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                           subtitle: "Manage locally",
                         )),
                       ],
+                    ),
+                    const SizedBox(height: 16),
+                    _buildGlassCard(
+                      context,
+                      child: Column(
+                        children: [
+                          _buildMenuTile(
+                            context: context,
+                            icon: Icons.lock_outline_rounded,
+                            iconBgColor: isDark ? Colors.white12 : const Color(0xFFDCE9FF),
+                            iconColor: const Color(0xFF4143D5),
+                            title: "Change Password",
+                            subtitle: "Update your account password",
+                            onTap: () => _showChangePasswordDialog(context),
+                            showBorder: false,
+                          ),
+                        ],
+                      ),
                     ),
                     const SizedBox(height: 32),
 
@@ -772,6 +791,111 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
               ),
             ],
           ),
+        );
+      },
+    );
+  }
+
+  void _showChangePasswordDialog(BuildContext context) {
+    final TextEditingController currentPasswordController = TextEditingController();
+    final TextEditingController newPasswordController = TextEditingController();
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    bool isObscureCurrent = true;
+    bool isObscureNew = true;
+
+    showDialog(
+      context: context,
+      builder: (dialogContext) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              backgroundColor: isDark ? const Color(0xFF2D3133) : Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+              title: Text("Change Password", style: GoogleFonts.inter(fontWeight: FontWeight.bold, color: isDark ? Colors.white : const Color(0xFF191C1E))),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextField(
+                    controller: currentPasswordController,
+                    obscureText: isObscureCurrent,
+                    style: GoogleFonts.inter(color: isDark ? Colors.white : const Color(0xFF191C1E)),
+                    decoration: InputDecoration(
+                      hintText: "Current Password",
+                      hintStyle: GoogleFonts.inter(color: isDark ? Colors.white54 : Colors.grey),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(color: Color(0xFF4143D5), width: 2),
+                      ),
+                      suffixIcon: IconButton(
+                        icon: Icon(isObscureCurrent ? Icons.visibility_off : Icons.visibility, color: isDark ? Colors.white54 : Colors.grey),
+                        onPressed: () => setState(() => isObscureCurrent = !isObscureCurrent),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  TextField(
+                    controller: newPasswordController,
+                    obscureText: isObscureNew,
+                    style: GoogleFonts.inter(color: isDark ? Colors.white : const Color(0xFF191C1E)),
+                    decoration: InputDecoration(
+                      hintText: "New Password",
+                      hintStyle: GoogleFonts.inter(color: isDark ? Colors.white54 : Colors.grey),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(color: Color(0xFF4143D5), width: 2),
+                      ),
+                      suffixIcon: IconButton(
+                        icon: Icon(isObscureNew ? Icons.visibility_off : Icons.visibility, color: isDark ? Colors.white54 : Colors.grey),
+                        onPressed: () => setState(() => isObscureNew = !isObscureNew),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(dialogContext),
+                  child: Text("Cancel", style: GoogleFonts.inter(color: isDark ? Colors.white54 : Colors.grey, fontWeight: FontWeight.w600)),
+                ),
+                Consumer<AuthProvider>(
+                  builder: (context, authProvider, child) {
+                    return ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF4143D5),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                      ),
+                      onPressed: authProvider.isLoading ? null : () async {
+                        final currentPassword = currentPasswordController.text.trim();
+                        final newPassword = newPasswordController.text.trim();
+                        
+                        if (currentPassword.isEmpty || newPassword.isEmpty) {
+                          ToastHelper.showToast(context, 'Both passwords are required', isError: true);
+                          return;
+                        }
+                        
+                        final success = await authProvider.changePassword(currentPassword, newPassword);
+                        
+                        if (context.mounted) {
+                          if (success) {
+                            Navigator.pop(dialogContext);
+                            ToastHelper.showToast(context, 'Password changed successfully');
+                          } else {
+                            ToastHelper.showToast(context, authProvider.error ?? 'Failed to change password', isError: true);
+                          }
+                        }
+                      },
+                      child: authProvider.isLoading 
+                          ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                          : Text("Update", style: GoogleFonts.inter(color: Colors.white, fontWeight: FontWeight.bold)),
+                    );
+                  }
+                ),
+              ],
+            );
+          }
         );
       },
     );

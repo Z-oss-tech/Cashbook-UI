@@ -68,17 +68,6 @@ class _LoginScreenState extends State<LoginScreen> {
     }
 
     if (res != null && mounted) {
-      if (!_isLogin) {
-        // User just registered. First ask for register, then ask for login.
-        ToastHelper.showToast(context, 'Registration successful. Please login to continue.');
-        await authProvider.logout(); // Clear the automatically saved token
-        setState(() {
-          _isLogin = true;
-          _passwordController.clear();
-        });
-        return;
-      }
-
       final isNewUser = res['isNewUser'] == true;
       
       if (isNewUser) {

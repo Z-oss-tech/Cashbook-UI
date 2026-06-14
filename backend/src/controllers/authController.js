@@ -37,6 +37,7 @@ const register = async (req, res, next) => {
             email: email || user.email
           }
         });
+        if (!user.name) isNewUser = true;
       } else {
         res.status(400);
         throw new Error('User with this username already exists');
@@ -221,10 +222,53 @@ const googleLogin = async (req, res, next) => {
   }
 };
 
+const changePassword = async (req, res, next) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+    if (!currentPassword || !newPassword) {
+      res.status(400);
+      throw new Error('Current password and new password are required');
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { id: req.user.id }
+    });
+
+    if (!user || user.authProvider !== 'password' || !user.passwordHash) {
+      res.status(400);
+      throw new Error('Cannot change password for this account type');
+    }
+
+    const isMatch = await bcrypt.compare(currentPassword, user.passwordHash);
+
+    if (!isMatch) {
+      res.status(401);
+      throw new Error('Invalid current password');
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    const passwordHash = await bcrypt.hash(newPassword, salt);
+
+    await prisma.user.update({
+      where: { id: req.user.id },
+      data: { passwordHash }
+    });
+
+    res.json({
+      success: true,
+      message: 'Password changed successfully'
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+
 module.exports = {
   register,
   login,
   updateProfile,
   getProfile,
-  googleLogin
+  googleLogin,
+  changePassword
 };

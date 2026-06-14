@@ -89,6 +89,20 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
+  Future<bool> changePassword(String currentPassword, String newPassword) async {
+    _setLoading(true);
+    _setError(null);
+    try {
+      await _apiService.changePassword(currentPassword: currentPassword, newPassword: newPassword);
+      _setLoading(false);
+      return true;
+    } catch (e) {
+      _setError(e.toString().replaceAll('Exception: ', ''));
+      _setLoading(false);
+      return false;
+    }
+  }
+
   Future<Map<String, dynamic>?> googleLogin() async {
     _setLoading(true);
     _setError(null);

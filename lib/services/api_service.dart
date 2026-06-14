@@ -9,10 +9,10 @@ class ApiService {
   // static const String baseUrl = 'https://stupid-geckos-obey.loca.lt/api';
   
   // Local LAN IP for reliable development
-  static const String baseUrl = 'http://192.168.29.173:3000/api';
+  // static const String baseUrl = 'http://10.234.18.43:3000/api';
   
   // Live Production Server
-  // static const String baseUrl = 'https://cashbook-a3kn.onrender.com/api';
+  static const String baseUrl = 'https://cashbook-a3kn.onrender.com/api';
 
   static const String _tokenKey = 'auth_token';
 
@@ -94,6 +94,13 @@ class ApiService {
     });
   }
 
+  Future<Map<String, dynamic>> changePassword({required String currentPassword, required String newPassword}) async {
+    return await _post('/auth/change-password', {
+      'currentPassword': currentPassword,
+      'newPassword': newPassword,
+    });
+  }
+
   // --- Cashbooks ---
 
   Future<List<dynamic>> getCashbooks() async {
@@ -139,17 +146,17 @@ class ApiService {
   // --- Base HTTP Methods ---
 
   Future<dynamic> _get(String path) async {
-    int retries = 15;
+    int retries = 2;
     while (retries > 0) {
       try {
         final response = await http
             .get(Uri.parse('$baseUrl$path'), headers: await _getHeaders())
-            .timeout(const Duration(seconds: 10));
+            .timeout(const Duration(seconds: 5));
         
         if (response.statusCode == 502 || response.statusCode == 503 || response.statusCode == 504) {
           retries--;
           if (retries == 0) return _handleResponse(response);
-          await Future.delayed(const Duration(seconds: 3));
+          await Future.delayed(const Duration(seconds: 1));
           continue;
         }
         
@@ -166,7 +173,7 @@ class ApiService {
         if (e.toString().contains('SocketException') || e.toString().contains('Failed host lookup')) {
           retries--;
           if (retries == 0) throw Exception('network_error: Connection failed.');
-          await Future.delayed(const Duration(seconds: 3));
+          await Future.delayed(const Duration(seconds: 1));
           continue;
         }
         rethrow;
@@ -175,7 +182,7 @@ class ApiService {
   }
 
   Future<dynamic> _post(String path, Map<String, dynamic> body) async {
-    int retries = 15;
+    int retries = 2;
     while (retries > 0) {
       try {
         final response = await http
@@ -184,12 +191,12 @@ class ApiService {
               headers: await _getHeaders(),
               body: jsonEncode(body),
             )
-            .timeout(const Duration(seconds: 10));
+            .timeout(const Duration(seconds: 5));
         
         if (response.statusCode == 502 || response.statusCode == 503 || response.statusCode == 504) {
           retries--;
           if (retries == 0) return _handleResponse(response);
-          await Future.delayed(const Duration(seconds: 3));
+          await Future.delayed(const Duration(seconds: 1));
           continue;
         }
         
@@ -206,7 +213,7 @@ class ApiService {
         if (e.toString().contains('SocketException') || e.toString().contains('Failed host lookup')) {
           retries--;
           if (retries == 0) throw Exception('network_error: Connection failed.');
-          await Future.delayed(const Duration(seconds: 3));
+          await Future.delayed(const Duration(seconds: 1));
           continue;
         }
         rethrow;
@@ -215,7 +222,7 @@ class ApiService {
   }
 
   Future<dynamic> _put(String path, Map<String, dynamic> body) async {
-    int retries = 15;
+    int retries = 2;
     while (retries > 0) {
       try {
         final response = await http
@@ -224,12 +231,12 @@ class ApiService {
               headers: await _getHeaders(),
               body: jsonEncode(body),
             )
-            .timeout(const Duration(seconds: 10));
+            .timeout(const Duration(seconds: 5));
         
         if (response.statusCode == 502 || response.statusCode == 503 || response.statusCode == 504) {
           retries--;
           if (retries == 0) return _handleResponse(response);
-          await Future.delayed(const Duration(seconds: 3));
+          await Future.delayed(const Duration(seconds: 1));
           continue;
         }
         
@@ -246,7 +253,7 @@ class ApiService {
         if (e.toString().contains('SocketException') || e.toString().contains('Failed host lookup')) {
           retries--;
           if (retries == 0) throw Exception('network_error: Connection failed.');
-          await Future.delayed(const Duration(seconds: 3));
+          await Future.delayed(const Duration(seconds: 1));
           continue;
         }
         rethrow;
@@ -255,18 +262,18 @@ class ApiService {
   }
 
   Future<dynamic> _delete(String path) async {
-    int retries = 15;
+    int retries = 2;
     while (retries > 0) {
       try {
         final response = await http
             .delete(Uri.parse('$baseUrl$path'), headers: await _getHeaders())
-            .timeout(const Duration(seconds: 10));
+            .timeout(const Duration(seconds: 5));
         if (response.statusCode == 204) return null;
         
         if (response.statusCode == 502 || response.statusCode == 503 || response.statusCode == 504) {
           retries--;
           if (retries == 0) return _handleResponse(response);
-          await Future.delayed(const Duration(seconds: 3));
+          await Future.delayed(const Duration(seconds: 1));
           continue;
         }
         
@@ -283,7 +290,7 @@ class ApiService {
         if (e.toString().contains('SocketException') || e.toString().contains('Failed host lookup')) {
           retries--;
           if (retries == 0) throw Exception('network_error: Connection failed.');
-          await Future.delayed(const Duration(seconds: 3));
+          await Future.delayed(const Duration(seconds: 1));
           continue;
         }
         rethrow;
