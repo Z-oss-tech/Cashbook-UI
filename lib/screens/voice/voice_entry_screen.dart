@@ -241,13 +241,6 @@ class _VoiceEntryScreenState extends State<VoiceEntryScreen> with TickerProvider
                       Expanded(
                         child: Row(
                           children: [
-                            IconButton(
-                              onPressed: () => Navigator.pop(context),
-                              icon: const Icon(Icons.arrow_back, color: Color(0xFFC6C0FF)),
-                              padding: EdgeInsets.zero,
-                              constraints: const BoxConstraints(),
-                            ),
-                            const SizedBox(width: 12),
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
