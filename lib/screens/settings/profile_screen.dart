@@ -11,6 +11,7 @@ import '../../providers/record_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../core/utils/toast_helper.dart';
 import '../../core/services/notification_service.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../auth/login_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -193,11 +194,16 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
               ),
             ),
             ElevatedButton(
-              onPressed: () {
-                Navigator.pop(context);
-                ToastHelper.showToast(context, 'Downloading update in background...');
-                // Integration point: You can use url_launcher here to open the Play Store
-              },
+                onPressed: () async {
+                  Navigator.pop(context);
+                  ToastHelper.showToast(context, 'Opening update page...');
+                  final Uri url = Uri.parse('https://github.com/Z-oss-tech/Cashbook-UI/releases');
+                  if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
+                    if (context.mounted) {
+                      ToastHelper.showToast(context, 'Could not launch URL.', isError: true);
+                    }
+                  }
+                },
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF4143D5),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
