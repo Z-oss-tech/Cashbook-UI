@@ -10,6 +10,7 @@ import '../../providers/settings_provider.dart';
 import '../../providers/record_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../core/utils/toast_helper.dart';
+import '../../core/services/notification_service.dart';
 import '../auth/login_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -70,38 +71,17 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                             iconColor: const Color(0xFF4143D5),
                             title: "App Updates",
                             subtitle: "Check for new versions",
-                            onTap: () => _showUpdateDialog(context),
+                            onTap: () {
+                              _showUpdateDialog(context);
+                              NotificationService().showUpdateNotification();
+                            },
                             showBorder: false,
                           ),
                         ],
                       ),
                     ),
-                    const SizedBox(height: 32),
-
-                    _buildSectionHeader("SECURITY & DATA", outlineColor),
+                    _buildSectionHeader("SECURITY", outlineColor),
                     const SizedBox(height: 8),
-                    Row(
-                      children: [
-                        Expanded(child: _buildSquareCard(
-                          context: context,
-                          icon: Icons.shield_rounded,
-                          iconBgColor: const Color(0xFF4143D5).withOpacity(0.1),
-                          iconColor: const Color(0xFF4143D5),
-                          title: "Privacy",
-                          subtitle: "Data usage controls",
-                        )),
-                        const SizedBox(width: 16),
-                        Expanded(child: _buildSquareCard(
-                          context: context,
-                          icon: Icons.storage_rounded,
-                          iconBgColor: const Color(0xFF5B3CDD).withOpacity(0.1),
-                          iconColor: const Color(0xFF5B3CDD),
-                          title: "Data Storage",
-                          subtitle: "Manage locally",
-                        )),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
                     _buildGlassCard(
                       context,
                       child: Column(
@@ -109,10 +89,10 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                           _buildMenuTile(
                             context: context,
                             icon: Icons.lock_outline_rounded,
-                            iconBgColor: isDark ? Colors.white12 : const Color(0xFFDCE9FF),
-                            iconColor: const Color(0xFF4143D5),
+                            iconBgColor: isDark ? Colors.white12 : const Color(0xFFFFE4E4),
+                            iconColor: const Color(0xFFE53935),
                             title: "Change Password",
-                            subtitle: "Update your account password",
+                            subtitle: "Update your login password",
                             onTap: () => _showChangePasswordDialog(context),
                             showBorder: false,
                           ),
@@ -120,7 +100,6 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                       ),
                     ),
                     const SizedBox(height: 32),
-
                     _buildLogoutButton(context, settings),
                     const SizedBox(height: 48),
 

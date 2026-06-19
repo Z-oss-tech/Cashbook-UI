@@ -65,11 +65,22 @@ class AppDrawer extends StatelessWidget {
             width: MediaQuery.of(context).size.width * 0.6,
             height: MediaQuery.of(context).size.height * 0.6,
             child: Opacity(
-              opacity: 0.15, // Increased visibility
-              child: Image.network(
-                'https://lh3.googleusercontent.com/aida-public/AB6AXuCvPkNvoPKKWqX9DSQ428WeUX6ccQsgQFec3XjfbB0ChmQOvzYrPSv-1f4SYkxNH1jghXV8jv6o59zh9-q5pefn556N3pBk_IZosbFEhFsiiTtZVYOsJiXgZ6NgSRS959l1k-MoaCrn_R7Vx6ydTNEdvYfv8LNkveGYeSr_WLSFbSTTewwG15s3PexmThf5hoHTXwBYteROsm0I4wTziXD1aN1qlUmmYLZ2tXyyA5sxztKnBrxruISIabn9on8DUAFCifm4NvfVZT5f',
-                fit: BoxFit.contain,
-                alignment: Alignment.bottomRight,
+              opacity: isDark ? 0.1 : 0.15, 
+              child: ShaderMask(
+                shaderCallback: (rect) {
+                  return const LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [Colors.transparent, Colors.black],
+                    stops: [0.0, 0.5],
+                  ).createShader(rect);
+                },
+                blendMode: BlendMode.dstIn,
+                child: Image.network(
+                  'https://lh3.googleusercontent.com/aida-public/AB6AXuCvPkNvoPKKWqX9DSQ428WeUX6ccQsgQFec3XjfbB0ChmQOvzYrPSv-1f4SYkxNH1jghXV8jv6o59zh9-q5pefn556N3pBk_IZosbFEhFsiiTtZVYOsJiXgZ6NgSRS959l1k-MoaCrn_R7Vx6ydTNEdvYfv8LNkveGYeSr_WLSFbSTTewwG15s3PexmThf5hoHTXwBYteROsm0I4wTziXD1aN1qlUmmYLZ2tXyyA5sxztKnBrxruISIabn9on8DUAFCifm4NvfVZT5f',
+                  fit: BoxFit.contain,
+                  alignment: Alignment.bottomRight,
+                ),
               ),
             ),
           ),
@@ -122,31 +133,6 @@ class AppDrawer extends StatelessWidget {
                                       ),
                                     );
                                   },
-                                ),
-                              ),
-                            ),
-                            Positioned(
-                              bottom: -4,
-                              right: -4,
-                              child: Container(
-                                padding: const EdgeInsets.all(6),
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  shape: BoxShape.circle,
-                                  border: Border.all(
-                                    color: Colors.grey.withOpacity(0.1),
-                                  ),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black.withOpacity(0.05),
-                                      blurRadius: 4,
-                                    ),
-                                  ],
-                                ),
-                                child: const Icon(
-                                  Icons.edit_rounded,
-                                  size: 16,
-                                  color: Colors.grey,
                                 ),
                               ),
                             ),
@@ -232,7 +218,9 @@ class AppDrawer extends StatelessWidget {
                           showDialog(
                             context: context,
                             builder: (BuildContext context) {
+                              final isDialogDark = Theme.of(context).brightness == Brightness.dark;
                               return AlertDialog(
+                                backgroundColor: isDialogDark ? const Color(0xFF2D2D35) : Colors.white,
                                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                                 title: Row(
                                   children: [
@@ -255,21 +243,25 @@ class AppDrawer extends StatelessWidget {
                                         icon: Icons.menu_book_rounded,
                                         title: "1. Create Cashbooks",
                                         description: "Use the Home screen to create dedicated ledgers for your personal or business needs.",
+                                        isDark: isDialogDark,
                                       ),
                                       _buildTutorialStep(
                                         icon: Icons.add_circle_outline_rounded,
                                         title: "2. Add Records",
                                         description: "Tap the + button inside any cashbook to log Income or Expenses with custom notes.",
+                                        isDark: isDialogDark,
                                       ),
                                       _buildTutorialStep(
                                         icon: Icons.cloud_sync_rounded,
                                         title: "3. Auto-Sync",
                                         description: "Your data is automatically synced to the cloud whenever you have internet access.",
+                                        isDark: isDialogDark,
                                       ),
                                       _buildTutorialStep(
                                         icon: Icons.bar_chart_rounded,
                                         title: "4. View Reports",
                                         description: "Access detailed PDF and graphical reports from the Dashboard.",
+                                        isDark: isDialogDark,
                                       ),
                                     ],
                                   ),
@@ -493,7 +485,7 @@ class AppDrawer extends StatelessWidget {
     );
   }
 
-  Widget _buildTutorialStep({required IconData icon, required String title, required String description}) {
+  Widget _buildTutorialStep({required IconData icon, required String title, required String description, required bool isDark}) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16.0),
       child: Row(
@@ -512,9 +504,9 @@ class AppDrawer extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: GoogleFonts.poppins(fontWeight: FontWeight.bold, fontSize: 14)),
+                Text(title, style: GoogleFonts.poppins(fontWeight: FontWeight.bold, fontSize: 14, color: isDark ? Colors.white : Colors.black87)),
                 const SizedBox(height: 4),
-                Text(description, style: GoogleFonts.poppins(fontSize: 12, color: Colors.grey)),
+                Text(description, style: GoogleFonts.poppins(fontSize: 12, color: isDark ? Colors.white54 : Colors.grey)),
               ],
             ),
           ),

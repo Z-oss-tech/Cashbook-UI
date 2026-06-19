@@ -10,6 +10,7 @@ import '../../providers/settings_provider.dart';
 import '../../providers/record_provider.dart';
 import '../../core/utils/toast_helper.dart';
 import '../auth/login_screen.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -68,7 +69,25 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                             title: AppLocalizations.of(context)!.notifications,
                             subtitle: AppLocalizations.of(context)!.getReminders,
                             value: settings.notifications,
-                            onChanged: (value) => settings.setNotifications(value),
+                            onChanged: (value) async {
+                              if (value) {
+                                var status = await Permission.notification.status;
+                                if (status.isDenied) {
+                                  status = await Permission.notification.request();
+                                }
+                                
+                                if (status.isGranted) {
+                                  settings.setNotifications(true);
+                                  if (context.mounted) ToastHelper.showToast(context, 'Notifications enabled');
+                                } else {
+                                  if (context.mounted) ToastHelper.showToast(context, 'Notification permission denied', isError: true);
+                                  settings.setNotifications(false);
+                                }
+                              } else {
+                                settings.setNotifications(false);
+                                if (context.mounted) ToastHelper.showToast(context, 'Notifications disabled');
+                              }
+                            },
                             showBorder: true,
                           ),
                           _buildSwitchTile(

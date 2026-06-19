@@ -11,10 +11,15 @@ import 'providers/auth_provider.dart';
 import 'core/theme/light_theme.dart';
 import 'core/theme/dark_theme.dart';
 import 'core/widgets/lock_screen_wrapper.dart';
+import 'core/services/notification_service.dart';
 
 import 'screens/splash/splash_screen.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await NotificationService().init();
+  NotificationService().scheduleInactivityReminder();
+  
   runApp(const SmartKhataApp());
 }
 

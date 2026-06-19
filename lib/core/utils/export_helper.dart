@@ -75,15 +75,19 @@ class ExportHelper {
   static Future<void> _exportToCsv(BuildContext context, List<RecordModel> records, String? cashbookName) async {
     try {
       List<List<dynamic>> csvData = [
-        ['Date', 'Name', 'Type', 'Amount', 'Note']
+        ['Date', 'Time', 'Cashbook', 'Payment Mode', 'Category', 'Title', 'Type', 'Amount', 'Note']
       ];
 
       for (var record in records) {
         csvData.add([
-          DateHelper.formatDateTime(record.date),
-          record.personName,
-          record.isGiven ? 'Given' : 'Received',
-          record.amount.toString(),
+          DateHelper.formatDate(record.date),
+          DateHelper.formatTime(record.date),
+          record.cashbookName ?? 'General',
+          record.paymentMethod ?? 'Cash',
+          record.category ?? 'General',
+          record.title,
+          record.type == 'expense' ? 'Expense' : 'Income',
+          record.amount.toStringAsFixed(2),
           record.note,
         ]);
       }

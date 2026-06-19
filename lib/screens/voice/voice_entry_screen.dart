@@ -14,33 +14,36 @@ class VoiceEntryScreen extends StatefulWidget {
   const VoiceEntryScreen({super.key});
 
   @override
-  State<VoiceEntryScreen> createState() =>
-      _VoiceEntryScreenState();
+  State<VoiceEntryScreen> createState() => _VoiceEntryScreenState();
 }
 
-class _VoiceEntryScreenState
-    extends State<VoiceEntryScreen>
-    with SingleTickerProviderStateMixin {
-
+class _VoiceEntryScreenState extends State<VoiceEntryScreen> with TickerProviderStateMixin {
   bool isListening = false;
-  late AnimationController _controller;
-  String recognizedText = "Tap the mic and start speaking...";
+  late AnimationController _pulseController;
+  late AnimationController _floatController;
+  String recognizedText = "";
   
   final stt.SpeechToText _speechToText = stt.SpeechToText();
   String? parsedCashbook;
   double? parsedAmount;
   bool parsedIsGiven = true;
+  String? parsedCategory;
 
   @override
   void initState() {
     super.initState();
     _initSpeech();
 
-    _controller = AnimationController(
+    _pulseController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 1200),
-      lowerBound: 0.8,
-      upperBound: 1.1,
+      duration: const Duration(milliseconds: 2000),
+      lowerBound: 0.0,
+      upperBound: 1.0,
+    )..repeat(reverse: false);
+
+    _floatController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 4),
     )..repeat(reverse: true);
   }
 
@@ -50,7 +53,8 @@ class _VoiceEntryScreenState
 
   @override
   void dispose() {
-    _controller.dispose();
+    _pulseController.dispose();
+    _floatController.dispose();
     _speechToText.cancel();
     super.dispose();
   }
@@ -64,16 +68,17 @@ class _VoiceEntryScreenState
       _speechToText.stop();
       setState(() {
         isListening = false;
-        if (recognizedText.isEmpty || recognizedText == "Listening...") {
-          recognizedText = "Tap the mic and start speaking...";
+        if (recognizedText.isEmpty) {
+          recognizedText = "";
         }
       });
     } else {
       setState(() {
         isListening = true;
-        recognizedText = "Listening...";
+        recognizedText = "";
         parsedCashbook = null;
         parsedAmount = null;
+        parsedCategory = null;
       });
       _speechToText.listen(
         onResult: (result) {
@@ -96,12 +101,23 @@ class _VoiceEntryScreenState
     }
     
     // Find transaction type
-    if (text.contains('receive') || text.contains('got') || text.contains('liye')) {
+    if (text.contains('receive') || text.contains('got') || text.contains('liye') || text.contains('salary')) {
       parsedIsGiven = false;
     } else if (text.contains('give') || text.contains('gave') || text.contains('diye') || text.contains('paid')) {
       parsedIsGiven = true;
     }
     
+    // Simple category inference
+    if (text.contains('food') || text.contains('dinner') || text.contains('lunch') || text.contains('restaurant')) {
+      parsedCategory = "Food & Dining";
+    } else if (text.contains('rent') || text.contains('house')) {
+      parsedCategory = "Housing";
+    } else if (text.contains('salary')) {
+      parsedCategory = "Income";
+    } else if (text.contains('stock') || text.contains('investment')) {
+      parsedCategory = "Investment";
+    }
+
     // Basic cashbook extraction
     final words = text.split(' ');
     bool foundCashbook = false;
@@ -117,9 +133,9 @@ class _VoiceEntryScreenState
     }
     
     if (!foundCashbook && words.isNotEmpty) {
-      final stopWords = ['i', 'we', 'he', 'she', 'they', 'received', 'got', 'gave', 'paid', 'diye', 'liye', 'ko', 'se', 'me', 'in', 'for', 'to', 'from'];
+      final stopWords = ['i', 'we', 'he', 'she', 'they', 'received', 'got', 'gave', 'paid', 'diye', 'liye', 'ko', 'se', 'me', 'in', 'for', 'to', 'from', 'a', 'the', 'my'];
       for (var w in words) {
-        if (!stopWords.contains(w) && double.tryParse(w) == null && w.length > 1) {
+        if (!stopWords.contains(w) && double.tryParse(w) == null && w.length > 2) {
           parsedCashbook = _capitalize(w);
           break;
         }
@@ -140,7 +156,6 @@ class _VoiceEntryScreenState
     
     final recordProvider = Provider.of<RecordProvider>(context, listen: false);
 
-    // If cashbook doesn't exist, create it
     if (!recordProvider.cashbooks.any((c) => c.name.toLowerCase() == parsedCashbook!.toLowerCase())) {
       recordProvider.addCashbook(parsedCashbook!);
     }
@@ -155,10 +170,10 @@ class _VoiceEntryScreenState
     final record = RecordModel(
       id: '',
       cashbookId: cashbook.id,
-      title: 'Voice Entry',
+      title: parsedCategory ?? 'Voice Entry',
       amount: parsedAmount!,
       type: parsedIsGiven ? 'expense' : 'income',
-      note: "Added via Voice",
+      note: "Added via AI Voice",
       date: DateTime.now(),
       cashbookName: parsedCashbook!,
     );
@@ -173,253 +188,366 @@ class _VoiceEntryScreenState
     }
 
     ToastHelper.showToast(context, "Record saved successfully!");
-
     AnimationHelper.showEmojiAnimation(context, isIncome: !parsedIsGiven, amount: parsedAmount!);
 
     setState(() {
-      recognizedText = "Tap the mic and start speaking...";
+      recognizedText = "";
       parsedAmount = null;
       parsedCashbook = null;
+      parsedCategory = null;
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      extendBodyBehindAppBar: true,
+    final size = MediaQuery.of(context).size;
+    final isReadyToSave = parsedCashbook != null && parsedAmount != null;
 
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Color(0xFF0F172A), Color(0xFF1E1B4B)], // Deep premium dark theme
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
+    return Scaffold(
+      backgroundColor: const Color(0xFF081028),
+      extendBodyBehindAppBar: true,
+      body: Stack(
+        children: [
+          // Atmospheric Mesh Gradient Background
+          Positioned(
+            top: -size.height * 0.2,
+            left: -size.width * 0.3,
+            child: Container(
+              width: size.width * 1.5,
+              height: size.height * 1.5,
+              decoration: BoxDecoration(
+                gradient: RadialGradient(
+                  colors: [
+                    const Color(0xFF6D5BFF).withValues(alpha: 0.15),
+                    const Color(0xFF3CD7FF).withValues(alpha: 0.05),
+                    const Color(0xFF081028).withValues(alpha: 0.0),
+                  ],
+                  radius: 0.8,
+                  center: Alignment.center,
+                ),
+              ),
+            ),
           ),
-        ),
-        child: SafeArea(
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              return SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(minHeight: constraints.maxHeight),
-                  child: IntrinsicHeight(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          // Header
-                          Text(
-                            "Smart Voice Entry",
-                            style: GoogleFonts.outfit(
-                              color: Colors.white,
-                              fontSize: 32,
-                              fontWeight: FontWeight.bold,
-                              letterSpacing: 1.2,
+          
+          SafeArea(
+            child: Column(
+              children: [
+                // Top App Bar
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Row(
+                          children: [
+                            IconButton(
+                              onPressed: () => Navigator.pop(context),
+                              icon: const Icon(Icons.arrow_back, color: Color(0xFFC6C0FF)),
+                              padding: EdgeInsets.zero,
+                              constraints: const BoxConstraints(),
                             ),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            "Speak naturally and let AI handle the records.",
-                            style: GoogleFonts.outfit(
-                              color: Colors.white60,
-                              fontSize: 15,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                          
-                          const Spacer(),
-                          
-                          // Animated Mic Area
-                          SizedBox(
-                            height: 240,
-                            child: Center(
-                              child: AnimatedBuilder(
-                                animation: _controller,
-                                builder: (context, child) {
-                                  return Stack(
-                                    alignment: Alignment.center,
-                                    children: [
-                                      if (isListening) ...[
-                                        _buildRipple(240, _controller.value * 1.5, 0.1),
-                                        _buildRipple(200, _controller.value * 1.2, 0.2),
-                                      ],
-                                      GestureDetector(
-                                        onTap: toggleListening,
-                                        child: Container(
-                                          height: 120,
-                                          width: 120,
-                                          decoration: BoxDecoration(
-                                            shape: BoxShape.circle,
-                                            gradient: LinearGradient(
-                                              colors: isListening
-                                                  ? [Colors.redAccent, Colors.red]
-                                                  : [AppColors.primary, AppColors.secondary],
-                                              begin: Alignment.topLeft,
-                                              end: Alignment.bottomRight,
-                                            ),
-                                            boxShadow: [
-                                              BoxShadow(
-                                                color: (isListening ? Colors.red : AppColors.primary).withValues(alpha: 0.6),
-                                                blurRadius: 30,
-                                                spreadRadius: isListening ? 15 : 5,
-                                              ),
-                                            ],
-                                          ),
-                                          child: Icon(
-                                            isListening ? Icons.mic : Icons.mic_none_rounded,
-                                            size: 50,
-                                            color: Colors.white,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  );
-                                },
-                              ),
-                            ),
-                          ),
-                          
-                          const SizedBox(height: 30),
-                          
-                          // Listening Text
-                          Text(
-                            isListening ? "Listening..." : "Tap to Speak",
-                            style: GoogleFonts.outfit(
-                              color: Colors.white,
-                              fontSize: 22,
-                              fontWeight: FontWeight.w600,
-                              letterSpacing: 1.1,
-                            ),
-                          ),
-                          const SizedBox(height: 10),
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                            decoration: BoxDecoration(
-                              color: Colors.white.withValues(alpha: 0.1),
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            child: Text(
-                              "Try: “TestBook me 500 diye”",
-                              style: GoogleFonts.outfit(
-                                color: Colors.white70,
-                                fontSize: 13,
-                              ),
-                            ),
-                          ),
-                          
-                          const SizedBox(height: 40),
-                          
-                          // Glassmorphic Preview
-                          if (recognizedText != "Tap the mic and start speaking...")
-                            _buildGlassCard(
+                            const SizedBox(width: 12),
+                            Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Row(
-                                    children: [
-                                      Container(
-                                        padding: const EdgeInsets.all(8),
-                                        decoration: BoxDecoration(
-                                          color: Colors.amber.withValues(alpha: 0.2),
-                                          borderRadius: BorderRadius.circular(12),
-                                        ),
-                                        child: const Icon(Icons.auto_awesome, color: Colors.amber, size: 18),
-                                      ),
-                                      const SizedBox(width: 12),
-                                      Text(
-                                        "AI Detected",
-                                        style: GoogleFonts.outfit(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.w600,
-                                          fontSize: 16,
-                                          letterSpacing: 1.1,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 16),
                                   Text(
-                                    recognizedText,
-                                    style: GoogleFonts.outfit(
-                                      color: Colors.white70,
-                                      fontSize: 16,
-                                      height: 1.5,
-                                      fontStyle: isListening ? FontStyle.italic : FontStyle.normal,
+                                    "Smart Voice Assistant",
+                                    style: GoogleFonts.geist(
+                                      color: const Color(0xFFC6C0FF),
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w600,
                                     ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
                                   ),
-                                  if (parsedCashbook != null || parsedAmount != null) ...[
-                                    const Padding(
-                                      padding: EdgeInsets.symmetric(vertical: 16),
-                                      child: Divider(color: Colors.white24, height: 1),
+                                  Text(
+                                    "Finances at the speed of thought",
+                                    style: GoogleFonts.inter(
+                                      color: Colors.white54,
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.w600,
+                                      letterSpacing: 0.5,
                                     ),
-                                    _buildInfoRow("Cashbook", parsedCashbook ?? "Searching..."),
-                                    const SizedBox(height: 12),
-                                    _buildInfoRow("Amount", parsedAmount != null ? "₹${parsedAmount!.toStringAsFixed(0)}" : "Searching..."),
-                                    const SizedBox(height: 12),
-                                    _buildInfoRow(
-                                      "Type", 
-                                      parsedIsGiven ? "Given (-)" : "Received (+)",
-                                      color: parsedIsGiven ? Colors.redAccent : Colors.greenAccent,
-                                    ),
-                                  ]
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
                                 ],
                               ),
                             ),
-                          
-                          const Spacer(),
-                          
-                          // Save Button
-                          AnimatedContainer(
-                            duration: const Duration(milliseconds: 300),
-                            width: double.infinity,
-                            height: 60,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(20),
-                              gradient: LinearGradient(
-                                colors: (parsedCashbook != null && parsedAmount != null)
-                                    ? [const Color(0xFF10B981), const Color(0xFF059669)] // Vibrant Green
-                                    : [Colors.grey.shade800, Colors.grey.shade900], // Disabled state
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.04),
+                          border: Border.all(color: Colors.white.withValues(alpha: 0.12)),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Row(
+                          children: [
+                            Container(
+                              width: 6,
+                              height: 6,
+                              decoration: const BoxDecoration(
+                                color: Color(0xFF3CD7FF),
+                                shape: BoxShape.circle,
                               ),
-                              boxShadow: (parsedCashbook != null && parsedAmount != null)
-                                  ? [
-                                      BoxShadow(
-                                        color: const Color(0xFF10B981).withValues(alpha: 0.4),
-                                        blurRadius: 20,
-                                        offset: const Offset(0, 8),
-                                      )
-                                    ]
-                                  : null,
                             ),
-                            child: ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.transparent,
-                                shadowColor: Colors.transparent,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(20),
+                            const SizedBox(width: 6),
+                            Text(
+                              "AI POWERED",
+                              style: GoogleFonts.geist(
+                                color: const Color(0xFF3CD7FF),
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: 0.5,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                Expanded(
+                  child: SingleChildScrollView(
+                    physics: const BouncingScrollPhysics(),
+                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                    child: Column(
+                      children: [
+                        const SizedBox(height: 20),
+                        Text(
+                          "Speak naturally and let AI organize your finances automatically",
+                          textAlign: TextAlign.center,
+                          style: GoogleFonts.inter(
+                            color: const Color(0xFFC8C4D8).withValues(alpha: 0.8),
+                            fontSize: 14,
+                          ),
+                        ),
+                        const SizedBox(height: 40),
+
+                        // 3D Mic Asset / Orb
+                        SizedBox(
+                          height: 280,
+                          width: 280,
+                          child: Stack(
+                            alignment: Alignment.center,
+                            children: [
+                              // Pulse Rings
+                              if (isListening)
+                                AnimatedBuilder(
+                                  animation: _pulseController,
+                                  builder: (context, child) {
+                                    return Stack(
+                                      alignment: Alignment.center,
+                                      children: [
+                                        _buildPulseRing(280, _pulseController.value, 0.2),
+                                        _buildPulseRing(220, (_pulseController.value + 0.5) % 1.0, 0.4),
+                                      ],
+                                    );
+                                  },
+                                ),
+                              
+                              // The Orb
+                              GestureDetector(
+                                onTap: toggleListening,
+                                child: AnimatedBuilder(
+                                  animation: _floatController,
+                                  builder: (context, child) {
+                                    return Transform.translate(
+                                      offset: Offset(0, isListening ? 0 : -10 * _floatController.value),
+                                      child: Container(
+                                        width: 140,
+                                        height: 140,
+                                        decoration: BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          gradient: const LinearGradient(
+                                            colors: [Color(0xFF6D5BFF), Color(0xFF3CD7FF)],
+                                            begin: Alignment.topLeft,
+                                            end: Alignment.bottomRight,
+                                          ),
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: const Color(0xFF6D5BFF).withValues(alpha: 0.4),
+                                              blurRadius: isListening ? 40 : 20,
+                                              spreadRadius: isListening ? 10 : 0,
+                                            ),
+                                          ],
+                                        ),
+                                        child: Icon(
+                                          isListening ? Icons.mic : Icons.mic_none_rounded,
+                                          color: Colors.white,
+                                          size: 56,
+                                        ),
+                                      ),
+                                    );
+                                  },
                                 ),
                               ),
-                              onPressed: (parsedCashbook != null && parsedAmount != null) ? _saveRecord : null,
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(
-                                    (parsedCashbook != null && parsedAmount != null) ? Icons.check_circle_outline : Icons.mic_off,
-                                    color: (parsedCashbook != null && parsedAmount != null) ? Colors.white : Colors.white54,
-                                  ),
-                                  const SizedBox(width: 12),
-                                  Text(
-                                    "Save Record",
-                                    style: GoogleFonts.outfit(
-                                      color: (parsedCashbook != null && parsedAmount != null) ? Colors.white : Colors.white54,
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                      letterSpacing: 1.1,
+                            ],
+                          ),
+                        ),
+                        
+                        const SizedBox(height: 20),
+                        
+                        // Listening Status
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.mic, color: const Color(0xFF3CD7FF), size: 20),
+                            const SizedBox(width: 8),
+                            Text(
+                              isListening ? "Listening..." : "Tap to speak",
+                              style: GoogleFonts.geist(
+                                color: const Color(0xFF3CD7FF),
+                                fontSize: 24,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
+
+                        // Transcript Card
+                        if (recognizedText.isNotEmpty)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 24),
+                            child: AnimatedBuilder(
+                              animation: _floatController,
+                              builder: (context, child) {
+                                return Transform.translate(
+                                  offset: Offset(0, -5 * _floatController.value),
+                                  child: _buildGlassContainer(
+                                    padding: const EdgeInsets.all(16),
+                                    child: Center(
+                                      child: Text(
+                                        recognizedText,
+                                        style: GoogleFonts.inter(
+                                          color: Colors.white,
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w500,
+                                          height: 1.5,
+                                        ),
+                                        textAlign: TextAlign.center,
+                                      ),
                                     ),
                                   ),
-                                ],
+                                );
+                              }
+                            ),
+                          ),
+
+                        const SizedBox(height: 40),
+
+                        // AI Understanding Grid
+                        if (isReadyToSave || parsedCashbook != null || parsedAmount != null)
+                          GridView.count(
+                            crossAxisCount: 2,
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            mainAxisSpacing: 16,
+                            crossAxisSpacing: 16,
+                            childAspectRatio: 2.2,
+                            children: [
+                              _buildGridItem(
+                                icon: Icons.person,
+                                iconColor: const Color(0xFFC6C0FF),
+                                title: "CASHBOOK NAME",
+                                value: parsedCashbook ?? "Searching...",
                               ),
+                              _buildGridItem(
+                                icon: Icons.payments,
+                                iconColor: const Color(0xFF3CD7FF),
+                                title: "AMOUNT",
+                                value: parsedAmount != null ? "₹${parsedAmount!.toStringAsFixed(2)}" : "Searching...",
+                              ),
+                              _buildGridItem(
+                                icon: Icons.restaurant,
+                                iconColor: const Color(0xFFD0BCFF),
+                                title: "CATEGORY",
+                                value: parsedCategory ?? "Uncategorized",
+                              ),
+                              _buildGridItem(
+                                icon: Icons.account_balance_wallet,
+                                iconColor: const Color(0xFF3CD7FF),
+                                title: "TYPE",
+                                value: parsedIsGiven ? "Expense" : "Income",
+                              ),
+                            ],
+                          ),
+
+                        const SizedBox(height: 40),
+
+                        // Voice Suggestions
+                        if (recognizedText.isEmpty && !isListening)
+                          SizedBox(
+                            height: 40,
+                            child: ListView(
+                              scrollDirection: Axis.horizontal,
+                              physics: const BouncingScrollPhysics(),
+                              children: [
+                                _buildSuggestionChip('Try: "Received salary 50000"'),
+                                _buildSuggestionChip('Try: "Paid Rent 15000"'),
+                                _buildSuggestionChip('Try: "Stock investment 2000"'),
+                              ],
+                            ),
+                          ),
+
+                        const SizedBox(height: 20),
+                      ],
+                    ),
+                  ),
+                ),
+
+                // Save Button
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
+                  child: InkWell(
+                    onTap: isReadyToSave ? _saveRecord : null,
+                    borderRadius: BorderRadius.circular(30),
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 300),
+                      width: double.infinity,
+                      height: 56,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(30),
+                        gradient: isReadyToSave
+                            ? const LinearGradient(
+                                colors: [Color(0xFF6D5BFF), Color(0xFF3CD7FF)],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                              )
+                            : LinearGradient(
+                                colors: [Colors.white.withValues(alpha: 0.1), Colors.white.withValues(alpha: 0.05)],
+                              ),
+                        boxShadow: isReadyToSave
+                            ? [
+                                BoxShadow(
+                                  color: const Color(0xFF6D5BFF).withValues(alpha: 0.4),
+                                  blurRadius: 20,
+                                  offset: const Offset(0, 0),
+                                )
+                              ]
+                            : [],
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.check_circle,
+                            color: isReadyToSave ? Colors.white : Colors.white54,
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            "Save Transaction",
+                            style: GoogleFonts.geist(
+                              color: isReadyToSave ? Colors.white : Colors.white54,
+                              fontSize: 18,
+                              fontWeight: FontWeight.w600,
                             ),
                           ),
                         ],
@@ -427,40 +555,42 @@ class _VoiceEntryScreenState
                     ),
                   ),
                 ),
-              );
-            },
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPulseRing(double maxSize, double progress, double startOpacity) {
+    return Transform.scale(
+      scale: progress * 1.5,
+      child: Container(
+        width: maxSize,
+        height: maxSize,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          border: Border.all(
+            color: const Color(0xFF6D5BFF).withValues(alpha: startOpacity * (1 - progress)),
+            width: 2,
           ),
         ),
       ),
     );
   }
 
-  Widget _buildRipple(double size, double scale, double opacity) {
-    return Transform.scale(
-      scale: scale,
-      child: Container(
-        width: size,
-        height: size,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: Colors.redAccent.withValues(alpha: opacity),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildGlassCard({required Widget child}) {
+  Widget _buildGlassContainer({required Widget child, EdgeInsetsGeometry? padding}) {
     return ClipRRect(
-      borderRadius: BorderRadius.circular(24),
+      borderRadius: BorderRadius.circular(16),
       child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+        filter: ImageFilter.blur(sigmaX: 40, sigmaY: 40),
         child: Container(
-          width: double.infinity,
-          padding: const EdgeInsets.all(24),
+          padding: padding,
           decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.08),
-            borderRadius: BorderRadius.circular(24),
-            border: Border.all(color: Colors.white.withValues(alpha: 0.15)),
+            color: Colors.white.withValues(alpha: 0.04),
+            border: Border.all(color: Colors.white.withValues(alpha: 0.12)),
+            borderRadius: BorderRadius.circular(16),
           ),
           child: child,
         ),
@@ -468,27 +598,74 @@ class _VoiceEntryScreenState
     );
   }
 
-  Widget _buildInfoRow(String title, String value, {Color? color}) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(
-          title,
-          style: GoogleFonts.outfit(
-            color: Colors.white60,
-            fontSize: 15,
+  Widget _buildGridItem({
+    required IconData icon,
+    required Color iconColor,
+    required String title,
+    required String value,
+  }) {
+    return _buildGlassContainer(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      child: Row(
+        children: [
+          Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: iconColor.withValues(alpha: 0.2),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(icon, color: iconColor, size: 20),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  title,
+                  style: GoogleFonts.geist(
+                    color: const Color(0xFFC8C4D8),
+                    fontSize: 10,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+                Text(
+                  value,
+                  style: GoogleFonts.geist(
+                    color: Colors.white,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSuggestionChip(String text) {
+    return Padding(
+      padding: const EdgeInsets.only(right: 8),
+      child: _buildGlassContainer(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        child: Center(
+          child: Text(
+            text,
+            style: GoogleFonts.geist(
+              color: const Color(0xFFC8C4D8),
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+            ),
           ),
         ),
-        Text(
-          value,
-          style: GoogleFonts.outfit(
-            color: color ?? Colors.white,
-            fontWeight: FontWeight.bold,
-            fontSize: 16,
-            letterSpacing: 1.1,
-          ),
-        ),
-      ],
+      ),
     );
   }
 }

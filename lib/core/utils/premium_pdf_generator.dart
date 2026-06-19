@@ -443,20 +443,49 @@ class PremiumPdfGenerator {
           footer: _buildPageFooter,
           build: (pw.Context context) {
             return [
-              pw.Text("Visual Analytics", style: pw.TextStyle(fontSize: 24, fontWeight: pw.FontWeight.bold, color: PdfColor.fromHex('#191C1E'))),
-              pw.SizedBox(height: 20),
+              pw.Text("Visual Analytics & Trends", style: pw.TextStyle(fontSize: 26, fontWeight: pw.FontWeight.bold, color: PdfColor.fromHex('#191C1E'))),
+              pw.SizedBox(height: 8),
+              pw.Text("These colorful visual representations of your financial data help you quickly identify patterns and trends in your spending and earning habits.", style: pw.TextStyle(fontSize: 14, color: PdfColors.grey700)),
+              pw.SizedBox(height: 24),
               
               pw.Container(
-                padding: const pw.EdgeInsets.all(20),
+                padding: const pw.EdgeInsets.all(24),
                 decoration: pw.BoxDecoration(
                   color: PdfColors.white,
                   borderRadius: pw.BorderRadius.circular(16),
-                  border: pw.Border.all(color: PdfColors.grey200),
+                  border: pw.Border.all(color: PdfColor.fromHex('#E0E0E0')),
+                  boxShadow: [pw.BoxShadow(color: PdfColor.fromHex('#00000010'), blurRadius: 10, offset: const PdfPoint(0, 4))],
                 ),
                 child: pw.Column(
                   crossAxisAlignment: pw.CrossAxisAlignment.start,
                   children: [
-                    pw.Text("Expense Distribution", style: pw.TextStyle(fontSize: 20, fontWeight: pw.FontWeight.bold, color: PdfColor.fromHex('#191C1E'))),
+                    pw.Text("1. Income vs Expense Comparison", style: pw.TextStyle(fontSize: 20, fontWeight: pw.FontWeight.bold, color: PdfColor.fromHex('#4143D5'))),
+                    pw.SizedBox(height: 6),
+                    pw.Text("A high-level overview of your cash flow. A healthy financial state generally shows a larger income segment.", style: pw.TextStyle(fontSize: 12, color: PdfColors.grey700)),
+                    pw.SizedBox(height: 20),
+                    if (totalIncome > 0 || totalExpense > 0)
+                      _buildComparisonChart(totalIncome, totalExpense)
+                    else pw.Text("No data available for comparison.", style: const pw.TextStyle(color: PdfColors.grey500)),
+                  ]
+                )
+              ),
+              
+              pw.SizedBox(height: 30),
+              
+              pw.Container(
+                padding: const pw.EdgeInsets.all(24),
+                decoration: pw.BoxDecoration(
+                  color: PdfColors.white,
+                  borderRadius: pw.BorderRadius.circular(16),
+                  border: pw.Border.all(color: PdfColor.fromHex('#E0E0E0')),
+                  boxShadow: [pw.BoxShadow(color: PdfColor.fromHex('#00000010'), blurRadius: 10, offset: const PdfPoint(0, 4))],
+                ),
+                child: pw.Column(
+                  crossAxisAlignment: pw.CrossAxisAlignment.start,
+                  children: [
+                    pw.Text("2. Expense Distribution", style: pw.TextStyle(fontSize: 20, fontWeight: pw.FontWeight.bold, color: PdfColor.fromHex('#E53935'))),
+                    pw.SizedBox(height: 6),
+                    pw.Text("A detailed breakdown of where your money is going. Identifying your top expense categories helps in optimizing your budget and cutting unnecessary costs.", style: pw.TextStyle(fontSize: 12, color: PdfColors.grey700)),
                     pw.SizedBox(height: 20),
                     if (totalExpense > 0) 
                       _buildChartWithLegend(categoryExpense, totalExpense)
@@ -468,16 +497,19 @@ class PremiumPdfGenerator {
               pw.SizedBox(height: 30),
               
               pw.Container(
-                padding: const pw.EdgeInsets.all(20),
+                padding: const pw.EdgeInsets.all(24),
                 decoration: pw.BoxDecoration(
                   color: PdfColors.white,
                   borderRadius: pw.BorderRadius.circular(16),
-                  border: pw.Border.all(color: PdfColors.grey200),
+                  border: pw.Border.all(color: PdfColor.fromHex('#E0E0E0')),
+                  boxShadow: [pw.BoxShadow(color: PdfColor.fromHex('#00000010'), blurRadius: 10, offset: const PdfPoint(0, 4))],
                 ),
                 child: pw.Column(
                   crossAxisAlignment: pw.CrossAxisAlignment.start,
                   children: [
-                    pw.Text("Income Distribution", style: pw.TextStyle(fontSize: 20, fontWeight: pw.FontWeight.bold, color: PdfColor.fromHex('#191C1E'))),
+                    pw.Text("3. Income Distribution", style: pw.TextStyle(fontSize: 20, fontWeight: pw.FontWeight.bold, color: PdfColor.fromHex('#008339'))),
+                    pw.SizedBox(height: 6),
+                    pw.Text("An analysis of your earning sources. Diversifying your income streams can improve financial stability.", style: pw.TextStyle(fontSize: 12, color: PdfColors.grey700)),
                     pw.SizedBox(height: 20),
                     if (totalIncome > 0) 
                       _buildChartWithLegend(categoryIncome, totalIncome)
@@ -485,25 +517,30 @@ class PremiumPdfGenerator {
                   ]
                 )
               ),
-              
+
               pw.SizedBox(height: 30),
+              
               pw.Container(
-                padding: const pw.EdgeInsets.all(20),
+                padding: const pw.EdgeInsets.all(24),
                 decoration: pw.BoxDecoration(
                   color: PdfColors.white,
                   borderRadius: pw.BorderRadius.circular(16),
-                  border: pw.Border.all(color: PdfColors.grey200),
+                  border: pw.Border.all(color: PdfColor.fromHex('#E0E0E0')),
+                  boxShadow: [pw.BoxShadow(color: PdfColor.fromHex('#00000010'), blurRadius: 10, offset: const PdfPoint(0, 4))],
                 ),
                 child: pw.Column(
                   crossAxisAlignment: pw.CrossAxisAlignment.start,
                   children: [
-                    pw.Text("Income vs Expense Comparison", style: pw.TextStyle(fontSize: 20, fontWeight: pw.FontWeight.bold, color: PdfColor.fromHex('#191C1E'))),
+                    pw.Text("4. Monthly Cash Flow Trend", style: pw.TextStyle(fontSize: 20, fontWeight: pw.FontWeight.bold, color: PdfColor.fromHex('#8E24AA'))),
+                    pw.SizedBox(height: 6),
+                    pw.Text("Observe how your income and expenses fluctuate across different months. This helps in predicting future cash flows and planning accordingly.", style: pw.TextStyle(fontSize: 12, color: PdfColors.grey700)),
                     pw.SizedBox(height: 20),
-                    if (totalIncome > 0 || totalExpense > 0)
-                      _buildComparisonChart(totalIncome, totalExpense)
+                    if (monthlyIncome.isNotEmpty || monthlyExpense.isNotEmpty)
+                      _buildMonthlyTrendChart(monthlyIncome, monthlyExpense)
+                    else pw.Text("Not enough data for monthly trends.", style: const pw.TextStyle(color: PdfColors.grey500)),
                   ]
                 )
-              )
+              ),
             ];
           }
         )
@@ -651,7 +688,7 @@ class PremiumPdfGenerator {
             final List<List<String>> tableData = [];
             List<String> headers = ['Date', 'Time'];
             if (isGlobal) headers.add('Book');
-            headers.addAll(['ID/Mode', 'Category', 'Description', 'Type', 'Amount', 'Balance']);
+            headers.addAll(['Payment Mode', 'Category', 'Description', 'Type', 'Amount', 'Balance']);
 
             double runningBalance = 0;
 
@@ -670,7 +707,7 @@ class PremiumPdfGenerator {
               if (isGlobal) row.add(record.cashbookName ?? '-');
               
               row.addAll([
-                "${record.id.substring(0, 4)} / ${record.paymentMethod ?? 'Cash'}",
+                record.paymentMethod ?? 'Cash',
                 record.category ?? 'General',
                 record.personName,
                 record.isGiven ? 'Expense' : 'Income',
@@ -959,34 +996,69 @@ class PremiumPdfGenerator {
       crossAxisAlignment: pw.CrossAxisAlignment.center,
       children: [
         pw.Container(
-          width: 180,
-          height: 180,
-          child: pw.Chart(
-            grid: pw.PieGrid(),
-            datasets: topData.map((e) {
-              return pw.PieDataSet(
-                value: e.value,
-                color: PdfColor.fromHex(_getColorForCategory(e.key)),
-              );
-            }).toList(),
-          ),
+          width: 200,
+          height: 200,
+          child: pw.Stack(
+            alignment: pw.Alignment.center,
+            children: [
+              pw.Chart(
+                grid: pw.PieGrid(),
+                datasets: topData.map((e) {
+                  return pw.PieDataSet(
+                    value: e.value,
+                    color: PdfColor.fromHex(_getColorForCategory(e.key)),
+                    legend: e.key,
+                    drawBorder: true,
+                    borderColor: PdfColors.white,
+                    borderWidth: 2,
+                  );
+                }).toList(),
+              ),
+              pw.Container(
+                width: 110,
+                height: 110,
+                decoration: const pw.BoxDecoration(color: PdfColors.white, shape: pw.BoxShape.circle),
+                child: pw.Center(
+                  child: pw.Column(
+                    mainAxisAlignment: pw.MainAxisAlignment.center,
+                    children: [
+                      pw.Text("Total", style: const pw.TextStyle(fontSize: 10, color: PdfColors.grey600)),
+                      pw.Text(_formatCurrency(total), style: pw.TextStyle(fontSize: 12, fontWeight: pw.FontWeight.bold, color: PdfColor.fromHex('#191C1E'))),
+                    ]
+                  )
+                )
+              ),
+            ]
+          )
         ),
-        pw.SizedBox(width: 40),
+        pw.SizedBox(width: 50),
         pw.Expanded(
           child: pw.Column(
             crossAxisAlignment: pw.CrossAxisAlignment.start,
             mainAxisAlignment: pw.MainAxisAlignment.center,
             children: topData.map((e) {
               return pw.Padding(
-                padding: const pw.EdgeInsets.only(bottom: 8),
+                padding: const pw.EdgeInsets.only(bottom: 10),
                 child: pw.Row(
-                  crossAxisAlignment: pw.CrossAxisAlignment.start,
+                  crossAxisAlignment: pw.CrossAxisAlignment.center,
                   children: [
-                    pw.Container(margin: const pw.EdgeInsets.only(top: 2), width: 12, height: 12, color: PdfColor.fromHex(_getColorForCategory(e.key))),
-                    pw.SizedBox(width: 8),
+                    pw.Container(
+                      width: 14, 
+                      height: 14, 
+                      decoration: pw.BoxDecoration(
+                        color: PdfColor.fromHex(_getColorForCategory(e.key)),
+                        shape: pw.BoxShape.circle,
+                      )
+                    ),
+                    pw.SizedBox(width: 12),
                     pw.Expanded(
-                      child: pw.Text('${e.key} (${((e.value/total)*100).toStringAsFixed(1)}%)\n${_formatCurrency(e.value)}', 
-                        style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold))
+                      child: pw.Column(
+                        crossAxisAlignment: pw.CrossAxisAlignment.start,
+                        children: [
+                          pw.Text('${e.key} (${((e.value/total)*100).toStringAsFixed(1)}%)', style: pw.TextStyle(fontSize: 12, fontWeight: pw.FontWeight.bold, color: PdfColors.grey800)),
+                          pw.Text(_formatCurrency(e.value), style: const pw.TextStyle(fontSize: 11, color: PdfColors.grey600)),
+                        ]
+                      )
                     ),
                   ]
                 )
@@ -1005,17 +1077,36 @@ class PremiumPdfGenerator {
       crossAxisAlignment: pw.CrossAxisAlignment.center,
       children: [
         pw.Container(
-          width: 180,
-          height: 180,
-          child: pw.Chart(
-            grid: pw.PieGrid(),
-            datasets: [
-              if (totalIncome > 0) pw.PieDataSet(value: totalIncome, color: PdfColors.green),
-              if (totalExpense > 0) pw.PieDataSet(value: totalExpense, color: PdfColors.red),
+          width: 200,
+          height: 200,
+          child: pw.Stack(
+            alignment: pw.Alignment.center,
+            children: [
+              pw.Chart(
+                grid: pw.PieGrid(),
+                datasets: [
+                  if (totalIncome > 0) pw.PieDataSet(value: totalIncome, color: PdfColors.green500, drawBorder: true, borderColor: PdfColors.white, borderWidth: 2),
+                  if (totalExpense > 0) pw.PieDataSet(value: totalExpense, color: PdfColors.red500, drawBorder: true, borderColor: PdfColors.white, borderWidth: 2),
+                ]
+              ),
+              pw.Container(
+                width: 110,
+                height: 110,
+                decoration: const pw.BoxDecoration(color: PdfColors.white, shape: pw.BoxShape.circle),
+                child: pw.Center(
+                  child: pw.Column(
+                    mainAxisAlignment: pw.MainAxisAlignment.center,
+                    children: [
+                      pw.Text("Net Balance", style: const pw.TextStyle(fontSize: 10, color: PdfColors.grey600)),
+                      pw.Text(_formatCurrency(totalIncome - totalExpense), style: pw.TextStyle(fontSize: 12, fontWeight: pw.FontWeight.bold, color: (totalIncome - totalExpense) >= 0 ? PdfColors.green700 : PdfColors.red700)),
+                    ]
+                  )
+                )
+              ),
             ]
           )
         ),
-        pw.SizedBox(width: 40),
+        pw.SizedBox(width: 50),
         pw.Expanded(
           child: pw.Column(
             crossAxisAlignment: pw.CrossAxisAlignment.start,
@@ -1023,36 +1114,135 @@ class PremiumPdfGenerator {
             children: [
               if (totalIncome > 0)
                 pw.Padding(
-                  padding: const pw.EdgeInsets.only(bottom: 12),
+                  padding: const pw.EdgeInsets.only(bottom: 16),
                   child: pw.Row(
-                    crossAxisAlignment: pw.CrossAxisAlignment.start,
+                    crossAxisAlignment: pw.CrossAxisAlignment.center,
                     children: [
-                      pw.Container(margin: const pw.EdgeInsets.only(top: 2), width: 12, height: 12, color: PdfColors.green),
-                      pw.SizedBox(width: 8),
+                      pw.Container(width: 14, height: 14, decoration: const pw.BoxDecoration(color: PdfColors.green500, shape: pw.BoxShape.circle)),
+                      pw.SizedBox(width: 12),
                       pw.Expanded(
-                        child: pw.Text('Income (${((totalIncome/total)*100).toStringAsFixed(1)}%)\n${_formatCurrency(totalIncome)}', 
-                          style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold))
+                        child: pw.Column(
+                          crossAxisAlignment: pw.CrossAxisAlignment.start,
+                          children: [
+                            pw.Text('Income (${((totalIncome/total)*100).toStringAsFixed(1)}%)', style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold, color: PdfColors.green800)),
+                            pw.Text(_formatCurrency(totalIncome), style: const pw.TextStyle(fontSize: 12, color: PdfColors.grey700)),
+                          ]
+                        )
                       ),
                     ]
                   )
                 ),
               if (totalExpense > 0)
                 pw.Padding(
-                  padding: const pw.EdgeInsets.only(bottom: 12),
+                  padding: const pw.EdgeInsets.only(bottom: 16),
                   child: pw.Row(
-                    crossAxisAlignment: pw.CrossAxisAlignment.start,
+                    crossAxisAlignment: pw.CrossAxisAlignment.center,
                     children: [
-                      pw.Container(margin: const pw.EdgeInsets.only(top: 2), width: 12, height: 12, color: PdfColors.red),
-                      pw.SizedBox(width: 8),
+                      pw.Container(width: 14, height: 14, decoration: const pw.BoxDecoration(color: PdfColors.red500, shape: pw.BoxShape.circle)),
+                      pw.SizedBox(width: 12),
                       pw.Expanded(
-                        child: pw.Text('Expense (${((totalExpense/total)*100).toStringAsFixed(1)}%)\n${_formatCurrency(totalExpense)}', 
-                          style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold))
+                        child: pw.Column(
+                          crossAxisAlignment: pw.CrossAxisAlignment.start,
+                          children: [
+                            pw.Text('Expense (${((totalExpense/total)*100).toStringAsFixed(1)}%)', style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold, color: PdfColors.red800)),
+                            pw.Text(_formatCurrency(totalExpense), style: const pw.TextStyle(fontSize: 12, color: PdfColors.grey700)),
+                          ]
+                        )
                       ),
                     ]
                   )
                 ),
             ]
           )
+        )
+      ]
+    );
+  }
+
+  static pw.Widget _buildMonthlyTrendChart(Map<String, double> monthlyIncome, Map<String, double> monthlyExpense) {
+    final allMonths = {...monthlyIncome.keys, ...monthlyExpense.keys}.toList();
+    if (allMonths.isEmpty) return pw.Container();
+    
+    final limitedMonths = allMonths.skip(allMonths.length > 6 ? allMonths.length - 6 : 0).toList();
+
+    double maxVal = 0;
+    for (var m in limitedMonths) {
+      if ((monthlyIncome[m] ?? 0) > maxVal) maxVal = monthlyIncome[m]!;
+      if ((monthlyExpense[m] ?? 0) > maxVal) maxVal = monthlyExpense[m]!;
+    }
+    if (maxVal == 0) maxVal = 1;
+
+    return pw.Column(
+      children: [
+        ...limitedMonths.map((m) {
+          double inc = monthlyIncome[m] ?? 0;
+          double exp = monthlyExpense[m] ?? 0;
+          
+          return pw.Padding(
+            padding: const pw.EdgeInsets.only(bottom: 12),
+            child: pw.Row(
+              children: [
+                pw.Container(
+                  width: 70,
+                  child: pw.Text(m, style: pw.TextStyle(fontSize: 10, fontWeight: pw.FontWeight.bold, color: PdfColors.grey800)),
+                ),
+                pw.SizedBox(width: 10),
+                pw.Expanded(
+                  child: pw.Column(
+                    crossAxisAlignment: pw.CrossAxisAlignment.start,
+                    children: [
+                      if (inc > 0)
+                        pw.Row(
+                          children: [
+                            pw.Container(
+                              height: 12,
+                              width: 250 * (inc / maxVal),
+                              decoration: pw.BoxDecoration(
+                                color: PdfColors.green500,
+                                borderRadius: pw.BorderRadius.circular(6),
+                              ),
+                            ),
+                            pw.SizedBox(width: 8),
+                            pw.Text(_formatCurrency(inc), style: const pw.TextStyle(fontSize: 9, color: PdfColors.green700)),
+                          ]
+                        )
+                      else pw.SizedBox(height: 12),
+                      pw.SizedBox(height: 4),
+                      if (exp > 0)
+                        pw.Row(
+                          children: [
+                            pw.Container(
+                              height: 12,
+                              width: 250 * (exp / maxVal),
+                              decoration: pw.BoxDecoration(
+                                color: PdfColors.red500,
+                                borderRadius: pw.BorderRadius.circular(6),
+                              ),
+                            ),
+                            pw.SizedBox(width: 8),
+                            pw.Text(_formatCurrency(exp), style: const pw.TextStyle(fontSize: 9, color: PdfColors.red700)),
+                          ]
+                        )
+                      else pw.SizedBox(height: 12),
+                    ]
+                  )
+                )
+              ]
+            )
+          );
+        }).toList(),
+        pw.SizedBox(height: 16),
+        pw.Row(
+          mainAxisAlignment: pw.MainAxisAlignment.center,
+          children: [
+            pw.Container(width: 12, height: 12, decoration: pw.BoxDecoration(color: PdfColors.green500, borderRadius: pw.BorderRadius.circular(2))),
+            pw.SizedBox(width: 6),
+            pw.Text("Income", style: const pw.TextStyle(fontSize: 10, color: PdfColors.grey700)),
+            pw.SizedBox(width: 20),
+            pw.Container(width: 12, height: 12, decoration: pw.BoxDecoration(color: PdfColors.red500, borderRadius: pw.BorderRadius.circular(2))),
+            pw.SizedBox(width: 6),
+            pw.Text("Expense", style: const pw.TextStyle(fontSize: 10, color: PdfColors.grey700)),
+          ]
         )
       ]
     );

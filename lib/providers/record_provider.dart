@@ -4,6 +4,7 @@ import '../models/transaction_model.dart';
 import '../services/api_service.dart';
 import '../services/local_storage_service.dart';
 import '../services/recovery_service.dart';
+import '../core/services/notification_service.dart';
 
 class RecordProvider extends ChangeNotifier {
   final ApiService _apiService = ApiService();
@@ -275,6 +276,16 @@ class RecordProvider extends ChangeNotifier {
     // Optimistic insert
     _records.insert(0, newRecord);
     await _saveLocalRecords();
+    
+    // Trigger Notifications
+    NotificationService().showTransactionNotification(
+      amount: record.amount,
+      isIncome: !record.isGiven,
+      cashbook: record.cashbookName ?? 'Unknown',
+    );
+    // Reset inactivity timer since user added a transaction
+    NotificationService().scheduleInactivityReminder();
+
     notifyListeners();
 
     if (_isOfflineMode) {

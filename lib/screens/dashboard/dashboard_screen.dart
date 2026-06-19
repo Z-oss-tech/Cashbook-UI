@@ -818,7 +818,7 @@ class DashboardScreen extends StatelessWidget {
               const SizedBox(width: 16),
               _buildProductivityCard(
                 context,
-                title: "PDF Export",
+                title: "Export",
                 icon: Icons.picture_as_pdf_rounded,
                 color: const Color(0xFFE53935),
                 onTap: () {
@@ -1089,7 +1089,7 @@ class DashboardScreen extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 16),
-            const Divider(color: Color(0xFFE6E8EA), height: 1),
+            Divider(color: borderColor, height: 1),
             const SizedBox(height: 16),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1111,7 +1111,9 @@ class DashboardScreen extends StatelessWidget {
                       style: GoogleFonts.inter(
                         fontWeight: FontWeight.bold,
                         fontSize: 18,
-                        color: const Color(0xFF008339),
+                        color: isPositive 
+                            ? (isDark ? const Color(0xFF86EFAC) : const Color(0xFF008339))
+                            : (isDark ? const Color(0xFFFCA5A5) : const Color(0xFFE53935)),
                       ),
                     ),
                   ],
@@ -1119,13 +1121,13 @@ class DashboardScreen extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF2F4F6),
+                    color: isDark ? Colors.white.withOpacity(0.1) : const Color(0xFFF2F4F6),
                     borderRadius: BorderRadius.circular(30),
                   ),
                   child: Text(
                     "Details",
                     style: GoogleFonts.inter(
-                      color: subTextColor,
+                      color: isDark ? Colors.white : subTextColor,
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
                     ),

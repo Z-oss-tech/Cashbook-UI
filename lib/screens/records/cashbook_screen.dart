@@ -7,10 +7,12 @@ import '../../providers/record_provider.dart';
 import '../../models/transaction_model.dart';
 import '../../core/utils/toast_helper.dart';
 import 'add_record_screen.dart';
+import 'transaction_details_screen.dart';
 import '../reports/reports_screen.dart';
 import '../../core/utils/date_helper.dart';
 import 'package:flutter/services.dart';
 import '../../core/utils/export_helper.dart';
+import 'package:table_calendar/table_calendar.dart';
 
 class CashbookScreen extends StatefulWidget {
   final String cashbookName;
@@ -320,34 +322,42 @@ class _CashbookScreenState extends State<CashbookScreen> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Row(
-                    children: [
-                      IconButton(
-                        icon: Icon(Icons.arrow_back_rounded, color: textColor),
-                        onPressed: () {
-                          if (Navigator.canPop(context)) {
-                            Navigator.pop(context);
-                          }
-                        },
-                      ),
-                      const SizedBox(width: 8),
-                      GestureDetector(
-                        onTap: () => _showCashbooksBottomSheet(context),
-                        child: Row(
-                          children: [
-                            Text(
-                              selectedCashbook,
-                              style: GoogleFonts.inter(
-                                fontSize: 20,
-                                fontWeight: FontWeight.w600,
-                                color: textColor,
-                              ),
-                            ),
-                            Icon(Icons.expand_more_rounded, color: isDark ? Colors.white54 : const Color(0xFF767586)),
-                          ],
+                  Expanded(
+                    child: Row(
+                      children: [
+                        IconButton(
+                          icon: Icon(Icons.arrow_back_rounded, color: textColor),
+                          onPressed: () {
+                            if (Navigator.canPop(context)) {
+                              Navigator.pop(context);
+                            }
+                          },
                         ),
-                      ),
-                    ],
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: GestureDetector(
+                            onTap: () => _showCashbooksBottomSheet(context),
+                            child: Row(
+                              children: [
+                                Flexible(
+                                  child: Text(
+                                    selectedCashbook,
+                                    style: GoogleFonts.inter(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.w600,
+                                      color: textColor,
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                                Icon(Icons.expand_more_rounded, color: isDark ? Colors.white54 : const Color(0xFF767586)),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                   Row(
                     children: [
@@ -366,20 +376,13 @@ class _CashbookScreenState extends State<CashbookScreen> {
                       ),
                       IconButton(
                         icon: Icon(_filterDate == null ? Icons.calendar_today_rounded : Icons.event_busy_rounded, color: textColor),
-                        onPressed: () async {
+                        onPressed: () {
                           if (_filterDate != null) {
                             setState(() => _filterDate = null);
                             return;
                           }
-                          final pickedDate = await showDatePicker(
-                            context: context,
-                            initialDate: DateTime.now(),
-                            firstDate: DateTime(2020),
-                            lastDate: DateTime(2030),
-                          );
-                          if (pickedDate != null) {
-                            setState(() => _filterDate = pickedDate);
-                          }
+                          final rawRecords = recordProvider.records.where((r) => r.cashbookName == selectedCashbook).toList();
+                          _showCustomCalendarPicker(context, rawRecords);
                         },
                       ),
                     ],
@@ -478,249 +481,262 @@ class _CashbookScreenState extends State<CashbookScreen> {
             ),
             const SizedBox(height: 32),
 
-            // Transactions List Header
+            // Transactions List
             if (cashbookRecords.isNotEmpty)
-              Container(
-                decoration: BoxDecoration(
-                  color: isDark ? const Color(0xFF2D2D35) : Colors.white,
-                  borderRadius: BorderRadius.circular(28),
-                  border: Border.all(
-                    color: isDark ? Colors.white12 : const Color(0xFFE4E1ED),
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.05),
-                      blurRadius: 25,
-                      offset: const Offset(0, 20),
+              ListView.builder(
+                physics: const NeverScrollableScrollPhysics(),
+                shrinkWrap: true,
+                itemCount: cashbookRecords.length,
+                itemBuilder: (context, index) {
+                  final record = cashbookRecords[cashbookRecords.length - 1 - index]; // reversed
+                  final isCredit = !record.isGiven;
+                  
+                  return Dismissible(
+                    key: Key(record.id),
+                    direction: DismissDirection.endToStart,
+                    background: Container(
+                      alignment: Alignment.centerRight,
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      margin: const EdgeInsets.only(bottom: 16),
+                      decoration: BoxDecoration(
+                        color: Colors.red,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: const Icon(Icons.delete, color: Colors.white),
                     ),
-                  ],
-                ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(28),
-                  child: Column(
-                    children: [
-                      Container(
-                        color: isDark ? const Color(0xFF22222A) : const Color(0xFFF5F2FE),
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              flex: 3,
-                              child: Text(
-                                "DATE & CATEGORY",
-                                style: GoogleFonts.inter(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold,
-                                  color: const Color(0xFF4143D5),
-                                  letterSpacing: 0.5,
-                                ),
-                              ),
+                    confirmDismiss: (direction) async {
+                      HapticFeedback.heavyImpact();
+                      bool confirm = false;
+                      await showDialog(
+                        context: context,
+                        builder: (dialogContext) => AlertDialog(
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                          title: Text("Delete Record", style: GoogleFonts.inter(fontWeight: FontWeight.bold, color: Colors.red)),
+                          content: Text("Are you sure you want to delete this transaction?", style: GoogleFonts.inter()),
+                          actions: [
+                            TextButton(
+                              onPressed: () {
+                                Navigator.pop(dialogContext);
+                              },
+                              child: Text("Cancel", style: GoogleFonts.inter(color: Colors.grey)),
                             ),
-                            Expanded(
-                              flex: 2,
-                              child: Text(
-                                "NOTES",
-                                style: GoogleFonts.inter(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold,
-                                  color: const Color(0xFF4143D5),
-                                  letterSpacing: 0.5,
-                                ),
-                              ),
+                            ElevatedButton(
+                              onPressed: () {
+                                confirm = true;
+                                Navigator.pop(dialogContext);
+                              },
+                              style: ElevatedButton.styleFrom(backgroundColor: Colors.red, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))),
+                              child: Text("Delete", style: GoogleFonts.inter(color: Colors.white)),
                             ),
-                            Expanded(
-                              flex: 2,
-                              child: Text(
-                                "AMOUNT",
-                                textAlign: TextAlign.right,
-                                style: GoogleFonts.inter(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold,
-                                  color: isDark ? Colors.white54 : const Color(0xFF767586),
-                                  letterSpacing: 0.5,
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 32),
                           ],
                         ),
-                      ),
-                      Divider(height: 1, color: isDark ? Colors.white12 : const Color(0xFFE4E1ED).withOpacity(0.5)),
-                      ListView.separated(
-                        physics: const NeverScrollableScrollPhysics(),
-                        shrinkWrap: true,
-                        itemCount: cashbookRecords.length,
-                        separatorBuilder: (context, index) => Divider(height: 1, color: isDark ? Colors.white12 : const Color(0xFFE4E1ED).withOpacity(0.3)),
-                        itemBuilder: (context, index) {
-                          final record = cashbookRecords[cashbookRecords.length - 1 - index]; // reversed
-                          final isCredit = !record.isGiven;
-                          
-                          return Dismissible(
-                            key: Key(record.id),
-                            direction: DismissDirection.endToStart,
-                            background: Container(
-                              alignment: Alignment.centerRight,
-                              padding: const EdgeInsets.symmetric(horizontal: 20),
-                              color: Colors.red,
-                              child: const Icon(Icons.delete, color: Colors.white),
+                      );
+                      return confirm;
+                    },
+                    onDismissed: (direction) async {
+                      final recordProvider = Provider.of<RecordProvider>(context, listen: false);
+                      await recordProvider.deleteRecord(record.id);
+                      
+                      if (mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: const Text("Transaction deleted"),
+                            action: SnackBarAction(
+                              label: "UNDO",
+                              textColor: Colors.blue,
+                              onPressed: () {
+                                // Simple undo logic
+                                recordProvider.addRecord(record);
+                              },
                             ),
-                            confirmDismiss: (direction) async {
-                              HapticFeedback.heavyImpact();
-                              bool confirm = false;
-                              await showDialog(
-                                context: context,
-                                builder: (dialogContext) => AlertDialog(
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                                  title: Text("Delete Record", style: GoogleFonts.inter(fontWeight: FontWeight.bold, color: Colors.red)),
-                                  content: Text("Are you sure you want to delete this transaction?", style: GoogleFonts.inter()),
-                                  actions: [
-                                    TextButton(
-                                      onPressed: () {
-                                        Navigator.pop(dialogContext);
-                                      },
-                                      child: Text("Cancel", style: GoogleFonts.inter(color: Colors.grey)),
-                                    ),
-                                    ElevatedButton(
-                                      onPressed: () {
-                                        confirm = true;
-                                        Navigator.pop(dialogContext);
-                                      },
-                                      style: ElevatedButton.styleFrom(backgroundColor: Colors.red, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))),
-                                      child: Text("Delete", style: GoogleFonts.inter(color: Colors.white)),
-                                    ),
-                                  ],
+                            behavior: SnackBarBehavior.floating,
+                          )
+                        );
+                      }
+                    },
+                    child: Container(
+                      margin: const EdgeInsets.only(bottom: 16),
+                      decoration: BoxDecoration(
+                        color: isDark ? const Color(0xFF2D2D35) : Colors.white,
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(color: isDark ? Colors.white12 : const Color(0xFFE4E1ED)),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.03),
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Top row: Category Tag & Date & More options
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Expanded(
+                                  child: Row(
+                                    children: [
+                                      Flexible(
+                                        child: Container(
+                                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                          decoration: BoxDecoration(
+                                            color: isDark ? Colors.blue.withOpacity(0.2) : Colors.blue.shade50,
+                                            borderRadius: BorderRadius.circular(12),
+                                            border: Border.all(color: isDark ? Colors.blue.withOpacity(0.5) : Colors.blue.shade200),
+                                          ),
+                                          child: Text(
+                                            (record.category != null && record.category!.isNotEmpty) ? record.category! : 'General',
+                                            style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.bold, color: isDark ? Colors.blueAccent : Colors.blue.shade700),
+                                            overflow: TextOverflow.ellipsis,
+                                            maxLines: 1,
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 12),
+                                      Text(
+                                        DateHelper.formatDateTime(record.date),
+                                        style: GoogleFonts.inter(fontSize: 12, color: isDark ? Colors.white54 : Colors.grey.shade600),
+                                      ),
+                                    ],
+                                  ),
                                 ),
-                              );
-                              return confirm;
-                            },
-                            onDismissed: (direction) async {
-                              final recordProvider = Provider.of<RecordProvider>(context, listen: false);
-                              await recordProvider.deleteRecord(record.id);
-                              
-                              if (mounted) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: const Text("Transaction deleted"),
-                                    action: SnackBarAction(
-                                      label: "UNDO",
-                                      textColor: Colors.blue,
-                                      onPressed: () {
-                                        // Simple undo logic
-                                        recordProvider.addRecord(record);
-                                      },
-                                    ),
-                                    behavior: SnackBarBehavior.floating,
-                                  )
-                                );
-                              }
-                            },
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Expanded(
-                                    flex: 3,
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          DateHelper.formatDateTime(record.date),
-                                          style: GoogleFonts.inter(
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 12,
-                                            color: textColor,
-                                          ),
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
+                                SizedBox(
+                                  height: 24,
+                                  width: 24,
+                                  child: PopupMenuButton<String>(
+                                    icon: Icon(Icons.more_vert_rounded, color: isDark ? Colors.white54 : const Color(0xFF464555), size: 20),
+                                    padding: EdgeInsets.zero,
+                                    onSelected: (value) {
+                                      if (value == 'edit') {
+                                        _showEditRecordDialog(context, record);
+                                      } else if (value == 'delete') {
+                                        _showDeleteRecordDialog(context, record);
+                                      }
+                                    },
+                                    itemBuilder: (BuildContext context) => [
+                                      PopupMenuItem(
+                                        value: 'edit',
+                                        child: Row(
+                                          children: [
+                                            const Icon(Icons.edit_rounded, size: 18),
+                                            const SizedBox(width: 8),
+                                            Text('Edit', style: GoogleFonts.inter()),
+                                          ],
                                         ),
-                                        const SizedBox(height: 2),
-                                        Text(
-                                          (record.category != null && record.category!.isNotEmpty) ? record.category! : record.title,
-                                          style: GoogleFonts.inter(
-                                            fontSize: 12,
-                                            color: isDark ? Colors.white54 : const Color(0xFF464555).withOpacity(0.8),
-                                          ),
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  Expanded(
-                                    flex: 2,
-                                    child: Text(
-                                      record.note.isNotEmpty ? record.note : '-',
-                                      style: GoogleFonts.inter(
-                                        fontSize: 12,
-                                        color: isDark ? Colors.white54 : const Color(0xFF464555).withOpacity(0.8),
                                       ),
-                                      maxLines: 2,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ),
-                                  Expanded(
-                                    flex: 2,
-                                    child: Text(
-                                      "${isCredit ? '+' : '-'}${record.amount.toStringAsFixed(2)}",
-                                      textAlign: TextAlign.right,
-                                      style: GoogleFonts.inter(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 12,
-                                        color: isCredit 
-                                            ? (isDark ? const Color(0xFF86EFAC) : const Color(0xFF008339)) 
-                                            : (isDark ? const Color(0xFFFCA5A5) : const Color(0xFFE53935)),
+                                      PopupMenuItem(
+                                        value: 'delete',
+                                        child: Row(
+                                          children: [
+                                            const Icon(Icons.delete_rounded, color: Colors.red, size: 18),
+                                            const SizedBox(width: 8),
+                                            Text('Delete', style: GoogleFonts.inter(color: Colors.red)),
+                                          ],
+                                        ),
                                       ),
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
+                                    ],
                                   ),
-                                  const SizedBox(width: 8),
-                                  SizedBox(
-                                    width: 24,
-                                    child: PopupMenuButton<String>(
-                                      icon: Icon(Icons.more_vert_rounded, color: isDark ? Colors.white54 : const Color(0xFF464555), size: 20),
-                                      padding: EdgeInsets.zero,
-                                      onSelected: (value) {
-                                        if (value == 'edit') {
-                                          _showEditRecordDialog(context, record);
-                                        } else if (value == 'delete') {
-                                          _showDeleteRecordDialog(context, record);
-                                        }
-                                      },
-                                      itemBuilder: (BuildContext context) => [
-                                        PopupMenuItem(
-                                          value: 'edit',
-                                          child: Row(
-                                            children: [
-                                              const Icon(Icons.edit_rounded, size: 18),
-                                              const SizedBox(width: 8),
-                                              Text('Edit', style: GoogleFonts.inter()),
-                                            ],
-                                          ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          
+                          // Type & Amount
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        record.title,
+                                        style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.bold, color: textColor),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        isCredit ? 'Income' : 'Expense',
+                                        style: GoogleFonts.inter(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w500,
+                                          color: isCredit ? Colors.green : Colors.red,
                                         ),
-                                        PopupMenuItem(
-                                          value: 'delete',
-                                          child: Row(
-                                            children: [
-                                              const Icon(Icons.delete_rounded, color: Colors.red, size: 18),
-                                              const SizedBox(width: 8),
-                                              Text('Delete', style: GoogleFonts.inter(color: Colors.red)),
-                                            ],
-                                          ),
-                                        ),
-                                      ],
-                                    ),
+                                      ),
+                                    ],
                                   ),
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  "${isCredit ? '+' : '-'}₹${record.amount.toStringAsFixed(2)}",
+                                  style: GoogleFonts.inter(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 20,
+                                    color: isCredit 
+                                        ? (isDark ? const Color(0xFF86EFAC) : const Color(0xFF008339)) 
+                                        : (isDark ? const Color(0xFFFCA5A5) : const Color(0xFFE53935)),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          
+                          // Details lines
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                if (record.note.isNotEmpty) ...[
+                                  Text(
+                                    "Note: ${record.note}",
+                                    style: GoogleFonts.inter(fontSize: 12, color: isDark ? Colors.white70 : Colors.grey.shade700),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  const SizedBox(height: 4),
                                 ],
+                                Text(
+                                  "Payment: ${record.paymentMethod ?? 'Cash'}",
+                                  style: GoogleFonts.inter(fontSize: 12, color: isDark ? Colors.white70 : Colors.grey.shade700),
+                                ),
+                              ],
+                            ),
+                          ),
+                          
+                          Divider(height: 1, color: isDark ? Colors.white12 : const Color(0xFFE4E1ED)),
+                          
+                          // Details Button
+                          InkWell(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (_) => TransactionDetailsScreen(record: record)),
+                              );
+                            },
+                            borderRadius: const BorderRadius.only(bottomLeft: Radius.circular(20), bottomRight: Radius.circular(20)),
+                            child: Container(
+                              width: double.infinity,
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                              alignment: Alignment.center,
+                              child: Text(
+                                "View Details",
+                                style: GoogleFonts.inter(fontWeight: FontWeight.w600, color: const Color(0xFF4143D5), fontSize: 14),
                               ),
                             ),
-                          );
-                        },
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
-                ),
+                    ),
+                  );
+                },
               ),
 
             // Empty State
@@ -857,6 +873,130 @@ class _CashbookScreenState extends State<CashbookScreen> {
           ),
         ],
       ),
+    );
+  }
+
+  void _showCustomCalendarPicker(BuildContext context, List<RecordModel> records) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    DateTime focusedDay = _filterDate ?? DateTime.now();
+    DateTime? selectedDay = _filterDate;
+
+    // Get unique dates with transactions
+    final transactionDates = records.map((r) => DateTime(r.date.year, r.date.month, r.date.day)).toSet();
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            return Container(
+              height: MediaQuery.of(context).size.height * 0.65,
+              decoration: BoxDecoration(
+                color: isDark ? const Color(0xFF1B1B23) : Colors.white,
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
+              ),
+              child: Column(
+                children: [
+                  const SizedBox(height: 12),
+                  Container(
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: isDark ? Colors.white24 : Colors.grey.shade300,
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          "Select Date",
+                          style: GoogleFonts.inter(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: isDark ? Colors.white : Colors.black87,
+                          ),
+                        ),
+                        if (selectedDay != null)
+                          TextButton(
+                            onPressed: () {
+                              setState(() => _filterDate = null);
+                              Navigator.pop(context);
+                            },
+                            child: Text("Clear", style: GoogleFonts.inter(color: Colors.redAccent, fontWeight: FontWeight.bold)),
+                          ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Expanded(
+                    child: SingleChildScrollView(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: TableCalendar(
+                          firstDay: DateTime.utc(2020, 1, 1),
+                          lastDay: DateTime.utc(2030, 12, 31),
+                          focusedDay: focusedDay,
+                          selectedDayPredicate: (day) => isSameDay(selectedDay, day),
+                          onDaySelected: (sDay, fDay) {
+                            setState(() => _filterDate = sDay);
+                            Navigator.pop(context);
+                          },
+                          calendarFormat: CalendarFormat.month,
+                          headerStyle: HeaderStyle(
+                            formatButtonVisible: false,
+                            titleCentered: true,
+                            titleTextStyle: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w600, color: isDark ? Colors.white : Colors.black87),
+                            leftChevronIcon: Icon(Icons.chevron_left_rounded, color: isDark ? Colors.white54 : Colors.black54),
+                            rightChevronIcon: Icon(Icons.chevron_right_rounded, color: isDark ? Colors.white54 : Colors.black54),
+                          ),
+                          calendarStyle: CalendarStyle(
+                            defaultTextStyle: GoogleFonts.inter(color: isDark ? Colors.white70 : Colors.black87),
+                            weekendTextStyle: GoogleFonts.inter(color: isDark ? Colors.white54 : Colors.black54),
+                            outsideTextStyle: GoogleFonts.inter(color: isDark ? Colors.white24 : Colors.black26),
+                            selectedDecoration: const BoxDecoration(
+                              color: Color(0xFF4143D5),
+                              shape: BoxShape.circle,
+                            ),
+                            todayDecoration: BoxDecoration(
+                              color: const Color(0xFF4143D5).withOpacity(0.3),
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                          calendarBuilders: CalendarBuilders(
+                            markerBuilder: (context, day, events) {
+                              final normalizedDay = DateTime(day.year, day.month, day.day);
+                              if (transactionDates.contains(normalizedDay)) {
+                                return Positioned(
+                                  bottom: 6,
+                                  child: Container(
+                                    width: 6,
+                                    height: 6,
+                                    decoration: BoxDecoration(
+                                      color: isDark ? const Color(0xFF86EFAC) : const Color(0xFF008339),
+                                      shape: BoxShape.circle,
+                                    ),
+                                  ),
+                                );
+                              }
+                              return null;
+                            },
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
     );
   }
 }

@@ -28,6 +28,8 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
   bool _isLoading = false;
   String? selectedReason;
   bool _showAdvancedOptions = false;
+  String selectedPaymentMode = 'Cash';
+  final List<String> paymentModes = ['Cash', 'Online', 'Bank Transfer', 'Cheque', 'Other'];
 
   final List<String> givenReasons = [
     'Food / Dining',
@@ -86,6 +88,7 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
 
   final stt.SpeechToText _speech = stt.SpeechToText();
   bool _isListening = false;
+  String _initialNoteText = '';
 
   @override
   void dispose() {
@@ -102,10 +105,15 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
         onError: (val) => print('onError: $val'),
       );
       if (available) {
+        _initialNoteText = noteController.text;
         setState(() => _isListening = true);
         _speech.listen(
           onResult: (val) => setState(() {
-            noteController.text = val.recognizedWords;
+            if (_initialNoteText.trim().isEmpty) {
+              noteController.text = val.recognizedWords;
+            } else {
+              noteController.text = '$_initialNoteText ${val.recognizedWords}'.trim();
+            }
           }),
         );
       }
@@ -140,7 +148,6 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
     );
 
     final String defaultTitle = selectedReason ?? (isGiven ? 'Expense' : 'Income');
-    final String finalTitle = note.isEmpty ? defaultTitle : note;
     
     DateTime finalDateTime = DateTime(
       selectedDate.year,
@@ -153,11 +160,12 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
     final record = RecordModel(
       id: '',
       cashbookId: cashbook.id,
-      title: finalTitle,
+      title: defaultTitle,
       amount: amount,
       type: isGiven ? 'expense' : 'income',
       category: selectedReason,
-      note: note.isEmpty ? defaultTitle : note,
+      paymentMethod: selectedPaymentMode,
+      note: note,
       date: finalDateTime,
       cashbookName: widget.cashbookName,
     );
@@ -264,6 +272,64 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
                   },
                 ),
               ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _showPaymentModePicker() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return Container(
+          decoration: BoxDecoration(
+            color: isDark ? const Color(0xFF1B1B23) : Colors.white,
+            borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(24),
+              topRight: Radius.circular(24),
+            ),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const SizedBox(height: 12),
+              Container(width: 40, height: 4, decoration: BoxDecoration(color: Colors.grey.withOpacity(0.3), borderRadius: BorderRadius.circular(2))),
+              const SizedBox(height: 16),
+              Text(
+                "Select Payment Mode",
+                style: GoogleFonts.manrope(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: isDark ? Colors.white : const Color(0xFF1B1B23),
+                ),
+              ),
+              const SizedBox(height: 16),
+              ...paymentModes.map((mode) {
+                final isSelected = selectedPaymentMode == mode;
+                return ListTile(
+                  title: Text(
+                    mode,
+                    style: GoogleFonts.hankenGrotesk(
+                      fontSize: 16,
+                      fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                      color: isDark ? Colors.white : const Color(0xFF1B1B23),
+                    ),
+                  ),
+                  trailing: isSelected ? const Icon(Icons.check_circle_rounded, color: Color(0xFF4143D5)) : null,
+                  onTap: () {
+                    setState(() {
+                      selectedPaymentMode = mode;
+                    });
+                    Navigator.pop(context);
+                  },
+                );
+              }).toList(),
+              const SizedBox(height: 24),
             ],
           ),
         );
@@ -678,6 +744,61 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
                     ),
                     const SizedBox(height: 16),
                     
+                    // Payment Mode Picker
+                    GestureDetector(
+                      onTap: _showPaymentModePicker,
+                      child: Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: glassColor,
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: glassBorder),
+                        ),
+                        child: Row(
+                          children: [
+                            Container(
+                              width: 48,
+                              height: 48,
+                              decoration: BoxDecoration(
+                                color: isDark ? const Color(0xFF2D2D3A) : const Color(0xFFE4E1ED),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: const Icon(
+                                Icons.account_balance_wallet_rounded,
+                                color: Color(0xFF008339),
+                              ),
+                            ),
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    "Payment Method",
+                                    style: GoogleFonts.hankenGrotesk(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w500,
+                                      color: textMuted,
+                                    ),
+                                  ),
+                                  Text(
+                                    selectedPaymentMode,
+                                    style: GoogleFonts.manrope(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600,
+                                      color: textColor,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Icon(Icons.expand_more_rounded, color: const Color(0xFF767586)),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    
                     // Notes Input
                     Container(
                       padding: const EdgeInsets.all(16),
@@ -789,7 +910,7 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
                                         Text(
-                                          "Date & Time",
+                                          "Date",
                                           style: GoogleFonts.hankenGrotesk(
                                             fontSize: 12,
                                             fontWeight: FontWeight.w500,
@@ -797,10 +918,7 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
                                           ),
                                         ),
                                         Text(
-                                          DateHelper.formatDateTime(DateTime(
-                                            selectedDate.year, selectedDate.month, selectedDate.day,
-                                            selectedTime.hour, selectedTime.minute
-                                          )),
+                                          DateHelper.formatDate(selectedDate),
                                           style: GoogleFonts.manrope(
                                             fontSize: 14,
                                             fontWeight: FontWeight.w600,
