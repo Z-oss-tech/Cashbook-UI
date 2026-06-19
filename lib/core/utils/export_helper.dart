@@ -94,7 +94,7 @@ class ExportHelper {
 
       String csvString = const CsvEncoder().convert(csvData);
       
-      final directory = await getApplicationDocumentsDirectory();
+      final directory = await getTemporaryDirectory();
       final prefix = cashbookName != null ? cashbookName.replaceAll(' ', '_').toLowerCase() : 'smartkhata';
       final path = '${directory.path}/${prefix}_records_${DateTime.now().millisecondsSinceEpoch}.csv';
       final file = File(path);

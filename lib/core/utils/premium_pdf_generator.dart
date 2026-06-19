@@ -808,7 +808,7 @@ class PremiumPdfGenerator {
         )
       );
 
-      final directory = await getApplicationDocumentsDirectory();
+      final directory = await getTemporaryDirectory();
       final prefix = cashbookName != null ? cashbookName.replaceAll(' ', '_').toLowerCase() : 'smartkhata_global';
       final path = '${directory.path}/${prefix}_report_${DateTime.now().millisecondsSinceEpoch}.pdf';
       final file = File(path);
@@ -826,7 +826,7 @@ class PremiumPdfGenerator {
   // --- Helpers ---
 
   static final List<String> _colorPalette = [
-    '#4143D5', '#F57F17', '#008339', '#E53935', '#8E24AA', '#00ACC1', '#FDD835', '#D81B60', '#3949AB', '#43A047', '#FFB300', '#F06292', '#4DD0E1', '#81C784', '#FF8A65'
+    '#4143D5', '#F57F17', '#008339', '#E53935', '#0D47A1', '#00ACC1', '#FDD835', '#B71C1C', '#3949AB', '#43A047', '#FFB300', '#0277BD', '#4DD0E1', '#81C784', '#FF8A65'
   ];
 
   static String _getColorForCategory(String category) {

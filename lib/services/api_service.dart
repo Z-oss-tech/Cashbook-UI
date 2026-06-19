@@ -299,7 +299,14 @@ class ApiService {
   }
 
   Future<Map<String, dynamic>> getLatestAppUpdate() async {
-    return await _get('/updates/latest');
+    try {
+      return await _get('/updates/latest');
+    } catch (e) {
+      if (e.toString().contains('404')) {
+        return {'updateAvailable': false};
+      }
+      rethrow;
+    }
   }
 
   dynamic _handleResponse(http.Response response) {
