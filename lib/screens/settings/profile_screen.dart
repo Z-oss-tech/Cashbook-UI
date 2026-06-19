@@ -13,6 +13,7 @@ import '../../core/utils/toast_helper.dart';
 import '../../core/services/notification_service.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../auth/login_screen.dart';
+import '../../services/api_service.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -72,9 +73,28 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                             iconColor: const Color(0xFF4143D5),
                             title: "App Updates",
                             subtitle: "Check for new versions",
-                            onTap: () {
-                              _showUpdateDialog(context);
-                              NotificationService().showUpdateNotification();
+                            onTap: () async {
+                              ToastHelper.showToast(context, 'Checking for updates...');
+                              try {
+                                final res = await ApiService().getLatestAppUpdate();
+                                if (!mounted) return;
+                                
+                                if (res['updateAvailable'] == true && res['update'] != null) {
+                                  final update = res['update'];
+                                  _showUpdateDialog(
+                                    context,
+                                    version: update['version'] ?? 'Unknown',
+                                    description: update['description'] ?? 'No description available',
+                                    size: update['size'] ?? 'Unknown size',
+                                    downloadUrl: update['downloadUrl'] ?? 'https://github.com/Z-oss-tech/Cashbook-UI/releases',
+                                  );
+                                  NotificationService().showUpdateNotification();
+                                } else {
+                                  ToastHelper.showToast(context, 'You are up to date!');
+                                }
+                              } catch (e) {
+                                if (mounted) ToastHelper.showToast(context, 'Failed to check updates', isError: true);
+                              }
                             },
                             showBorder: false,
                           ),
@@ -116,7 +136,13 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
     );
   }
 
-  void _showUpdateDialog(BuildContext context) {
+  void _showUpdateDialog(
+    BuildContext context, {
+    required String version,
+    required String description,
+    required String size,
+    required String downloadUrl,
+  }) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     showDialog(
       context: context,
@@ -152,7 +178,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
               ),
               const SizedBox(height: 12),
               Text(
-                "Version 1.1.0 features new reports, voice-to-text notes, and UI enhancements.",
+                description,
                 style: GoogleFonts.inter(
                   fontSize: 14, 
                   color: isDark ? Colors.white70 : Colors.grey.shade600,
@@ -170,7 +196,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                     const Icon(Icons.download_rounded, color: Color(0xFF4143D5), size: 20),
                     const SizedBox(width: 12),
                     Text(
-                      "Update size: 14.2 MB",
+                      "Version $version • $size",
                       style: GoogleFonts.inter(
                         fontSize: 13, 
                         fontWeight: FontWeight.w500, 
@@ -197,7 +223,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                 onPressed: () async {
                   Navigator.pop(context);
                   ToastHelper.showToast(context, 'Opening update page...');
-                  final Uri url = Uri.parse('https://github.com/Z-oss-tech/Cashbook-UI/releases');
+                  final Uri url = Uri.parse(downloadUrl);
                   if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
                     if (context.mounted) {
                       ToastHelper.showToast(context, 'Could not launch URL.', isError: true);

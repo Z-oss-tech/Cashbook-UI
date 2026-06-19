@@ -298,6 +298,10 @@ class ApiService {
     }
   }
 
+  Future<Map<String, dynamic>> getLatestAppUpdate() async {
+    return await _get('/updates/latest');
+  }
+
   dynamic _handleResponse(http.Response response) {
     if (response.statusCode >= 200 && response.statusCode < 300) {
       if (response.body.isEmpty) return {};
