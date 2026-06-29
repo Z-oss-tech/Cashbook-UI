@@ -688,7 +688,7 @@ class PremiumPdfGenerator {
             final List<List<String>> tableData = [];
             List<String> headers = ['Date', 'Time'];
             if (isGlobal) headers.add('Book');
-            headers.addAll(['Payment Mode', 'Category', 'Description', 'Type', 'Amount', 'Balance']);
+            headers.addAll(['Payment Mode', 'Category', 'Description', 'Notes', 'Type', 'Amount', 'Balance']);
 
             double runningBalance = 0;
 
@@ -710,6 +710,7 @@ class PremiumPdfGenerator {
                 record.paymentMethod ?? 'Cash',
                 record.category ?? 'General',
                 record.personName,
+                record.note.isNotEmpty ? record.note : '-',
                 record.isGiven ? 'Expense' : 'Income',
                 _formatCurrency(record.amount),
                 _formatCurrency(runningBalance),
@@ -718,12 +719,39 @@ class PremiumPdfGenerator {
               tableData.add(row);
             }
 
+            final columnWidths = <int, pw.TableColumnWidth>{};
+            for (int i = 0; i < headers.length; i++) {
+              final h = headers[i];
+              if (h == 'Date') {
+                columnWidths[i] = const pw.FixedColumnWidth(55);
+              } else if (h == 'Time') {
+                columnWidths[i] = const pw.FixedColumnWidth(40);
+              } else if (h == 'Book') {
+                columnWidths[i] = const pw.FlexColumnWidth(1.2);
+              } else if (h == 'Payment Mode') {
+                columnWidths[i] = const pw.FlexColumnWidth(1.0);
+              } else if (h == 'Category') {
+                columnWidths[i] = const pw.FlexColumnWidth(1.2);
+              } else if (h == 'Description') {
+                columnWidths[i] = const pw.FlexColumnWidth(1.2);
+              } else if (h == 'Notes') {
+                columnWidths[i] = const pw.FlexColumnWidth(2.0);
+              } else if (h == 'Type') {
+                columnWidths[i] = const pw.FixedColumnWidth(45);
+              } else if (h == 'Amount') {
+                columnWidths[i] = const pw.FixedColumnWidth(55);
+              } else if (h == 'Balance') {
+                columnWidths[i] = const pw.FixedColumnWidth(55);
+              }
+            }
+
             return [
               pw.Text("Detailed Transaction History", style: pw.TextStyle(fontSize: 24, fontWeight: pw.FontWeight.bold, color: PdfColor.fromHex('#191C1E'))),
               pw.SizedBox(height: 20),
               pw.TableHelper.fromTextArray(
                 headers: headers,
                 data: tableData.reversed.toList(),
+                columnWidths: columnWidths,
                 headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold, color: PdfColors.white, fontSize: 8),
                 headerDecoration: pw.BoxDecoration(color: PdfColor.fromHex('#4143D5')),
                 rowDecoration: const pw.BoxDecoration(border: pw.Border(bottom: pw.BorderSide(color: PdfColors.grey200, width: 0.5))),
