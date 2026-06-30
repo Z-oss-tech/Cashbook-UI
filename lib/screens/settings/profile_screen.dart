@@ -81,14 +81,20 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                                 
                                 if (res['updateAvailable'] == true && res['update'] != null) {
                                   final update = res['update'];
-                                  _showUpdateDialog(
-                                    context,
-                                    version: update['version'] ?? 'Unknown',
-                                    description: update['description'] ?? 'No description available',
-                                    size: update['size'] ?? 'Unknown size',
-                                    downloadUrl: update['downloadUrl'] ?? 'https://github.com/Z-oss-tech/Cashbook-UI/releases',
-                                  );
-                                  NotificationService().showUpdateNotification();
+                                  final newVersion = update['version'] ?? '0.0.0';
+                                  
+                                  if (_isVersionGreater(currentAppVersion, newVersion)) {
+                                    _showUpdateDialog(
+                                      context,
+                                      version: newVersion,
+                                      description: update['description'] ?? 'No description available',
+                                      size: update['size'] ?? 'Unknown size',
+                                      downloadUrl: update['downloadUrl'] ?? 'https://github.com/Z-oss-tech/Cashbook-UI/releases',
+                                    );
+                                    NotificationService().showUpdateNotification();
+                                  } else {
+                                    ToastHelper.showToast(context, 'You are up to date!');
+                                  }
                                 } else {
                                   ToastHelper.showToast(context, 'You are up to date!');
                                 }
@@ -134,6 +140,25 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
         ),
       ),
     );
+  }
+
+  static const String currentAppVersion = '1.0.0';
+
+  bool _isVersionGreater(String currentVersion, String newVersion) {
+    try {
+      List<int> currentParts = currentVersion.split('+').first.split('.').map((e) => int.tryParse(e) ?? 0).toList();
+      List<int> newParts = newVersion.split('+').first.split('.').map((e) => int.tryParse(e) ?? 0).toList();
+      
+      for (int i = 0; i < 3; i++) {
+        int currentPart = i < currentParts.length ? currentParts[i] : 0;
+        int newPart = i < newParts.length ? newParts[i] : 0;
+        if (newPart > currentPart) return true;
+        if (newPart < currentPart) return false;
+      }
+    } catch (_) {
+      // Fallback
+    }
+    return false;
   }
 
   void _showUpdateDialog(
