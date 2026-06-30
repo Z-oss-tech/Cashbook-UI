@@ -66,7 +66,7 @@ class NotificationService {
     );
   }
 
-  Future<void> showUpdateNotification() async {
+  Future<void> showUpdateNotification({String version = '1.1.0'}) async {
     if (!await _areNotificationsEnabled()) return;
 
     const AndroidNotificationDetails androidDetails = AndroidNotificationDetails(
@@ -83,7 +83,7 @@ class NotificationService {
     await _notificationsPlugin.show(
       id: 999, // Static ID so it overwrites previous update notifications
       title: 'SmartKhata Update Available',
-      body: 'Version 1.1.0 is out! Tap to install new features.',
+      body: 'Version $version is out! Tap to install new features.',
       notificationDetails: details,
     );
   }

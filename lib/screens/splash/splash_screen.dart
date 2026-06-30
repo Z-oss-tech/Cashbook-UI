@@ -8,6 +8,8 @@ import '../bottom_nav/main_navigation_screen.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
 import '../auth/login_screen.dart';
+import '../../services/api_service.dart';
+import '../../core/services/notification_service.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -30,6 +32,7 @@ class _SplashScreenState extends State<SplashScreen>
   void initState() {
     super.initState();
     _initAppVersion();
+    _checkForUpdates();
 
     _animationController = AnimationController(
       vsync: this,
@@ -86,6 +89,37 @@ class _SplashScreenState extends State<SplashScreen>
     } catch (e) {
       // Ignore
     }
+  }
+
+  Future<void> _checkForUpdates() async {
+    try {
+      final res = await ApiService().getLatestAppUpdate();
+      if (res['updateAvailable'] == true && res['update'] != null) {
+        final update = res['update'];
+        final newVersion = update['version'] ?? '0.0.0';
+        
+        if (_isVersionGreater(_appVersion, newVersion)) {
+          await NotificationService().showUpdateNotification(version: newVersion);
+        }
+      }
+    } catch (e) {
+      debugPrint('Startup update check failed: $e');
+    }
+  }
+
+  bool _isVersionGreater(String currentVersion, String newVersion) {
+    try {
+      List<int> currentParts = currentVersion.split('+').first.split('.').map((e) => int.tryParse(e) ?? 0).toList();
+      List<int> newParts = newVersion.split('+').first.split('.').map((e) => int.tryParse(e) ?? 0).toList();
+      
+      for (int i = 0; i < 3; i++) {
+        int currentPart = i < currentParts.length ? currentParts[i] : 0;
+        int newPart = i < newParts.length ? newParts[i] : 0;
+        if (newPart > currentPart) return true;
+        if (newPart < currentPart) return false;
+      }
+    } catch (_) {}
+    return false;
   }
 
   @override

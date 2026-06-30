@@ -91,7 +91,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                                       size: update['size'] ?? 'Unknown size',
                                       downloadUrl: update['downloadUrl'] ?? 'https://github.com/Z-oss-tech/Cashbook-UI/releases',
                                     );
-                                    NotificationService().showUpdateNotification();
+                                    NotificationService().showUpdateNotification(version: newVersion);
                                   } else {
                                     ToastHelper.showToast(context, 'You are up to date!');
                                   }
