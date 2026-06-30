@@ -26,22 +26,8 @@ const register = async (req, res, next) => {
     let isNewUser = false;
 
     if (user) {
-      // Allow legacy OTP users to set a password
-      if (user.authProvider === 'phone' && !user.passwordHash) {
-        user = await prisma.user.update({
-          where: { id: user.id },
-          data: {
-            passwordHash,
-            authProvider: 'password',
-            name: name || user.name,
-            email: email || user.email
-          }
-        });
-        if (!user.name) isNewUser = true;
-      } else {
-        res.status(400);
-        throw new Error('User with this username already exists');
-      }
+      res.status(400);
+      throw new Error('User with this username already exists');
     } else {
       isNewUser = true;
       user = await prisma.user.create({

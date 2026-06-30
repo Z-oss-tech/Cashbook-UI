@@ -8,7 +8,6 @@ datasource db {
 }
 
 enum AuthProvider {
-  phone
   google
   password
 }
@@ -35,19 +34,7 @@ model User {
   @@map("users")
 }
 
-model OtpCode {
-  id         String    @id @default(uuid()) @db.Uuid
-  phone      String    @db.VarChar(20)
-  otpHash    String    @db.VarChar(255)
-  expiresAt  DateTime
-  verifiedAt DateTime?
-  attempts   Int       @default(0)
-  createdAt  DateTime  @default(now())
 
-  @@index([phone])
-  @@index([expiresAt])
-  @@map("otp_codes")
-}
 
 model Cashbook {
   id             String   @id @default(uuid()) @db.Uuid
