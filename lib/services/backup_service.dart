@@ -58,7 +58,7 @@ class BackupService {
   // Pick and read a backup file
   static Future<Map<String, dynamic>?> pickAndReadBackup() async {
     try {
-      FilePickerResult? result = await FilePicker.pickFiles(
+      FilePickerResult? result = await FilePicker.platform.pickFiles(
         type: FileType.custom,
         allowedExtensions: ['json'],
       );
