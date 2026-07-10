@@ -1197,9 +1197,9 @@ class DashboardScreen extends StatelessWidget {
                   icon: Icon(Icons.more_vert_rounded, color: subTextColor),
                   onSelected: (value) {
                     if (value == 'edit') {
-                      // Original edit logic would go here
+                      _showEditDialog(context, cashbook.id, cashbook.name);
                     } else if (value == 'delete') {
-                      // Original delete logic would go here
+                      _showDeleteDialog(context, cashbook.id, cashbook.name);
                     }
                   },
                   itemBuilder: (BuildContext context) => [
@@ -1296,6 +1296,119 @@ class DashboardScreen extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+
+  void _showEditDialog(BuildContext context, String id, String currentName) {
+    final TextEditingController nameController = TextEditingController(
+      text: currentName,
+    );
+    showDialog(
+      context: context,
+      builder: (context) {
+        final isDark = Theme.of(context).brightness == Brightness.dark;
+        return AlertDialog(
+          backgroundColor: isDark ? const Color(0xFF1E1E26) : Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          title: Text(
+            "Edit Cashbook",
+            style: GoogleFonts.inter(
+              color: isDark ? Colors.white : Colors.black,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          content: TextField(
+            controller: nameController,
+            decoration: InputDecoration(
+              hintText: "Cashbook Name",
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+            autofocus: true,
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text("Cancel"),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF4143D5),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              onPressed: () {
+                final newName = nameController.text.trim();
+                if (newName.isNotEmpty) {
+                  Provider.of<RecordProvider>(
+                    context,
+                    listen: false,
+                  ).updateCashbook(id, newName);
+                }
+                Navigator.pop(context);
+              },
+              child: const Text("Save", style: TextStyle(color: Colors.white)),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showDeleteDialog(BuildContext context, String id, String name) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        final isDark = Theme.of(context).brightness == Brightness.dark;
+        return AlertDialog(
+          backgroundColor: isDark ? const Color(0xFF1E1E26) : Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          title: Text(
+            "Delete Cashbook",
+            style: GoogleFonts.inter(
+              color: isDark ? Colors.white : Colors.black,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          content: Text(
+            "Are you sure you want to delete '$name'? This action can be undone via Recovery Bin within 30 days.",
+            style: GoogleFonts.inter(
+              color: isDark ? Colors.white70 : Colors.black87,
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text("Cancel"),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              onPressed: () {
+                Provider.of<RecordProvider>(
+                  context,
+                  listen: false,
+                ).deleteCashbook(id);
+                Navigator.pop(context);
+              },
+              child: const Text(
+                "Delete",
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }
