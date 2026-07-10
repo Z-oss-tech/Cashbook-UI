@@ -1,4 +1,5 @@
 // ignore_for_file: unused_field, unused_element, unused_local_variable
+import 'dart:io';
 import 'package:cashbook/l10n/generated/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -368,8 +369,29 @@ class _ProfileScreenState extends State<ProfileScreen>
                             );
 
                             if (dialogContext.mounted) {
-                              Navigator.pop(dialogContext);
-                              OpenFilex.open(filePath);
+                              // Verify the file is actually an APK (ZIP format starts with 'PK')
+                              final file = File(filePath);
+                              final bytes = await file.openRead(0, 2).first;
+                              final isZip = bytes.length >= 2 && bytes[0] == 0x50 && bytes[1] == 0x4B; // 'P', 'K'
+                              
+                              if (isZip) {
+                                Navigator.pop(dialogContext);
+                                OpenFilex.open(filePath);
+                              } else {
+                                // Not a valid APK (likely an HTML page)
+                                await file.delete();
+                                setState(() {
+                                  isDownloading = false;
+                                  progress = 0.0;
+                                });
+                                ToastHelper.showToast(
+                                  dialogContext,
+                                  'Download URL is not a direct APK file. Opening browser...',
+                                  isError: true,
+                                );
+                                final Uri url = Uri.parse(downloadUrl);
+                                launchUrl(url, mode: LaunchMode.externalApplication);
+                              }
                             }
                           } catch (e) {
                             setState(() {
