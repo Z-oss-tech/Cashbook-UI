@@ -136,4 +136,68 @@ class NotificationService {
       androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
     );
   }
+
+  Future<void> scheduleDailyReminder() async {
+    await _notificationsPlugin.cancel(id: 777); // Cancel existing if any
+    if (!await _areNotificationsEnabled()) return;
+
+    const AndroidNotificationDetails androidDetails =
+        AndroidNotificationDetails(
+          'daily_reminder_channel',
+          'Daily Reminders',
+          channelDescription: 'Daily reminder to log expenses',
+          importance: Importance.defaultImportance,
+          priority: Priority.defaultPriority,
+          color: Color(0xFF4143D5),
+        );
+
+    const NotificationDetails details = NotificationDetails(
+      android: androidDetails,
+    );
+
+    // Schedule for 8:00 PM today, or tomorrow if it's already past 8:00 PM
+    final now = tz.TZDateTime.now(tz.local);
+    var scheduledDate = tz.TZDateTime(tz.local, now.year, now.month, now.day, 20, 0); // 8:00 PM
+    if (scheduledDate.isBefore(now)) {
+      scheduledDate = scheduledDate.add(const Duration(days: 1));
+    }
+
+    await _notificationsPlugin.zonedSchedule(
+      id: 777,
+      title: 'Daily Check-in',
+      body: 'Did you spend any money today? Don\'t forget to log it!',
+      scheduledDate: scheduledDate,
+      notificationDetails: details,
+      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+      matchDateTimeComponents: DateTimeComponents.time,
+    );
+  }
+
+  Future<void> showMilestoneNotification(int totalRecords) async {
+    if (!await _areNotificationsEnabled()) return;
+    
+    // Only trigger on exact milestones
+    if (![10, 50, 100, 500].contains(totalRecords)) return;
+
+    const AndroidNotificationDetails androidDetails =
+        AndroidNotificationDetails(
+          'milestone_channel',
+          'Milestones',
+          channelDescription: 'Notifications for app milestones',
+          importance: Importance.high,
+          priority: Priority.high,
+          color: Color(0xFF4143D5),
+        );
+
+    const NotificationDetails details = NotificationDetails(
+      android: androidDetails,
+    );
+
+    await _notificationsPlugin.show(
+      id: 666 + totalRecords, // Unique ID for each milestone
+      title: 'Congratulations! 🎉',
+      body: 'You have logged $totalRecords transactions! Great job managing your finances!',
+      notificationDetails: details,
+    );
+  }
 }

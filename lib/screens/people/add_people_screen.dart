@@ -115,7 +115,7 @@ class _AddPeopleScreenState extends State<AddPeopleScreen> {
               hint: "Enter person name",
               icon: Icons.person_outline,
               suffixIcon: IconButton(
-                icon: const Icon(Icons.contacts, color: AppColors.primary),
+                icon: Icon(Icons.contacts, color: Theme.of(context).primaryColor),
                 onPressed: _pickContact,
               ),
             ),
@@ -138,7 +138,7 @@ class _AddPeopleScreenState extends State<AddPeopleScreen> {
               height: 58,
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
+                  backgroundColor: Theme.of(context).primaryColor,
                   elevation: 0,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(18),

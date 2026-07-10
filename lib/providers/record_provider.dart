@@ -293,6 +293,8 @@ class RecordProvider extends ChangeNotifier {
       isIncome: !record.isGiven,
       cashbook: record.cashbookName ?? 'Unknown',
     );
+    // Trigger milestone check
+    NotificationService().showMilestoneNotification(_records.length);
     // Reset inactivity timer since user added a transaction
     NotificationService().scheduleInactivityReminder();
 

@@ -149,8 +149,8 @@ class _CalculatorDialogState extends State<CalculatorDialog> {
               children: [
                 _buildButton('C', textColor: Colors.red),
                 _buildButton('⌫', textColor: Colors.orange),
-                _buildButton('/', textColor: AppColors.primary),
-                _buildButton('*', textColor: AppColors.primary),
+                _buildButton('/', textColor: Theme.of(context).primaryColor),
+                _buildButton('*', textColor: Theme.of(context).primaryColor),
               ],
             ),
             Row(
@@ -159,7 +159,7 @@ class _CalculatorDialogState extends State<CalculatorDialog> {
                 _buildButton('7'),
                 _buildButton('8'),
                 _buildButton('9'),
-                _buildButton('-', textColor: AppColors.primary),
+                _buildButton('-', textColor: Theme.of(context).primaryColor),
               ],
             ),
             Row(
@@ -168,7 +168,7 @@ class _CalculatorDialogState extends State<CalculatorDialog> {
                 _buildButton('4'),
                 _buildButton('5'),
                 _buildButton('6'),
-                _buildButton('+', textColor: AppColors.primary),
+                _buildButton('+', textColor: Theme.of(context).primaryColor),
               ],
             ),
             Row(
@@ -179,7 +179,7 @@ class _CalculatorDialogState extends State<CalculatorDialog> {
                 _buildButton('3'),
                 _buildButton(
                   '=',
-                  color: AppColors.primary,
+                  color: Theme.of(context).primaryColor,
                   textColor: Colors.white,
                 ),
               ],

@@ -241,9 +241,9 @@ class AppDrawer extends StatelessWidget {
                                 ),
                                 title: Row(
                                   children: [
-                                    const Icon(
+                                    Icon(
                                       Icons.school_rounded,
-                                      color: AppColors.primary,
+                                      color: Theme.of(context).primaryColor,
                                     ),
                                     const SizedBox(width: 10),
                                     Text(
@@ -260,6 +260,7 @@ class AppDrawer extends StatelessWidget {
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
                                       _buildTutorialStep(
+                                        context: context,
                                         icon: Icons.menu_book_rounded,
                                         title: "1. Create Cashbooks",
                                         description:
@@ -267,6 +268,7 @@ class AppDrawer extends StatelessWidget {
                                         isDark: isDialogDark,
                                       ),
                                       _buildTutorialStep(
+                                        context: context,
                                         icon: Icons.add_circle_outline_rounded,
                                         title: "2. Add Records",
                                         description:
@@ -274,6 +276,7 @@ class AppDrawer extends StatelessWidget {
                                         isDark: isDialogDark,
                                       ),
                                       _buildTutorialStep(
+                                        context: context,
                                         icon: Icons.cloud_sync_rounded,
                                         title: "3. Auto-Sync",
                                         description:
@@ -281,6 +284,7 @@ class AppDrawer extends StatelessWidget {
                                         isDark: isDialogDark,
                                       ),
                                       _buildTutorialStep(
+                                        context: context,
                                         icon: Icons.bar_chart_rounded,
                                         title: "4. View Reports",
                                         description:
@@ -551,6 +555,7 @@ class AppDrawer extends StatelessWidget {
     required String title,
     required String description,
     required bool isDark,
+    required BuildContext context,
   }) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16.0),
@@ -560,10 +565,10 @@ class AppDrawer extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: AppColors.primary.withValues(alpha: 0.1),
+              color: Theme.of(context).primaryColor.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(10),
             ),
-            child: Icon(icon, color: AppColors.primary, size: 24),
+            child: Icon(icon, color: Theme.of(context).primaryColor, size: 24),
           ),
           const SizedBox(width: 12),
           Expanded(

@@ -76,9 +76,9 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen>
         centerTitle: true,
         bottom: TabBar(
           controller: _tabController,
-          labelColor: AppColors.primary,
+          labelColor: Theme.of(context).primaryColor,
           unselectedLabelColor: Colors.grey,
-          indicatorColor: AppColors.primary,
+          indicatorColor: Theme.of(context).primaryColor,
           tabs: const [
             Tab(icon: Icon(Icons.cloud_upload), text: "Backup"),
             Tab(icon: Icon(Icons.delete_outline), text: "Recovery"),
@@ -263,17 +263,17 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen>
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: isDark
-                  ? AppColors.primary.withValues(alpha: 0.2)
-                  : AppColors.primary.withValues(alpha: 0.1),
+                  ? Theme.of(context).primaryColor.withValues(alpha: 0.2)
+                  : Theme.of(context).primaryColor.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(16),
             ),
-            child: Icon(icon, color: AppColors.primary, size: 32),
+            child: Icon(icon, color: Theme.of(context).primaryColor, size: 32),
           ),
           const SizedBox(height: 16),
           Text(
             title,
             style: GoogleFonts.poppins(
-              color: AppColors.primary,
+              color: Theme.of(context).primaryColor,
               fontWeight: FontWeight.bold,
               fontSize: 13,
             ),
@@ -303,13 +303,13 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen>
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
               color: isDark
-                  ? AppColors.primary.withValues(alpha: 0.2)
-                  : AppColors.primary.withValues(alpha: 0.1),
+                  ? Theme.of(context).primaryColor.withValues(alpha: 0.2)
+                  : Theme.of(context).primaryColor.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: const Icon(
+            child: Icon(
               Icons.cloud_upload,
-              color: AppColors.primary,
+              color: Theme.of(context).primaryColor,
               size: 20,
             ),
           ),
@@ -453,7 +453,7 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen>
                 ),
               ),
               IconButton(
-                icon: const Icon(Icons.restore, color: AppColors.primary),
+                icon: Icon(Icons.restore, color: Theme.of(context).primaryColor),
                 onPressed: () async {
                   setState(() => _isLoading = true);
                   final provider = Provider.of<RecordProvider>(
@@ -496,7 +496,7 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen>
               style: GoogleFonts.poppins(fontWeight: FontWeight.bold),
             ),
             style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primary,
+              backgroundColor: Theme.of(context).primaryColor,
               foregroundColor: Colors.white,
               minimumSize: const Size(double.infinity, 54),
               shape: RoundedRectangleBorder(
@@ -650,15 +650,15 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen>
             height: 36,
             decoration: BoxDecoration(
               color: isDark
-                  ? AppColors.primary.withValues(alpha: 0.2)
-                  : AppColors.primary.withValues(alpha: 0.1),
+                  ? Theme.of(context).primaryColor.withValues(alpha: 0.2)
+                  : Theme.of(context).primaryColor.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(10),
             ),
             alignment: Alignment.center,
             child: Text(
               number,
               style: GoogleFonts.poppins(
-                color: AppColors.primary,
+                color: Theme.of(context).primaryColor,
                 fontWeight: FontWeight.bold,
                 fontSize: 16,
               ),
@@ -768,7 +768,7 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen>
               onPressed: () => Navigator.pop(dialogContext, false),
               child: Text(
                 "CANCEL",
-                style: GoogleFonts.poppins(color: AppColors.primary),
+                style: GoogleFonts.poppins(color: Theme.of(context).primaryColor),
               ),
             ),
             ElevatedButton(

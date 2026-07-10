@@ -11,6 +11,8 @@ class SettingsProvider with ChangeNotifier {
   String _userName = "SmartKhata User";
   String _userAvatar = "S";
 
+  String _themeColor = 'Ocean Blue';
+
   Locale _locale = const Locale('en');
 
   bool get darkMode => _darkMode;
@@ -18,6 +20,7 @@ class SettingsProvider with ChangeNotifier {
   bool get biometricLock => _biometricLock;
   String get userName => _userName;
   String get userAvatar => _userAvatar;
+  String get themeColor => _themeColor;
   Locale get locale => _locale;
 
   SettingsProvider() {
@@ -40,6 +43,8 @@ class SettingsProvider with ChangeNotifier {
 
     final String languageCode = _prefs?.getString('languageCode') ?? 'en';
     _locale = Locale(languageCode);
+
+    _themeColor = _prefs?.getString('themeColor') ?? 'Ocean Blue';
 
     notifyListeners();
   }
@@ -74,6 +79,12 @@ class SettingsProvider with ChangeNotifier {
   void setLocale(Locale newLocale) {
     _locale = newLocale;
     _prefs?.setString('languageCode', newLocale.languageCode);
+    notifyListeners();
+  }
+
+  void setThemeColor(String colorName) {
+    _themeColor = colorName;
+    _prefs?.setString('themeColor', colorName);
     notifyListeners();
   }
 

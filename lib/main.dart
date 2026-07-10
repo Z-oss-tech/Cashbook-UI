@@ -10,6 +10,7 @@ import 'providers/auth_provider.dart';
 
 import 'core/theme/light_theme.dart';
 import 'core/theme/dark_theme.dart';
+import 'core/constants/app_colors.dart';
 import 'core/widgets/lock_screen_wrapper.dart';
 import 'core/services/notification_service.dart';
 
@@ -40,6 +41,8 @@ class SmartKhataApp extends StatelessWidget {
 
       child: Consumer<SettingsProvider>(
         builder: (context, settingsProvider, child) {
+          final activeColor = AppColors.themeColors[settingsProvider.themeColor] ?? const Color(0xFF5B67F1);
+
           return MaterialApp(
             debugShowCheckedModeBanner: false,
 
@@ -49,8 +52,8 @@ class SmartKhataApp extends StatelessWidget {
               return LockScreenWrapper(child: child!);
             },
 
-            theme: LightTheme.theme,
-            darkTheme: DarkTheme.theme,
+            theme: LightTheme.theme(activeColor),
+            darkTheme: DarkTheme.theme(activeColor),
 
             themeMode: settingsProvider.darkMode
                 ? ThemeMode.dark

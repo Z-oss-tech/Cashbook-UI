@@ -84,10 +84,10 @@ class _LockScreenWrapperState extends State<LockScreenWrapper> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Icon(
+                      Icon(
                         Icons.lock_rounded,
                         size: 80,
-                        color: AppColors.primary,
+                        color: Theme.of(context).primaryColor,
                       ),
                       const SizedBox(height: 24),
                       Text(
@@ -117,7 +117,7 @@ class _LockScreenWrapperState extends State<LockScreenWrapper> {
                           ),
                         ),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.primary,
+                          backgroundColor: Theme.of(context).primaryColor,
                           foregroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(
                             horizontal: 32,

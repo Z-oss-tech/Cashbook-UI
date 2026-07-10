@@ -2,20 +2,21 @@ import 'package:flutter/material.dart';
 import '../constants/app_colors.dart';
 
 class LightTheme {
-  static ThemeData theme = ThemeData(
-    useMaterial3: true,
-    scaffoldBackgroundColor: AppColors.background,
-    cardColor: Colors.white,
-    primaryColor: AppColors.primary,
-
-    colorScheme: ColorScheme.light(
-      primary: AppColors.primary,
-      secondary: AppColors.secondary,
-    ),
-
-    appBarTheme: const AppBarTheme(
-      elevation: 0,
-      backgroundColor: Colors.transparent,
-    ),
-  );
+  static ThemeData theme(Color primaryColor) {
+    return ThemeData(
+      useMaterial3: true,
+      scaffoldBackgroundColor: AppColors.background,
+      cardColor: Colors.white,
+      primaryColor: primaryColor,
+      colorScheme: ColorScheme.fromSeed(
+        seedColor: primaryColor,
+        brightness: Brightness.light,
+        primary: primaryColor,
+      ),
+      appBarTheme: const AppBarTheme(
+        elevation: 0,
+        backgroundColor: Colors.transparent,
+      ),
+    );
+  }
 }

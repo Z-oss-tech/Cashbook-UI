@@ -153,15 +153,15 @@ class _LoginScreenState extends State<LoginScreen> {
                             width: 220,
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(40),
-                              gradient: const LinearGradient(
+                              gradient: LinearGradient(
                                 colors: [
-                                  AppColors.primary,
+                                  Theme.of(context).primaryColor,
                                   AppColors.secondary,
                                 ],
                               ),
                               boxShadow: [
                                 BoxShadow(
-                                  color: AppColors.primary.withValues(
+                                  color: Theme.of(context).primaryColor.withValues(
                                     alpha: 0.25,
                                   ),
                                   blurRadius: 25,
@@ -274,7 +274,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               height: 58,
                               child: ElevatedButton(
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: AppColors.primary,
+                                  backgroundColor: Theme.of(context).primaryColor,
                                   elevation: 0,
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(18),
@@ -319,7 +319,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                   ? "Don't have an account? Register"
                                   : "Already have an account? Login",
                               style: GoogleFonts.poppins(
-                                color: AppColors.primary,
+                                color: Theme.of(context).primaryColor,
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
@@ -455,7 +455,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             child: Text(
                               "Continue Offline (Guest)",
                               style: GoogleFonts.poppins(
-                                color: AppColors.primary,
+                                color: Theme.of(context).primaryColor,
                                 fontWeight: FontWeight.w500,
                                 decoration: TextDecoration.underline,
                               ),

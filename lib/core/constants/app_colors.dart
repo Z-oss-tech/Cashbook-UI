@@ -18,4 +18,13 @@ class AppColors {
   static const Color cardColor = Color(0xFFFFFFFF);
   static const Color darkCardColor = Color(0xFF1E293B);
   static const Color darkSecondaryColor = Color(0xFF334155);
+
+  // Dynamic Theme Palettes
+  static const Map<String, Color> themeColors = {
+    'Ocean Blue': Color(0xFF5B67F1),
+    'Emerald Green': Color(0xFF10B981),
+    'Sunset Orange': Color(0xFFF97316),
+    'Royal Purple': Color(0xFF8B5CF6),
+    'Rose Red': Color(0xFFF43F5E),
+  };
 }

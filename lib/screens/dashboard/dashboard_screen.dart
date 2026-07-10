@@ -549,8 +549,8 @@ class DashboardScreen extends StatelessWidget {
                         color: const Color(0xFFC0C1FF),
                         width: 2,
                       ),
-                      gradient: const LinearGradient(
-                        colors: [AppColors.primary, AppColors.secondary],
+                      gradient: LinearGradient(
+                        colors: [Theme.of(context).primaryColor, AppColors.secondary],
                       ),
                     ),
                     child: Center(

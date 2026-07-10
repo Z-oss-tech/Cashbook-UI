@@ -11,12 +11,14 @@ import '../../providers/record_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../core/utils/toast_helper.dart';
 import '../../core/services/notification_service.dart';
+import '../../core/constants/app_colors.dart';
 import 'package:dio/dio.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../auth/login_screen.dart';
 import '../../services/api_service.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -28,6 +30,26 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen>
     with SingleTickerProviderStateMixin {
   final LocalAuthentication _auth = LocalAuthentication();
+  String _appVersion = '1.0.0';
+
+  @override
+  void initState() {
+    super.initState();
+    _initAppVersion();
+  }
+
+  Future<void> _initAppVersion() async {
+    try {
+      final packageInfo = await PackageInfo.fromPlatform();
+      if (mounted) {
+        setState(() {
+          _appVersion = packageInfo.version;
+        });
+      }
+    } catch (e) {
+      // Ignore
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -55,6 +77,17 @@ class _ProfileScreenState extends State<ProfileScreen>
                     _buildProfileCard(context, settings),
                     const SizedBox(height: 32),
 
+                    _buildSectionHeader("THEME", outlineColor),
+                    const SizedBox(height: 8),
+                    _buildGlassCard(
+                      context,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 12.0),
+                        child: _buildThemeSelector(context, settings),
+                      ),
+                    ),
+                    const SizedBox(height: 32),
+
                     _buildSectionHeader("GENERAL", outlineColor),
                     const SizedBox(height: 8),
                     _buildGlassCard(
@@ -69,11 +102,11 @@ class _ProfileScreenState extends State<ProfileScreen>
                                 : const Color(0xFFDCE9FF),
                             iconColor: const Color(0xFF4143D5),
                             title: "About App",
-                            subtitle: "Version 1.0.0",
+                            subtitle: "Version $_appVersion",
                             onTap: () {
                               ToastHelper.showToast(
                                 context,
-                                'SmartKhata v1.0.0',
+                                'SmartKhata v$_appVersion',
                               );
                             },
                             showBorder: true,
@@ -104,7 +137,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                                       update['version'] ?? '0.0.0';
 
                                   if (_isVersionGreater(
-                                    currentAppVersion,
+                                    _appVersion,
                                     newVersion,
                                   )) {
                                     _showUpdateDialog(
@@ -185,29 +218,32 @@ class _ProfileScreenState extends State<ProfileScreen>
     );
   }
 
-  static const String currentAppVersion = '1.0.0';
-
   bool _isVersionGreater(String currentVersion, String newVersion) {
     try {
-      List<int> currentParts = currentVersion
-          .split('+')
-          .first
-          .split('.')
-          .map((e) => int.tryParse(e) ?? 0)
-          .toList();
-      List<int> newParts = newVersion
-          .split('+')
-          .first
-          .split('.')
-          .map((e) => int.tryParse(e) ?? 0)
-          .toList();
+      // Parse main version and build number for current
+      final currentSplit = currentVersion.split('+');
+      final currentMain = currentSplit.first;
+      final currentBuild = currentSplit.length > 1 ? int.tryParse(currentSplit[1]) ?? 0 : 0;
 
+      // Parse main version and build number for new
+      final newSplit = newVersion.split('+');
+      final newMain = newSplit.first;
+      final newBuild = newSplit.length > 1 ? int.tryParse(newSplit[1]) ?? 0 : 0;
+
+      List<int> currentParts = currentMain.split('.').map((e) => int.tryParse(e) ?? 0).toList();
+      List<int> newParts = newMain.split('.').map((e) => int.tryParse(e) ?? 0).toList();
+
+      // Compare major, minor, patch
       for (int i = 0; i < 3; i++) {
         int currentPart = i < currentParts.length ? currentParts[i] : 0;
         int newPart = i < newParts.length ? newParts[i] : 0;
         if (newPart > currentPart) return true;
         if (newPart < currentPart) return false;
       }
+      
+      // If major.minor.patch are equal, compare build numbers
+      if (newBuild > currentBuild) return true;
+      
     } catch (_) {
       // Fallback
     }
@@ -445,6 +481,41 @@ class _ProfileScreenState extends State<ProfileScreen>
           },
         );
       },
+    );
+  }
+
+  Widget _buildThemeSelector(BuildContext context, SettingsProvider settings) {
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      physics: const BouncingScrollPhysics(),
+      child: Row(
+        children: AppColors.themeColors.entries.map((entry) {
+          final isSelected = settings.themeColor == entry.key;
+          return GestureDetector(
+            onTap: () {
+              settings.setThemeColor(entry.key);
+            },
+            child: Container(
+              margin: const EdgeInsets.symmetric(horizontal: 8),
+              padding: const EdgeInsets.all(4),
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: isSelected ? entry.value : Colors.transparent,
+                  width: 2,
+                ),
+              ),
+              child: CircleAvatar(
+                backgroundColor: entry.value,
+                radius: 20,
+                child: isSelected
+                    ? const Icon(Icons.check, color: Colors.white, size: 20)
+                    : null,
+              ),
+            ),
+          );
+        }).toList(),
+      ),
     );
   }
 
@@ -922,7 +993,7 @@ class _ProfileScreenState extends State<ProfileScreen>
         ),
         const SizedBox(height: 4),
         Text(
-          "Version 1.0.0",
+          "Version $_appVersion",
           style: GoogleFonts.inter(color: outlineColor, fontSize: 14),
         ),
         const SizedBox(height: 4),

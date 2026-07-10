@@ -10,6 +10,7 @@ import '../../providers/auth_provider.dart';
 import '../auth/login_screen.dart';
 import '../../services/api_service.dart';
 import '../../core/services/notification_service.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -30,8 +31,10 @@ class _SplashScreenState extends State<SplashScreen>
   @override
   void initState() {
     super.initState();
-    _initAppVersion();
-    _checkForUpdates();
+    NotificationService().scheduleDailyReminder();
+    _initAppVersion().then((_) {
+      _checkForUpdates();
+    });
 
     _animationController = AnimationController(
       vsync: this,
@@ -70,9 +73,14 @@ class _SplashScreenState extends State<SplashScreen>
 
   Future<void> _initAppVersion() async {
     try {
-      setState(() {
-        _appVersion = "1.0.0";
-      });
+      final packageInfo = await PackageInfo.fromPlatform();
+      if (mounted) {
+        setState(() {
+          _appVersion = packageInfo.version;
+        });
+      } else {
+        _appVersion = packageInfo.version;
+      }
     } catch (e) {
       // Ignore
     }
@@ -143,7 +151,7 @@ class _SplashScreenState extends State<SplashScreen>
               width: 250,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: AppColors.primary.withValues(alpha: 0.25),
+                color: Theme.of(context).primaryColor.withValues(alpha: 0.25),
               ),
             ),
           ),
@@ -179,15 +187,15 @@ class _SplashScreenState extends State<SplashScreen>
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(30),
 
-                        gradient: const LinearGradient(
-                          colors: [AppColors.primary, AppColors.secondary],
+                        gradient: LinearGradient(
+                          colors: [Theme.of(context).primaryColor, AppColors.secondary],
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                         ),
 
                         boxShadow: [
                           BoxShadow(
-                            color: AppColors.primary.withValues(alpha: 0.4),
+                            color: Theme.of(context).primaryColor.withValues(alpha: 0.4),
                             blurRadius: 25,
                             offset: const Offset(0, 12),
                           ),

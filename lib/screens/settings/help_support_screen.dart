@@ -48,14 +48,14 @@ class HelpSupportScreen extends StatelessWidget {
         leading: IconButton(
           icon: Icon(
             Icons.arrow_back_ios_new_rounded,
-            color: isDark ? Colors.white : AppColors.primary,
+            color: isDark ? Colors.white : Theme.of(context).primaryColor,
           ),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
           "Help & Support",
           style: GoogleFonts.poppins(
-            color: isDark ? Colors.white : AppColors.primary,
+            color: isDark ? Colors.white : Theme.of(context).primaryColor,
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -71,13 +71,13 @@ class HelpSupportScreen extends StatelessWidget {
               child: Container(
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: AppColors.primary.withValues(alpha: 0.1),
+                  color: Theme.of(context).primaryColor.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.support_agent_rounded,
                   size: 80,
-                  color: AppColors.primary,
+                  color: Theme.of(context).primaryColor,
                 ),
               ),
             ),
@@ -88,7 +88,7 @@ class HelpSupportScreen extends StatelessWidget {
               style: GoogleFonts.poppins(
                 fontSize: 22,
                 fontWeight: FontWeight.bold,
-                color: isDark ? Colors.white : AppColors.primary,
+                color: isDark ? Colors.white : Theme.of(context).primaryColor,
               ),
             ),
             const SizedBox(height: 8),
@@ -139,7 +139,7 @@ class HelpSupportScreen extends StatelessWidget {
               style: GoogleFonts.poppins(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
-                color: isDark ? Colors.white : AppColors.primary,
+                color: isDark ? Colors.white : Theme.of(context).primaryColor,
               ),
             ),
             const SizedBox(height: 16),
@@ -193,7 +193,7 @@ class HelpSupportScreen extends StatelessWidget {
                     style: GoogleFonts.poppins(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
-                      color: isDark ? Colors.white : AppColors.primary,
+                      color: isDark ? Colors.white : Theme.of(context).primaryColor,
                     ),
                   ),
                   const SizedBox(height: 8),
@@ -218,7 +218,7 @@ class HelpSupportScreen extends StatelessWidget {
                       ),
                     ),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primary,
+                      backgroundColor: Theme.of(context).primaryColor,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
@@ -255,12 +255,12 @@ class HelpSupportScreen extends StatelessWidget {
             decoration: BoxDecoration(
               color: isDark
                   ? Colors.white10
-                  : AppColors.primary.withValues(alpha: 0.1),
+                  : Theme.of(context).primaryColor.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(14),
             ),
             child: Icon(
               icon,
-              color: isDark ? Colors.white : AppColors.primary,
+              color: isDark ? Colors.white : Theme.of(context).primaryColor,
               size: 28,
             ),
           ),
@@ -316,7 +316,7 @@ class HelpSupportScreen extends StatelessWidget {
       child: Theme(
         data: ThemeData().copyWith(dividerColor: Colors.transparent),
         child: ExpansionTile(
-          iconColor: isDark ? Colors.white : AppColors.primary,
+          iconColor: isDark ? Colors.white : Theme.of(context).primaryColor,
           collapsedIconColor: isDark
               ? Colors.grey.shade400
               : Colors.grey.shade600,

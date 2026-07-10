@@ -96,8 +96,7 @@ class _CashbookScreenState extends State<CashbookScreen> {
                           padding: const EdgeInsets.only(bottom: 12.0),
                           child: _buildCashbookListItem(
                             context: context,
-                            title: cashbook.name,
-                            date: cashbook.createdAt.toString(),
+                            cashbook: cashbook,
                             isSelected: selectedCashbook == cashbook.name,
                             onTap: () {
                               setState(() {
@@ -122,8 +121,7 @@ class _CashbookScreenState extends State<CashbookScreen> {
 
   Widget _buildCashbookListItem({
     required BuildContext context,
-    required String title,
-    required String date,
+    required CashbookModel cashbook,
     required bool isSelected,
     required VoidCallback onTap,
   }) {
@@ -163,7 +161,7 @@ class _CashbookScreenState extends State<CashbookScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    title,
+                    cashbook.name,
                     style: GoogleFonts.inter(
                       fontWeight: FontWeight.bold,
                       fontSize: 16,
@@ -174,7 +172,7 @@ class _CashbookScreenState extends State<CashbookScreen> {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    "Created on: $date",
+                    "Created on: ${cashbook.createdAt}",
                     style: GoogleFonts.inter(
                       fontSize: 12,
                       color: isSelected
@@ -187,15 +185,134 @@ class _CashbookScreenState extends State<CashbookScreen> {
                 ],
               ),
             ),
-            Icon(
-              Icons.more_vert,
-              color: isSelected
-                  ? Colors.white
-                  : (isDark ? Colors.white : const Color(0xFF1F3255)),
+            PopupMenuButton<String>(
+              icon: Icon(
+                Icons.more_vert,
+                color: isSelected
+                    ? Colors.white
+                    : (isDark ? Colors.white : const Color(0xFF1F3255)),
+              ),
+              onSelected: (value) {
+                if (value == 'edit') {
+                  _showEditCashbookDialog(context, cashbook);
+                } else if (value == 'delete') {
+                  _showDeleteCashbookDialog(context, cashbook);
+                }
+              },
+              itemBuilder: (BuildContext context) => [
+                PopupMenuItem(
+                  value: 'edit',
+                  child: Row(
+                    children: [
+                      const Icon(Icons.edit_rounded, size: 18),
+                      const SizedBox(width: 8),
+                      Text('Edit', style: GoogleFonts.inter()),
+                    ],
+                  ),
+                ),
+                PopupMenuItem(
+                  value: 'delete',
+                  child: Row(
+                    children: [
+                      const Icon(Icons.delete_rounded, color: Colors.red, size: 18),
+                      const SizedBox(width: 8),
+                      Text('Delete', style: GoogleFonts.inter(color: Colors.red)),
+                    ],
+                  ),
+                ),
+              ],
             ),
           ],
         ),
       ),
+    );
+  }
+
+  void _showEditCashbookDialog(BuildContext context, CashbookModel cashbook) {
+    final TextEditingController nameController = TextEditingController(text: cashbook.name);
+    showDialog(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          title: Text("Edit Cashbook", style: GoogleFonts.inter(fontWeight: FontWeight.bold)),
+          content: TextField(
+            controller: nameController,
+            decoration: InputDecoration(
+              labelText: 'Cashbook Name',
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext),
+              child: Text("Cancel", style: GoogleFonts.inter(color: Colors.grey)),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                final newName = nameController.text.trim();
+                if (newName.isNotEmpty) {
+                  final provider = Provider.of<RecordProvider>(context, listen: false);
+                  await provider.updateCashbook(cashbook.id, newName);
+                  if (mounted) {
+                    setState(() {
+                      if (selectedCashbook == cashbook.name) {
+                        selectedCashbook = newName;
+                      }
+                    });
+                    Navigator.pop(dialogContext);
+                    ToastHelper.showToast(context, "Cashbook updated!");
+                  }
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF5B7FFF),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              ),
+              child: Text("Save", style: GoogleFonts.inter(color: Colors.white)),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showDeleteCashbookDialog(BuildContext context, CashbookModel cashbook) {
+    showDialog(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          title: Text("Delete Cashbook", style: GoogleFonts.inter(fontWeight: FontWeight.bold, color: Colors.red)),
+          content: Text("Are you sure you want to delete '${cashbook.name}'? This will delete all associated transactions.", style: GoogleFonts.inter()),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext),
+              child: Text("Cancel", style: GoogleFonts.inter(color: Colors.grey)),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                final provider = Provider.of<RecordProvider>(context, listen: false);
+                await provider.deleteCashbook(cashbook.id);
+                if (mounted) {
+                  setState(() {
+                    if (selectedCashbook == cashbook.name) {
+                      selectedCashbook = provider.cashbooks.isNotEmpty ? provider.cashbooks.first.name : '';
+                    }
+                  });
+                  Navigator.pop(dialogContext);
+                  ToastHelper.showToast(context, "Cashbook deleted!");
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              ),
+              child: Text("Delete", style: GoogleFonts.inter(color: Colors.white)),
+            ),
+          ],
+        );
+      },
     );
   }
 
