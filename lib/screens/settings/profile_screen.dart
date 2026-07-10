@@ -11,6 +11,10 @@ import '../../providers/record_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../core/utils/toast_helper.dart';
 import '../../core/services/notification_service.dart';
+import 'dart:io';
+import 'package:dio/dio.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:open_filex/open_filex.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../auth/login_screen.dart';
 import '../../services/api_service.dart';
@@ -169,100 +173,164 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
     required String downloadUrl,
   }) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    bool isDownloading = false;
+    double progress = 0.0;
+
     showDialog(
       context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          backgroundColor: isDark ? const Color(0xFF2D3133) : Colors.white,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-          title: Row(
-            children: [
-              const Icon(Icons.system_update_rounded, color: Color(0xFF4143D5), size: 28),
-              const SizedBox(width: 12),
-              Text(
-                "App Update", 
-                style: GoogleFonts.inter(
-                  fontWeight: FontWeight.bold, 
-                  fontSize: 20,
-                  color: isDark ? Colors.white : const Color(0xFF191C1E),
-                ),
+      barrierDismissible: false,
+      builder: (BuildContext dialogContext) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              backgroundColor: isDark ? const Color(0xFF2D3133) : Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+              title: Row(
+                children: [
+                  const Icon(Icons.system_update_rounded, color: Color(0xFF4143D5), size: 28),
+                  const SizedBox(width: 12),
+                  Text(
+                    "App Update", 
+                    style: GoogleFonts.inter(
+                      fontWeight: FontWeight.bold, 
+                      fontSize: 20,
+                      color: isDark ? Colors.white : const Color(0xFF191C1E),
+                    ),
+                  ),
+                ],
               ),
-            ],
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                "A new version of SmartKhata is available!",
-                style: GoogleFonts.inter(
-                  fontSize: 16, 
-                  fontWeight: FontWeight.w600,
-                  color: isDark ? Colors.white : const Color(0xFF191C1E),
-                ),
-              ),
-              const SizedBox(height: 12),
-              Text(
-                description,
-                style: GoogleFonts.inter(
-                  fontSize: 14, 
-                  color: isDark ? Colors.white70 : Colors.grey.shade600,
-                ),
-              ),
-              const SizedBox(height: 16),
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: isDark ? const Color(0xFF191C1E) : const Color(0xFFF2F4F6),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Row(
-                  children: [
-                    const Icon(Icons.download_rounded, color: Color(0xFF4143D5), size: 20),
-                    const SizedBox(width: 12),
-                    Text(
-                      "Version $version • $size",
-                      style: GoogleFonts.inter(
-                        fontSize: 13, 
-                        fontWeight: FontWeight.w500, 
-                        color: isDark ? Colors.white70 : const Color(0xFF464555),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "A new version of SmartKhata is available!",
+                    style: GoogleFonts.inter(
+                      fontSize: 16, 
+                      fontWeight: FontWeight.w600,
+                      color: isDark ? Colors.white : const Color(0xFF191C1E),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    description,
+                    style: GoogleFonts.inter(
+                      fontSize: 14, 
+                      color: isDark ? Colors.white70 : Colors.grey.shade600,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: isDark ? const Color(0xFF191C1E) : const Color(0xFFF2F4F6),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.download_rounded, color: Color(0xFF4143D5), size: 20),
+                        const SizedBox(width: 12),
+                        Text(
+                          "Version $version • $size",
+                          style: GoogleFonts.inter(
+                            fontSize: 13, 
+                            fontWeight: FontWeight.w500, 
+                            color: isDark ? Colors.white70 : const Color(0xFF464555),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  if (isDownloading) ...[
+                    const SizedBox(height: 20),
+                    LinearProgressIndicator(
+                      value: progress,
+                      backgroundColor: Colors.grey.shade300,
+                      color: const Color(0xFF4143D5),
+                      minHeight: 8,
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    const SizedBox(height: 8),
+                    Center(
+                      child: Text(
+                        "${(progress * 100).toStringAsFixed(1)}%",
+                        style: GoogleFonts.inter(
+                          fontSize: 13,
+                          fontWeight: FontWeight.bold,
+                          color: isDark ? Colors.white : const Color(0xFF191C1E),
+                        ),
                       ),
                     ),
-                  ],
-                ),
+                  ]
+                ],
               ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text(
-                "Later", 
-                style: GoogleFonts.inter(
-                  color: isDark ? Colors.white54 : Colors.grey.shade600, 
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-            ElevatedButton(
-                onPressed: () async {
-                  Navigator.pop(context);
-                  ToastHelper.showToast(context, 'Opening update page...');
-                  final Uri url = Uri.parse(downloadUrl);
-                  if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
-                    if (context.mounted) {
-                      ToastHelper.showToast(context, 'Could not launch URL.', isError: true);
+              actions: [
+                if (!isDownloading)
+                  TextButton(
+                    onPressed: () => Navigator.pop(dialogContext),
+                    child: Text(
+                      "Later", 
+                      style: GoogleFonts.inter(
+                        color: isDark ? Colors.white54 : Colors.grey.shade600, 
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ElevatedButton(
+                  onPressed: isDownloading ? null : () async {
+                    setState(() {
+                      isDownloading = true;
+                      progress = 0.0;
+                    });
+                    
+                    try {
+                      final directory = await getTemporaryDirectory();
+                      final filePath = '${directory.path}/smartkhata_update_$version.apk';
+                      
+                      final dio = Dio();
+                      await dio.download(
+                        downloadUrl,
+                        filePath,
+                        onReceiveProgress: (received, total) {
+                          if (total != -1) {
+                            setState(() {
+                              progress = received / total;
+                            });
+                          }
+                        },
+                      );
+                      
+                      if (dialogContext.mounted) {
+                        Navigator.pop(dialogContext);
+                        OpenFilex.open(filePath);
+                      }
+                    } catch (e) {
+                      setState(() {
+                        isDownloading = false;
+                        progress = 0.0;
+                      });
+                      if (dialogContext.mounted) {
+                        ToastHelper.showToast(dialogContext, 'Failed to download update', isError: true);
+                        // Fallback to browser
+                        final Uri url = Uri.parse(downloadUrl);
+                        launchUrl(url, mode: LaunchMode.externalApplication);
+                      }
                     }
-                  }
-                },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF4143D5),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-              ),
-              child: Text("Install Update", style: GoogleFonts.inter(color: Colors.white, fontWeight: FontWeight.bold)),
-            ),
-          ],
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF4143D5),
+                    disabledBackgroundColor: Colors.grey,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                  ),
+                  child: Text(
+                    isDownloading ? "Downloading..." : "Install Update", 
+                    style: GoogleFonts.inter(color: Colors.white, fontWeight: FontWeight.bold)
+                  ),
+                ),
+              ],
+            );
+          }
         );
       },
     );
