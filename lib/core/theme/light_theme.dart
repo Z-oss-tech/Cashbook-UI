@@ -17,12 +17,6 @@ class LightTheme {
       elevation: 0,
       backgroundColor: Colors.transparent,
     ),
-    
-    pageTransitionsTheme: const PageTransitionsTheme(
-      builders: {
-        TargetPlatform.android: FadeUpwardsPageTransitionsBuilder(),
-        TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
-      },
-    ),
+
   );
 }
