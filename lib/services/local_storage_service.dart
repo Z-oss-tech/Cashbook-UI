@@ -103,10 +103,11 @@ class LocalStorageService {
     String? targetId,
   }) async {
     final queue = await getPendingSyncQueue();
-    
+
     // Create a unique action ID based on timestamp
-    final String actionId = '${action}_${DateTime.now().microsecondsSinceEpoch}';
-    
+    final String actionId =
+        '${action}_${DateTime.now().microsecondsSinceEpoch}';
+
     queue.add({
       'id': actionId,
       'action': action,
@@ -114,7 +115,7 @@ class LocalStorageService {
       'targetId': targetId,
       'timestamp': DateTime.now().toIso8601String(),
     });
-    
+
     await savePendingSyncQueue(queue);
     print('Sync action added to queue: $action (ID: $actionId)');
   }

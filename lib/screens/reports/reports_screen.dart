@@ -13,7 +13,7 @@ import 'package:flutter/services.dart';
 
 class ReportsScreen extends StatelessWidget {
   final String? cashbookName;
-  
+
   const ReportsScreen({super.key, this.cashbookName});
 
   // Helper to format currency
@@ -30,12 +30,13 @@ class ReportsScreen extends StatelessWidget {
     final List<String> parts = absoluteAmount.toStringAsFixed(2).split('.');
     String beforeDecimal = parts[0];
     final String afterDecimal = parts[1];
-    
+
     if (beforeDecimal.length > 3) {
       String formatted = beforeDecimal.substring(beforeDecimal.length - 3);
       beforeDecimal = beforeDecimal.substring(0, beforeDecimal.length - 3);
       while (beforeDecimal.length > 2) {
-        formatted = '${beforeDecimal.substring(beforeDecimal.length - 2)},$formatted';
+        formatted =
+            '${beforeDecimal.substring(beforeDecimal.length - 2)},$formatted';
         beforeDecimal = beforeDecimal.substring(0, beforeDecimal.length - 2);
       }
       formatted = '$beforeDecimal,$formatted';
@@ -48,12 +49,16 @@ class ReportsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final recordProvider = Provider.of<RecordProvider>(context);
     final allRecords = recordProvider.records;
-    final records = cashbookName != null 
-        ? allRecords.where((r) => r.cashbookName == cashbookName).toList() 
+    final records = cashbookName != null
+        ? allRecords.where((r) => r.cashbookName == cashbookName).toList()
         : allRecords;
-        
-    final double totalReceived = records.where((r) => !r.isGiven).fold(0, (s, r) => s + r.amount);
-    final double totalGiven = records.where((r) => r.isGiven).fold(0, (s, r) => s + r.amount);
+
+    final double totalReceived = records
+        .where((r) => !r.isGiven)
+        .fold(0, (s, r) => s + r.amount);
+    final double totalGiven = records
+        .where((r) => r.isGiven)
+        .fold(0, (s, r) => s + r.amount);
     final double balance = totalReceived - totalGiven;
 
     // 1. Weekly Analytics (Mon=1 to Sun=7)
@@ -62,7 +67,7 @@ class ReportsScreen extends StatelessWidget {
     for (var r in records) {
       // only consider records from the last 7 days to show in the week chart
       if (now.difference(r.date).inDays <= 7) {
-         weeklyData[r.date.weekday - 1] += r.amount;
+        weeklyData[r.date.weekday - 1] += r.amount;
       }
     }
 
@@ -70,19 +75,23 @@ class ReportsScreen extends StatelessWidget {
     RecordModel? highestReceived;
     RecordModel? highestGiven;
     for (var r in records) {
-       if (!r.isGiven) {
-          if (highestReceived == null || r.amount > highestReceived.amount) highestReceived = r;
-       } else {
-          if (highestGiven == null || r.amount > highestGiven.amount) highestGiven = r;
-       }
+      if (!r.isGiven) {
+        if (highestReceived == null || r.amount > highestReceived.amount)
+          highestReceived = r;
+      } else {
+        if (highestGiven == null || r.amount > highestGiven.amount)
+          highestGiven = r;
+      }
     }
 
     // 3. Stats Data
     final double thisWeekAmount = records
         .where((r) => now.difference(r.date).inDays <= 7)
         .fold(0.0, (s, r) => s + r.amount);
-        
-    final double avgTransaction = records.isNotEmpty ? (totalGiven + totalReceived) / records.length : 0.0;
+
+    final double avgTransaction = records.isNotEmpty
+        ? (totalGiven + totalReceived) / records.length
+        : 0.0;
 
     return Scaffold(
       appBar: AppBar(
@@ -91,9 +100,7 @@ class ReportsScreen extends StatelessWidget {
 
         title: Text(
           cashbookName != null ? "$cashbookName Reports" : "Reports & Insights",
-          style: GoogleFonts.poppins(
-            fontWeight: FontWeight.bold,
-          ),
+          style: GoogleFonts.poppins(fontWeight: FontWeight.bold),
         ),
         actions: [
           IconButton(
@@ -114,161 +121,174 @@ class ReportsScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-               _buildMainBalanceCard(
-                 context,
-                 balance,
-                 totalReceived,
-                 totalGiven,
-               ),
-               
-               const SizedBox(height: 30),
+              _buildMainBalanceCard(
+                context,
+                balance,
+                totalReceived,
+                totalGiven,
+              ),
 
-               Text(
-                 "Weekly Volume",
-                 style: GoogleFonts.poppins(fontSize: 20, fontWeight: FontWeight.bold),
-               ),
-               const SizedBox(height: 20),
-               Container(
-                 height: 260,
-                 padding: const EdgeInsets.all(18),
-                 decoration: BoxDecoration(
-                   color: Theme.of(context).cardColor,
-                   borderRadius: BorderRadius.circular(28),
-                   boxShadow: [
-                     BoxShadow(
-                       color: Colors.black.withOpacity(0.04),
-                       blurRadius: 10,
-                       offset: const Offset(0, 4),
-                     ),
-                   ],
-                 ),
-                 child: BarChart(
-                   BarChartData(
-                     alignment: BarChartAlignment.spaceAround,
-                     borderData: FlBorderData(show: false),
-                     gridData: FlGridData(show: false),
-                     titlesData: FlTitlesData(
-                       topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                       rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                       leftTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                       bottomTitles: AxisTitles(
-                         sideTitles: SideTitles(
-                           showTitles: true,
-                           getTitlesWidget: (value, meta) {
-                             const days = ["M", "T", "W", "T", "F", "S", "S"];
-                             if (value >= 0 && value < 7) {
-                               return Padding(
-                                 padding: const EdgeInsets.only(top: 10),
-                                 child: Text(
-                                   days[value.toInt()],
-                                   style: GoogleFonts.poppins(fontSize: 12),
-                                 ),
-                               );
-                             }
-                             return const SizedBox();
-                           },
-                         ),
-                       ),
-                     ),
-                     barGroups: [
-                       for (int i = 0; i < 7; i++)
-                         _buildBar(i, weeklyData[i]),
-                     ],
-                   ),
-                 ),
-               ),
+              const SizedBox(height: 30),
 
-               const SizedBox(height: 30),
+              Text(
+                "Weekly Volume",
+                style: GoogleFonts.poppins(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 20),
+              Container(
+                height: 260,
+                padding: const EdgeInsets.all(18),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).cardColor,
+                  borderRadius: BorderRadius.circular(28),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.04),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: BarChart(
+                  BarChartData(
+                    alignment: BarChartAlignment.spaceAround,
+                    borderData: FlBorderData(show: false),
+                    gridData: FlGridData(show: false),
+                    titlesData: FlTitlesData(
+                      topTitles: AxisTitles(
+                        sideTitles: SideTitles(showTitles: false),
+                      ),
+                      rightTitles: AxisTitles(
+                        sideTitles: SideTitles(showTitles: false),
+                      ),
+                      leftTitles: AxisTitles(
+                        sideTitles: SideTitles(showTitles: false),
+                      ),
+                      bottomTitles: AxisTitles(
+                        sideTitles: SideTitles(
+                          showTitles: true,
+                          getTitlesWidget: (value, meta) {
+                            const days = ["M", "T", "W", "T", "F", "S", "S"];
+                            if (value >= 0 && value < 7) {
+                              return Padding(
+                                padding: const EdgeInsets.only(top: 10),
+                                child: Text(
+                                  days[value.toInt()],
+                                  style: GoogleFonts.poppins(fontSize: 12),
+                                ),
+                              );
+                            }
+                            return const SizedBox();
+                          },
+                        ),
+                      ),
+                    ),
+                    barGroups: [
+                      for (int i = 0; i < 7; i++) _buildBar(i, weeklyData[i]),
+                    ],
+                  ),
+                ),
+              ),
 
-               Text(
-                 "Smart Insights",
-                 style: GoogleFonts.poppins(fontSize: 20, fontWeight: FontWeight.bold),
-               ),
-               const SizedBox(height: 18),
-               
-               if (highestReceived != null)
-                 _buildInsightCard(
-                   context: context,
-                   icon: Icons.trending_up,
-                   title: "Highest Received",
-                   subtitle: "You received ₹${highestReceived.amount.toStringAsFixed(0)} for '${highestReceived.personName}'.",
-                   color: Colors.green,
-                 ),
-                 
-               if (highestGiven != null)
-                 _buildInsightCard(
-                   context: context,
-                   icon: Icons.warning_rounded,
-                   title: "Highest Expense",
-                   subtitle: "You spent ₹${highestGiven.amount.toStringAsFixed(0)} for '${highestGiven.personName}'.",
-                   color: Colors.orange,
-                 ),
-                 
-               if (records.isNotEmpty)
-                 _buildInsightCard(
-                   context: context,
-                   icon: Icons.auto_awesome,
-                   title: "Net Position",
-                   subtitle: balance >= 0 
+              const SizedBox(height: 30),
+
+              Text(
+                "Smart Insights",
+                style: GoogleFonts.poppins(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 18),
+
+              if (highestReceived != null)
+                _buildInsightCard(
+                  context: context,
+                  icon: Icons.trending_up,
+                  title: "Highest Received",
+                  subtitle:
+                      "You received ₹${highestReceived.amount.toStringAsFixed(0)} for '${highestReceived.personName}'.",
+                  color: Colors.green,
+                ),
+
+              if (highestGiven != null)
+                _buildInsightCard(
+                  context: context,
+                  icon: Icons.warning_rounded,
+                  title: "Highest Expense",
+                  subtitle:
+                      "You spent ₹${highestGiven.amount.toStringAsFixed(0)} for '${highestGiven.personName}'.",
+                  color: Colors.orange,
+                ),
+
+              if (records.isNotEmpty)
+                _buildInsightCard(
+                  context: context,
+                  icon: Icons.auto_awesome,
+                  title: "Net Position",
+                  subtitle: balance >= 0
                       ? "Great job! You are positive by ₹${balance.toStringAsFixed(0)}."
                       : "Careful! You have spent ₹${balance.abs().toStringAsFixed(0)} more than you received.",
-                   color: Colors.purple,
-                 ),
-                 
-               if (records.isEmpty)
-                 Center(
-                   child: Text(
-                     "No data available for insights yet.",
-                     style: GoogleFonts.poppins(color: Colors.grey),
-                   ),
-                 ),
+                  color: Colors.purple,
+                ),
 
-               const SizedBox(height: 30),
+              if (records.isEmpty)
+                Center(
+                  child: Text(
+                    "No data available for insights yet.",
+                    style: GoogleFonts.poppins(color: Colors.grey),
+                  ),
+                ),
 
-               Row(
-                 children: [
-                   Expanded(
-                     child: _buildStatsCard(
-                       context: context,
-                       title: "Total Records",
-                       value: "${records.length}",
-                       color: Colors.blue,
-                     ),
-                   ),
-                   const SizedBox(width: 12),
-                   Expanded(
-                     child: _buildStatsCard(
-                       context: context,
-                       title: "Avg Entry",
-                       value: formatCurrencyShort(avgTransaction),
-                       color: Colors.green,
-                     ),
-                   ),
-                 ],
-               ),
-               const SizedBox(height: 16),
-               Row(
-                 children: [
-                   Expanded(
-                     child: _buildStatsCard(
-                       context: context,
-                       title: AppLocalizations.of(context)!.thisWeek,
-                       value: formatCurrencyShort(thisWeekAmount),
-                       color: Colors.orange,
-                     ),
-                   ),
-                   const SizedBox(width: 12),
-                   Expanded(
-                     child: _buildStatsCard(
-                       context: context,
-                       title: "Net Balance",
-                       value: formatCurrencyShort(balance),
-                       color: balance >= 0 ? Colors.purple : Colors.red,
-                     ),
-                   ),
-                 ],
-               ),
-               const SizedBox(height: 40),
+              const SizedBox(height: 30),
+
+              Row(
+                children: [
+                  Expanded(
+                    child: _buildStatsCard(
+                      context: context,
+                      title: "Total Records",
+                      value: "${records.length}",
+                      color: Colors.blue,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: _buildStatsCard(
+                      context: context,
+                      title: "Avg Entry",
+                      value: formatCurrencyShort(avgTransaction),
+                      color: Colors.green,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  Expanded(
+                    child: _buildStatsCard(
+                      context: context,
+                      title: AppLocalizations.of(context)!.thisWeek,
+                      value: formatCurrencyShort(thisWeekAmount),
+                      color: Colors.orange,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: _buildStatsCard(
+                      context: context,
+                      title: "Net Balance",
+                      value: formatCurrencyShort(balance),
+                      color: balance >= 0 ? Colors.purple : Colors.red,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 40),
             ],
           ),
         ),
@@ -276,7 +296,12 @@ class ReportsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildMainBalanceCard(BuildContext context, double balance, double income, double expense) {
+  Widget _buildMainBalanceCard(
+    BuildContext context,
+    double balance,
+    double income,
+    double expense,
+  ) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(24),
@@ -292,13 +317,13 @@ class ReportsScreen extends StatelessWidget {
         ),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF2563EB).withOpacity(0.35),
+            color: const Color(0xFF2563EB).withValues(alpha: 0.35),
             blurRadius: 24,
             offset: const Offset(0, 12),
           ),
         ],
         border: Border.all(
-          color: Colors.white.withOpacity(0.2),
+          color: Colors.white.withValues(alpha: 0.2),
           width: 1.2,
         ),
       ),
@@ -314,7 +339,10 @@ class ReportsScreen extends StatelessWidget {
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 gradient: LinearGradient(
-                  colors: [Colors.white.withOpacity(0.2), Colors.white.withOpacity(0.0)],
+                  colors: [
+                    Colors.white.withValues(alpha: 0.2),
+                    Colors.white.withValues(alpha: 0.0),
+                  ],
                   begin: Alignment.topRight,
                   end: Alignment.bottomLeft,
                 ),
@@ -330,7 +358,10 @@ class ReportsScreen extends StatelessWidget {
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 gradient: LinearGradient(
-                  colors: [Colors.white.withOpacity(0.0), Colors.white.withOpacity(0.15)],
+                  colors: [
+                    Colors.white.withValues(alpha: 0.0),
+                    Colors.white.withValues(alpha: 0.15),
+                  ],
                   begin: Alignment.topRight,
                   end: Alignment.bottomLeft,
                 ),
@@ -345,7 +376,7 @@ class ReportsScreen extends StatelessWidget {
               width: 70,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: Colors.white.withOpacity(0.05),
+                color: Colors.white.withValues(alpha: 0.05),
               ),
             ),
           ),
@@ -355,7 +386,7 @@ class ReportsScreen extends StatelessWidget {
               Text(
                 AppLocalizations.of(context)!.totalBalance,
                 style: GoogleFonts.poppins(
-                  color: Colors.white.withOpacity(0.85),
+                  color: Colors.white.withValues(alpha: 0.85),
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
                   letterSpacing: 0.5,
@@ -373,11 +404,17 @@ class ReportsScreen extends StatelessWidget {
               ),
               const SizedBox(height: 28),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 16,
+                ),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.12),
+                  color: Colors.white.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: Colors.white.withOpacity(0.15), width: 1),
+                  border: Border.all(
+                    color: Colors.white.withValues(alpha: 0.15),
+                    width: 1,
+                  ),
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -395,7 +432,7 @@ class ReportsScreen extends StatelessWidget {
                     Container(
                       height: 40,
                       width: 1,
-                      color: Colors.white.withOpacity(0.2),
+                      color: Colors.white.withValues(alpha: 0.2),
                     ),
                     Expanded(
                       child: Padding(
@@ -433,14 +470,10 @@ class ReportsScreen extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: iconColor.withOpacity(0.2),
+            color: iconColor.withValues(alpha: 0.2),
             borderRadius: BorderRadius.circular(12),
           ),
-          child: Icon(
-            icon,
-            color: iconColor,
-            size: 16,
-          ),
+          child: Icon(icon, color: iconColor, size: 16),
         ),
         const SizedBox(width: 12),
         Expanded(
@@ -453,7 +486,7 @@ class ReportsScreen extends StatelessWidget {
                 child: Text(
                   title,
                   style: GoogleFonts.poppins(
-                    color: Colors.white.withOpacity(0.85),
+                    color: Colors.white.withValues(alpha: 0.85),
                     fontSize: 12,
                     fontWeight: FontWeight.w500,
                   ),
@@ -494,7 +527,7 @@ class ReportsScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.03),
+            color: Colors.black.withValues(alpha: 0.03),
             blurRadius: 8,
             offset: const Offset(0, 4),
           ),
@@ -506,7 +539,7 @@ class ReportsScreen extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: color.withOpacity(0.12),
+              color: color.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(16),
             ),
             child: Icon(icon, color: color),
@@ -553,7 +586,7 @@ class ReportsScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.03),
+            color: Colors.black.withValues(alpha: 0.03),
             blurRadius: 8,
             offset: const Offset(0, 4),
           ),
@@ -565,10 +598,7 @@ class ReportsScreen extends StatelessWidget {
           Container(
             height: 12,
             width: 12,
-            decoration: BoxDecoration(
-              color: color,
-              shape: BoxShape.circle,
-            ),
+            decoration: BoxDecoration(color: color, shape: BoxShape.circle),
           ),
           const SizedBox(height: 12),
           FittedBox(
@@ -603,8 +633,8 @@ class ReportsScreen extends StatelessWidget {
     // Ensure bar height is visible even if small, but proportional
     // For very small relative values, fl_chart handles scale.
     // If y is 0, give it a tiny height so it renders a flat line.
-    final displayY = y == 0 ? 0.05 : y; 
-    
+    final displayY = y == 0 ? 0.05 : y;
+
     return BarChartGroupData(
       x: x,
       barRods: [

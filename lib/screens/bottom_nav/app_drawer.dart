@@ -1,3 +1,4 @@
+// ignore_for_file: unused_element
 import 'package:cashbook/l10n/generated/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -28,7 +29,9 @@ class AppDrawer extends StatelessWidget {
           Positioned.fill(
             child: Container(
               decoration: BoxDecoration(
-                color: isDark ? AppColors.black.withOpacity(0.98) : Colors.white.withOpacity(0.98),
+                color: isDark
+                    ? AppColors.black.withValues(alpha: 0.98)
+                    : Colors.white.withValues(alpha: 0.98),
                 borderRadius: const BorderRadius.only(
                   topRight: Radius.circular(24),
                   bottomRight: Radius.circular(24),
@@ -36,7 +39,7 @@ class AppDrawer extends StatelessWidget {
               ),
             ),
           ),
-          
+
           // Theme gradient glow
           Positioned(
             bottom: 0,
@@ -49,7 +52,7 @@ class AppDrawer extends StatelessWidget {
                   center: Alignment.bottomRight,
                   radius: 1.5,
                   colors: [
-                    AppColors.primary.withOpacity(isDark ? 0.15 : 0.05),
+                    AppColors.primary.withValues(alpha: isDark ? 0.15 : 0.05),
                     Colors.transparent,
                   ],
                   stops: const [0.0, 0.7],
@@ -65,7 +68,7 @@ class AppDrawer extends StatelessWidget {
             width: MediaQuery.of(context).size.width * 0.6,
             height: MediaQuery.of(context).size.height * 0.6,
             child: Opacity(
-              opacity: isDark ? 0.1 : 0.15, 
+              opacity: isDark ? 0.1 : 0.15,
               child: ShaderMask(
                 shaderCallback: (rect) {
                   return const LinearGradient(
@@ -84,7 +87,7 @@ class AppDrawer extends StatelessWidget {
               ),
             ),
           ),
-          
+
           SafeArea(
             child: Column(
               children: [
@@ -94,14 +97,18 @@ class AppDrawer extends StatelessWidget {
                   child: Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: isDark ? Colors.white.withOpacity(0.05) : Colors.white.withOpacity(0.6),
+                      color: isDark
+                          ? Colors.white.withValues(alpha: 0.05)
+                          : Colors.white.withValues(alpha: 0.6),
                       borderRadius: BorderRadius.circular(24),
                       border: Border.all(
-                        color: isDark ? Colors.white.withOpacity(0.1) : Colors.white.withOpacity(0.3),
+                        color: isDark
+                            ? Colors.white.withValues(alpha: 0.1)
+                            : Colors.white.withValues(alpha: 0.3),
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: AppColors.primary.withOpacity(0.12),
+                          color: AppColors.primary.withValues(alpha: 0.12),
                           blurRadius: 40,
                           offset: const Offset(0, 10),
                         ),
@@ -198,7 +205,9 @@ class AppDrawer extends StatelessWidget {
                       _buildDrawerItem(
                         context,
                         icon: Icons.settings_rounded,
-                        title: AppLocalizations.of(context)?.settings ?? "Settings",
+                        title:
+                            AppLocalizations.of(context)?.settings ??
+                            "Settings",
                         onTap: () {
                           Navigator.push(
                             context,
@@ -213,18 +222,29 @@ class AppDrawer extends StatelessWidget {
                       _buildDrawerItem(
                         context,
                         icon: Icons.contact_support_rounded,
-                        title: AppLocalizations.of(context)?.helpSupport ?? "Help & Support",
+                        title:
+                            AppLocalizations.of(context)?.helpSupport ??
+                            "Help & Support",
                         onTap: () {
                           showDialog(
                             context: context,
                             builder: (BuildContext context) {
-                              final isDialogDark = Theme.of(context).brightness == Brightness.dark;
+                              final isDialogDark =
+                                  Theme.of(context).brightness ==
+                                  Brightness.dark;
                               return AlertDialog(
-                                backgroundColor: isDialogDark ? const Color(0xFF2D2D35) : Colors.white,
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                                backgroundColor: isDialogDark
+                                    ? const Color(0xFF2D2D35)
+                                    : Colors.white,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
                                 title: Row(
                                   children: [
-                                    const Icon(Icons.school_rounded, color: AppColors.primary),
+                                    const Icon(
+                                      Icons.school_rounded,
+                                      color: AppColors.primary,
+                                    ),
                                     const SizedBox(width: 10),
                                     Text(
                                       "Quick Tutorial",
@@ -242,25 +262,29 @@ class AppDrawer extends StatelessWidget {
                                       _buildTutorialStep(
                                         icon: Icons.menu_book_rounded,
                                         title: "1. Create Cashbooks",
-                                        description: "Use the Home screen to create dedicated ledgers for your personal or business needs.",
+                                        description:
+                                            "Use the Home screen to create dedicated ledgers for your personal or business needs.",
                                         isDark: isDialogDark,
                                       ),
                                       _buildTutorialStep(
                                         icon: Icons.add_circle_outline_rounded,
                                         title: "2. Add Records",
-                                        description: "Tap the + button inside any cashbook to log Income or Expenses with custom notes.",
+                                        description:
+                                            "Tap the + button inside any cashbook to log Income or Expenses with custom notes.",
                                         isDark: isDialogDark,
                                       ),
                                       _buildTutorialStep(
                                         icon: Icons.cloud_sync_rounded,
                                         title: "3. Auto-Sync",
-                                        description: "Your data is automatically synced to the cloud whenever you have internet access.",
+                                        description:
+                                            "Your data is automatically synced to the cloud whenever you have internet access.",
                                         isDark: isDialogDark,
                                       ),
                                       _buildTutorialStep(
                                         icon: Icons.bar_chart_rounded,
                                         title: "4. View Reports",
-                                        description: "Access detailed PDF and graphical reports from the Dashboard.",
+                                        description:
+                                            "Access detailed PDF and graphical reports from the Dashboard.",
                                         isDark: isDialogDark,
                                       ),
                                     ],
@@ -269,7 +293,12 @@ class AppDrawer extends StatelessWidget {
                                 actions: [
                                   TextButton(
                                     onPressed: () => Navigator.pop(context),
-                                    child: Text("Dismiss", style: GoogleFonts.poppins(color: Colors.grey)),
+                                    child: Text(
+                                      "Dismiss",
+                                      style: GoogleFonts.poppins(
+                                        color: Colors.grey,
+                                      ),
+                                    ),
                                   ),
                                   ElevatedButton(
                                     onPressed: () {
@@ -277,15 +306,24 @@ class AppDrawer extends StatelessWidget {
                                       Navigator.push(
                                         context,
                                         MaterialPageRoute(
-                                          builder: (_) => const HelpSupportScreen(),
+                                          builder: (_) =>
+                                              const HelpSupportScreen(),
                                         ),
                                       );
                                     },
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: AppColors.primary,
-                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
                                     ),
-                                    child: Text("View More", style: GoogleFonts.poppins(color: Colors.white, fontWeight: FontWeight.bold)),
+                                    child: Text(
+                                      "View More",
+                                      style: GoogleFonts.poppins(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
                                   ),
                                 ],
                               );
@@ -304,9 +342,14 @@ class AppDrawer extends StatelessWidget {
                     children: [
                       // Dark Mode Toggle
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 6,
+                        ),
                         decoration: BoxDecoration(
-                          color: isDark ? Colors.white.withOpacity(0.1) : Colors.grey.shade200,
+                          color: isDark
+                              ? Colors.white.withValues(alpha: 0.1)
+                              : Colors.grey.shade200,
                           borderRadius: BorderRadius.circular(30),
                         ),
                         child: Consumer<SettingsProvider>(
@@ -316,7 +359,9 @@ class AppDrawer extends StatelessWidget {
                                 Icon(
                                   Icons.dark_mode_outlined,
                                   size: 20,
-                                  color: isDark ? Colors.white70 : Colors.grey.shade700,
+                                  color: isDark
+                                      ? Colors.white70
+                                      : Colors.grey.shade700,
                                 ),
                                 const SizedBox(width: 12),
                                 Text(
@@ -324,7 +369,9 @@ class AppDrawer extends StatelessWidget {
                                   style: GoogleFonts.inter(
                                     fontSize: 14,
                                     fontWeight: FontWeight.w500,
-                                    color: isDark ? Colors.white70 : Colors.grey.shade700,
+                                    color: isDark
+                                        ? Colors.white70
+                                        : Colors.grey.shade700,
                                   ),
                                 ),
                                 const Spacer(),
@@ -333,26 +380,32 @@ class AppDrawer extends StatelessWidget {
                                   onChanged: (val) {
                                     settings.setDarkMode(val);
                                   },
-                                  activeColor: AppColors.primary,
-                                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                  activeThumbColor: AppColors.primary,
+                                  materialTapTargetSize:
+                                      MaterialTapTargetSize.shrinkWrap,
                                 ),
                               ],
                             );
-                          }
+                          },
                         ),
                       ),
-                      
+
                       const SizedBox(height: 24),
-                      
+
                       // Logout Button
                       GestureDetector(
                         onTap: () async {
-                          final authProvider = Provider.of<AuthProvider>(context, listen: false);
+                          final authProvider = Provider.of<AuthProvider>(
+                            context,
+                            listen: false,
+                          );
                           await authProvider.logout();
                           if (context.mounted) {
                             Navigator.pushAndRemoveUntil(
                               context,
-                              MaterialPageRoute(builder: (_) => const LoginScreen()),
+                              MaterialPageRoute(
+                                builder: (_) => const LoginScreen(),
+                              ),
                               (route) => false,
                             );
                           }
@@ -361,7 +414,7 @@ class AppDrawer extends StatelessWidget {
                           width: double.infinity,
                           padding: const EdgeInsets.symmetric(vertical: 16),
                           decoration: BoxDecoration(
-                            color: Colors.red.withOpacity(0.1),
+                            color: Colors.red.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(16),
                           ),
                           child: Row(
@@ -411,12 +464,12 @@ class AppDrawer extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           decoration: BoxDecoration(
             gradient: const LinearGradient(
-              colors: [AppColors.primary, AppColors.secondary], 
+              colors: [AppColors.primary, AppColors.secondary],
             ),
             borderRadius: BorderRadius.circular(12),
             boxShadow: [
               BoxShadow(
-                color: AppColors.primary.withOpacity(0.12),
+                color: AppColors.primary.withValues(alpha: 0.12),
                 blurRadius: 40,
                 offset: const Offset(0, 10),
               ),
@@ -429,14 +482,18 @@ class AppDrawer extends StatelessWidget {
               Expanded(
                 child: Text(
                   title,
-                  style: GoogleFonts.inter( 
+                  style: GoogleFonts.inter(
                     color: Colors.white,
                     fontWeight: FontWeight.w500,
                     fontSize: 14,
                   ),
                 ),
               ),
-              const Icon(Icons.chevron_right_rounded, color: Colors.white70, size: 20),
+              const Icon(
+                Icons.chevron_right_rounded,
+                color: Colors.white70,
+                size: 20,
+              ),
             ],
           ),
         ),
@@ -452,15 +509,15 @@ class AppDrawer extends StatelessWidget {
   }) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final textColor = isDark ? Colors.white70 : Colors.grey.shade700;
-    
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(12),
-        hoverColor: AppColors.primary.withOpacity(0.1),
-        highlightColor: AppColors.primary.withOpacity(0.1),
-        splashColor: AppColors.primary.withOpacity(0.2),
+        hoverColor: AppColors.primary.withValues(alpha: 0.1),
+        highlightColor: AppColors.primary.withValues(alpha: 0.1),
+        splashColor: AppColors.primary.withValues(alpha: 0.2),
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           child: Row(
@@ -477,7 +534,11 @@ class AppDrawer extends StatelessWidget {
                   ),
                 ),
               ),
-              Icon(Icons.chevron_right_rounded, color: textColor.withOpacity(0.2), size: 20),
+              Icon(
+                Icons.chevron_right_rounded,
+                color: textColor.withValues(alpha: 0.2),
+                size: 20,
+              ),
             ],
           ),
         ),
@@ -485,7 +546,12 @@ class AppDrawer extends StatelessWidget {
     );
   }
 
-  Widget _buildTutorialStep({required IconData icon, required String title, required String description, required bool isDark}) {
+  Widget _buildTutorialStep({
+    required IconData icon,
+    required String title,
+    required String description,
+    required bool isDark,
+  }) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16.0),
       child: Row(
@@ -494,7 +560,7 @@ class AppDrawer extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: AppColors.primary.withOpacity(0.1),
+              color: AppColors.primary.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(10),
             ),
             child: Icon(icon, color: AppColors.primary, size: 24),
@@ -504,9 +570,22 @@ class AppDrawer extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: GoogleFonts.poppins(fontWeight: FontWeight.bold, fontSize: 14, color: isDark ? Colors.white : Colors.black87)),
+                Text(
+                  title,
+                  style: GoogleFonts.poppins(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                    color: isDark ? Colors.white : Colors.black87,
+                  ),
+                ),
                 const SizedBox(height: 4),
-                Text(description, style: GoogleFonts.poppins(fontSize: 12, color: isDark ? Colors.white54 : Colors.grey)),
+                Text(
+                  description,
+                  style: GoogleFonts.poppins(
+                    fontSize: 12,
+                    color: isDark ? Colors.white54 : Colors.grey,
+                  ),
+                ),
               ],
             ),
           ),

@@ -12,17 +12,10 @@ class PersonModel {
   });
 
   Map<String, dynamic> toMap() {
-    return {
-      'id': id,
-      'name': name,
-      'phone': phone,
-      'balance': balance,
-    };
+    return {'id': id, 'name': name, 'phone': phone, 'balance': balance};
   }
 
-  factory PersonModel.fromMap(
-      Map<String, dynamic> map,
-      ) {
+  factory PersonModel.fromMap(Map<String, dynamic> map) {
     return PersonModel(
       id: map['id'] ?? '',
       name: map['name'] ?? '',

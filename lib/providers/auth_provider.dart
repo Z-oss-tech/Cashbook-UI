@@ -38,7 +38,7 @@ class AuthProvider extends ChangeNotifier {
     } catch (e) {
       _setError(e.toString().replaceAll('Exception: ', ''));
       _setLoading(false);
-      
+
       // If server is down, fallback to offline
       /*
       if (e.toString().contains('network_error') || e.toString().contains('unavailable') || e.toString().contains('busy')) {
@@ -50,11 +50,21 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  Future<Map<String, dynamic>?> register(String username, String password, {String? name, String? email}) async {
+  Future<Map<String, dynamic>?> register(
+    String username,
+    String password, {
+    String? name,
+    String? email,
+  }) async {
     _setLoading(true);
     _setError(null);
     try {
-      final res = await _apiService.register(username, password, name: name, email: email);
+      final res = await _apiService.register(
+        username,
+        password,
+        name: name,
+        email: email,
+      );
       _setLoading(false);
       if (res['token'] != null) {
         return res;
@@ -63,7 +73,7 @@ class AuthProvider extends ChangeNotifier {
     } catch (e) {
       _setError(e.toString().replaceAll('Exception: ', ''));
       _setLoading(false);
-      
+
       // If server is down, fallback to offline
       /*
       if (e.toString().contains('network_error') || e.toString().contains('unavailable') || e.toString().contains('busy')) {
@@ -89,11 +99,17 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  Future<bool> changePassword(String currentPassword, String newPassword) async {
+  Future<bool> changePassword(
+    String currentPassword,
+    String newPassword,
+  ) async {
     _setLoading(true);
     _setError(null);
     try {
-      await _apiService.changePassword(currentPassword: currentPassword, newPassword: newPassword);
+      await _apiService.changePassword(
+        currentPassword: currentPassword,
+        newPassword: newPassword,
+      );
       _setLoading(false);
       return true;
     } catch (e) {
@@ -111,7 +127,8 @@ class AuthProvider extends ChangeNotifier {
       gsign.GoogleSignInAccount googleUser;
       try {
         await gsign.GoogleSignIn.instance.initialize(
-          serverClientId: '60020710265-rtf4dfbrah3m6h7e1ck27hjrp1sru6nb.apps.googleusercontent.com',
+          serverClientId:
+              '60020710265-rtf4dfbrah3m6h7e1ck27hjrp1sru6nb.apps.googleusercontent.com',
         );
       } catch (_) {
         // Ignore initialization error if already initialized or if Web ID is wrong
@@ -163,15 +180,14 @@ class AuthProvider extends ChangeNotifier {
       return res;
     } catch (e) {
       // If even the demo bypass fails because the server is completely down, log them in fully offline!
-      print('Server completely unreachable. Falling back to Full Offline Mode.');
+      print(
+        'Server completely unreachable. Falling back to Full Offline Mode.',
+      );
       await loginOffline();
       _setLoading(false);
       return {
-        'user': {
-          'name': 'Offline User',
-          'email': 'offline@local.com',
-        },
-        'token': 'offline_token'
+        'user': {'name': 'Offline User', 'email': 'offline@local.com'},
+        'token': 'offline_token',
       };
     }
   }

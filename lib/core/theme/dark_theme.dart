@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import '../constants/app_colors.dart';
 
 class DarkTheme {
-
   static ThemeData theme = ThemeData(
     useMaterial3: true,
 
@@ -18,13 +17,11 @@ class DarkTheme {
       primary: AppColors.primary,
       secondary: AppColors.secondary,
       surface: AppColors.darkCardColor,
-      background: AppColors.darkBackground,
     ),
 
     appBarTheme: const AppBarTheme(
       backgroundColor: Colors.transparent,
       elevation: 0,
     ),
-
   );
 }

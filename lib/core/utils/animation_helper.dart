@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 
 class AnimationHelper {
-  static void showEmojiAnimation(BuildContext context, {required bool isIncome, required double amount}) {
+  static void showEmojiAnimation(
+    BuildContext context, {
+    required bool isIncome,
+    required double amount,
+  }) {
     final OverlayState overlay = Overlay.of(context);
     late OverlayEntry overlayEntry;
-    
+
     overlayEntry = OverlayEntry(
       builder: (context) {
         return _EmojiAnimationWidget(
@@ -16,7 +20,7 @@ class AnimationHelper {
         );
       },
     );
-    
+
     overlay.insert(overlayEntry);
   }
 }
@@ -52,20 +56,45 @@ class _EmojiAnimationWidgetState extends State<_EmojiAnimationWidget>
     );
 
     _scaleAnimation = TweenSequence<double>([
-      TweenSequenceItem(tween: Tween<double>(begin: 0.0, end: 1.5).chain(CurveTween(curve: Curves.elasticOut)), weight: 50),
+      TweenSequenceItem(
+        tween: Tween<double>(
+          begin: 0.0,
+          end: 1.5,
+        ).chain(CurveTween(curve: Curves.elasticOut)),
+        weight: 50,
+      ),
       TweenSequenceItem(tween: Tween<double>(begin: 1.5, end: 1.5), weight: 30),
-      TweenSequenceItem(tween: Tween<double>(begin: 1.5, end: 0.0).chain(CurveTween(curve: Curves.easeIn)), weight: 20),
+      TweenSequenceItem(
+        tween: Tween<double>(
+          begin: 1.5,
+          end: 0.0,
+        ).chain(CurveTween(curve: Curves.easeIn)),
+        weight: 20,
+      ),
     ]).animate(_controller);
 
     _opacityAnimation = TweenSequence<double>([
-      TweenSequenceItem(tween: Tween<double>(begin: 0.0, end: 1.0).chain(CurveTween(curve: Curves.easeIn)), weight: 20),
+      TweenSequenceItem(
+        tween: Tween<double>(
+          begin: 0.0,
+          end: 1.0,
+        ).chain(CurveTween(curve: Curves.easeIn)),
+        weight: 20,
+      ),
       TweenSequenceItem(tween: Tween<double>(begin: 1.0, end: 1.0), weight: 60),
-      TweenSequenceItem(tween: Tween<double>(begin: 1.0, end: 0.0).chain(CurveTween(curve: Curves.easeOut)), weight: 20),
+      TweenSequenceItem(
+        tween: Tween<double>(
+          begin: 1.0,
+          end: 0.0,
+        ).chain(CurveTween(curve: Curves.easeOut)),
+        weight: 20,
+      ),
     ]).animate(_controller);
 
-    _positionAnimation = Tween<double>(begin: 50.0, end: -50.0).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeOut),
-    );
+    _positionAnimation = Tween<double>(
+      begin: 50.0,
+      end: -50.0,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
 
     _controller.forward().then((_) {
       widget.onComplete();

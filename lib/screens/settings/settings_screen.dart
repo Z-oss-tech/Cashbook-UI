@@ -1,11 +1,10 @@
+// ignore_for_file: unused_element, unused_local_variable
 import 'package:cashbook/l10n/generated/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:local_auth/local_auth.dart';
-import 'dart:ui';
 
-import '../../core/constants/app_colors.dart';
 import '../../providers/settings_provider.dart';
 import '../../providers/record_provider.dart';
 import '../../core/utils/toast_helper.dart';
@@ -19,7 +18,8 @@ class SettingsScreen extends StatefulWidget {
   State<SettingsScreen> createState() => _SettingsScreenState();
 }
 
-class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProviderStateMixin {
+class _SettingsScreenState extends State<SettingsScreen>
+    with SingleTickerProviderStateMixin {
   final LocalAuthentication _auth = LocalAuthentication();
 
   @override
@@ -39,12 +39,18 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
             Expanded(
               child: SingleChildScrollView(
                 physics: const BouncingScrollPhysics(),
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 16,
+                ),
                 child: Column(
                   children: [
                     const SizedBox(height: 16),
-                    
-                    _buildSectionHeader(AppLocalizations.of(context)!.preferences, outlineColor),
+
+                    _buildSectionHeader(
+                      AppLocalizations.of(context)!.preferences,
+                      outlineColor,
+                    ),
                     const SizedBox(height: 8),
                     _buildGlassCard(
                       context,
@@ -56,7 +62,9 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                             iconBgColor: const Color(0xFFE1E0FF),
                             iconColor: const Color(0xFF4143D5),
                             title: AppLocalizations.of(context)!.darkMode,
-                            subtitle: AppLocalizations.of(context)!.enableDarkAppearance,
+                            subtitle: AppLocalizations.of(
+                              context,
+                            )!.enableDarkAppearance,
                             value: settings.darkMode,
                             onChanged: (value) => settings.setDarkMode(value),
                             showBorder: true,
@@ -64,28 +72,47 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                           _buildSwitchTile(
                             context: context,
                             icon: Icons.notifications_rounded,
-                            iconBgColor: isDark ? Colors.white12 : const Color(0xFFDCE9FF),
+                            iconBgColor: isDark
+                                ? Colors.white12
+                                : const Color(0xFFDCE9FF),
                             iconColor: const Color(0xFF4143D5),
                             title: AppLocalizations.of(context)!.notifications,
-                            subtitle: AppLocalizations.of(context)!.getReminders,
+                            subtitle: AppLocalizations.of(
+                              context,
+                            )!.getReminders,
                             value: settings.notifications,
                             onChanged: (value) async {
                               if (value) {
-                                var status = await Permission.notification.status;
+                                var status =
+                                    await Permission.notification.status;
                                 if (status.isDenied) {
-                                  status = await Permission.notification.request();
+                                  status = await Permission.notification
+                                      .request();
                                 }
-                                
+
                                 if (status.isGranted) {
                                   settings.setNotifications(true);
-                                  if (context.mounted) ToastHelper.showToast(context, 'Notifications enabled');
+                                  if (context.mounted)
+                                    ToastHelper.showToast(
+                                      context,
+                                      'Notifications enabled',
+                                    );
                                 } else {
-                                  if (context.mounted) ToastHelper.showToast(context, 'Notification permission denied', isError: true);
+                                  if (context.mounted)
+                                    ToastHelper.showToast(
+                                      context,
+                                      'Notification permission denied',
+                                      isError: true,
+                                    );
                                   settings.setNotifications(false);
                                 }
                               } else {
                                 settings.setNotifications(false);
-                                if (context.mounted) ToastHelper.showToast(context, 'Notifications disabled');
+                                if (context.mounted)
+                                  ToastHelper.showToast(
+                                    context,
+                                    'Notifications disabled',
+                                  );
                               }
                             },
                             showBorder: true,
@@ -93,22 +120,31 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                           _buildSwitchTile(
                             context: context,
                             icon: Icons.fingerprint_rounded,
-                            iconBgColor: isDark ? Colors.white12 : const Color(0xFFDCE9FF),
+                            iconBgColor: isDark
+                                ? Colors.white12
+                                : const Color(0xFFDCE9FF),
                             iconColor: const Color(0xFF4143D5),
                             title: AppLocalizations.of(context)!.biometricLock,
-                            subtitle: AppLocalizations.of(context)!.protectSecurely,
+                            subtitle: AppLocalizations.of(
+                              context,
+                            )!.protectSecurely,
                             value: settings.biometricLock,
                             onChanged: (value) async {
                               if (value) {
                                 bool authenticated = false;
                                 try {
                                   authenticated = await _auth.authenticate(
-                                    localizedReason: 'Authenticate to enable biometric lock',
+                                    localizedReason:
+                                        'Authenticate to enable biometric lock',
                                     persistAcrossBackgrounding: true,
                                   );
                                 } catch (e) {
                                   if (context.mounted) {
-                                    ToastHelper.showToast(context, 'Biometrics not available.', isError: true);
+                                    ToastHelper.showToast(
+                                      context,
+                                      'Biometrics not available.',
+                                      isError: true,
+                                    );
                                   }
                                   return;
                                 }
@@ -126,7 +162,10 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                     ),
                     const SizedBox(height: 32),
 
-                    _buildSectionHeader(AppLocalizations.of(context)!.general, outlineColor),
+                    _buildSectionHeader(
+                      AppLocalizations.of(context)!.general,
+                      outlineColor,
+                    ),
                     const SizedBox(height: 8),
                     _buildGlassCard(
                       context,
@@ -135,11 +174,13 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                           _buildMenuTile(
                             context: context,
                             icon: Icons.language_rounded,
-                            iconBgColor: isDark ? Colors.white12 : const Color(0xFFDCE9FF),
+                            iconBgColor: isDark
+                                ? Colors.white12
+                                : const Color(0xFFDCE9FF),
                             iconColor: const Color(0xFF4143D5),
                             title: AppLocalizations.of(context)!.language,
-                            subtitle: settings.locale.languageCode == 'hi' 
-                                ? AppLocalizations.of(context)!.hindi 
+                            subtitle: settings.locale.languageCode == 'hi'
+                                ? AppLocalizations.of(context)!.hindi
                                 : AppLocalizations.of(context)!.english,
                             subtitleColor: const Color(0xFF4143D5),
                             onTap: () => _showLanguageDialog(context, settings),
@@ -148,15 +189,26 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                           _buildMenuTile(
                             context: context,
                             icon: Icons.cloud_done_rounded,
-                            iconBgColor: isDark ? Colors.white12 : const Color(0xFFDCE9FF),
+                            iconBgColor: isDark
+                                ? Colors.white12
+                                : const Color(0xFFDCE9FF),
                             iconColor: const Color(0xFF4143D5),
                             title: AppLocalizations.of(context)!.backupRestore,
                             subtitle: "Auto-synced to cloud",
                             onTap: () async {
-                              ToastHelper.showToast(context, 'Syncing with secure cloud...');
-                              await Provider.of<RecordProvider>(context, listen: false).fetchData();
+                              ToastHelper.showToast(
+                                context,
+                                'Syncing with secure cloud...',
+                              );
+                              await Provider.of<RecordProvider>(
+                                context,
+                                listen: false,
+                              ).fetchData();
                               if (context.mounted) {
-                                ToastHelper.showToast(context, 'All data is fully backed up to the cloud!');
+                                ToastHelper.showToast(
+                                  context,
+                                  'All data is fully backed up to the cloud!',
+                                );
                               }
                             },
                             showBorder: false,
@@ -185,15 +237,21 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
       builder: (BuildContext context) {
         return AlertDialog(
           backgroundColor: isDark ? const Color(0xFF2D3133) : Colors.white,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(24),
+          ),
           title: Row(
             children: [
-              const Icon(Icons.system_update_rounded, color: Color(0xFF4143D5), size: 28),
+              const Icon(
+                Icons.system_update_rounded,
+                color: Color(0xFF4143D5),
+                size: 28,
+              ),
               const SizedBox(width: 12),
               Text(
-                "App Update", 
+                "App Update",
                 style: GoogleFonts.inter(
-                  fontWeight: FontWeight.bold, 
+                  fontWeight: FontWeight.bold,
                   fontSize: 20,
                   color: isDark ? Colors.white : const Color(0xFF191C1E),
                 ),
@@ -207,7 +265,7 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
               Text(
                 "A new version of SmartKhata is available!",
                 style: GoogleFonts.inter(
-                  fontSize: 16, 
+                  fontSize: 16,
                   fontWeight: FontWeight.w600,
                   color: isDark ? Colors.white : const Color(0xFF191C1E),
                 ),
@@ -216,7 +274,7 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
               Text(
                 "Version 1.1.0 features new reports, voice-to-text notes, and UI enhancements.",
                 style: GoogleFonts.inter(
-                  fontSize: 14, 
+                  fontSize: 14,
                   color: isDark ? Colors.white70 : Colors.grey.shade600,
                 ),
               ),
@@ -224,19 +282,27 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: isDark ? const Color(0xFF191C1E) : const Color(0xFFF2F4F6),
+                  color: isDark
+                      ? const Color(0xFF191C1E)
+                      : const Color(0xFFF2F4F6),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.download_rounded, color: Color(0xFF4143D5), size: 20),
+                    const Icon(
+                      Icons.download_rounded,
+                      color: Color(0xFF4143D5),
+                      size: 20,
+                    ),
                     const SizedBox(width: 12),
                     Text(
                       "Update size: 14.2 MB",
                       style: GoogleFonts.inter(
-                        fontSize: 13, 
-                        fontWeight: FontWeight.w500, 
-                        color: isDark ? Colors.white70 : const Color(0xFF464555),
+                        fontSize: 13,
+                        fontWeight: FontWeight.w500,
+                        color: isDark
+                            ? Colors.white70
+                            : const Color(0xFF464555),
                       ),
                     ),
                   ],
@@ -248,9 +314,9 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
             TextButton(
               onPressed: () => Navigator.pop(context),
               child: Text(
-                "Later", 
+                "Later",
                 style: GoogleFonts.inter(
-                  color: isDark ? Colors.white54 : Colors.grey.shade600, 
+                  color: isDark ? Colors.white54 : Colors.grey.shade600,
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -258,15 +324,29 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
             ElevatedButton(
               onPressed: () {
                 Navigator.pop(context);
-                ToastHelper.showToast(context, 'Downloading update in background...');
+                ToastHelper.showToast(
+                  context,
+                  'Downloading update in background...',
+                );
                 // Integration point: You can use url_launcher here to open the Play Store
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF4143D5),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 12,
+                ),
               ),
-              child: Text("Install Update", style: GoogleFonts.inter(color: Colors.white, fontWeight: FontWeight.bold)),
+              child: Text(
+                "Install Update",
+                style: GoogleFonts.inter(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ),
           ],
         );
@@ -315,16 +395,13 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(24),
         gradient: const LinearGradient(
-          colors: [
-            Color(0xFF4143D5),
-            Color(0xFF5B3CDD),
-          ],
+          colors: [Color(0xFF4143D5), Color(0xFF5B3CDD)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF4143D5).withOpacity(0.3),
+            color: const Color(0xFF4143D5).withValues(alpha: 0.3),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),
@@ -340,7 +417,7 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
               width: 128,
               height: 128,
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.1),
+                color: Colors.white.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
             ),
@@ -352,7 +429,7 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
               width: 96,
               height: 96,
               decoration: BoxDecoration(
-                color: const Color(0xFF7459F7).withOpacity(0.2),
+                color: const Color(0xFF7459F7).withValues(alpha: 0.2),
                 shape: BoxShape.circle,
               ),
             ),
@@ -366,9 +443,12 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                     width: 72,
                     height: 72,
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.2),
+                      color: Colors.white.withValues(alpha: 0.2),
                       shape: BoxShape.circle,
-                      border: Border.all(color: Colors.white.withOpacity(0.3), width: 2),
+                      border: Border.all(
+                        color: Colors.white.withValues(alpha: 0.3),
+                        width: 2,
+                      ),
                     ),
                     child: Center(
                       child: Text(
@@ -397,7 +477,7 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                       Text(
                         "Smart Finance User",
                         style: GoogleFonts.inter(
-                          color: Colors.white.withOpacity(0.8),
+                          color: Colors.white.withValues(alpha: 0.8),
                           fontSize: 14,
                         ),
                       ),
@@ -410,9 +490,11 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                 child: Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.2),
+                    color: Colors.white.withValues(alpha: 0.2),
                     shape: BoxShape.circle,
-                    border: Border.all(color: Colors.white.withOpacity(0.2)),
+                    border: Border.all(
+                      color: Colors.white.withValues(alpha: 0.2),
+                    ),
                   ),
                   child: const Icon(
                     Icons.edit_rounded,
@@ -448,26 +530,27 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
 
   Widget _buildGlassCard(BuildContext context, {required Widget child}) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    
+
     return Container(
       decoration: BoxDecoration(
-        color: isDark ? Colors.white.withOpacity(0.05) : Colors.white.withOpacity(0.7),
+        color: isDark
+            ? Colors.white.withValues(alpha: 0.05)
+            : Colors.white.withValues(alpha: 0.7),
         borderRadius: BorderRadius.circular(24),
         border: Border.all(
-          color: isDark ? Colors.white.withOpacity(0.1) : Colors.white.withOpacity(0.3),
+          color: isDark
+              ? Colors.white.withValues(alpha: 0.1)
+              : Colors.white.withValues(alpha: 0.3),
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.03),
+            color: Colors.black.withValues(alpha: 0.03),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
         ],
       ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(24),
-        child: child,
-      ),
+      child: ClipRRect(borderRadius: BorderRadius.circular(24), child: child),
     );
   }
 
@@ -489,7 +572,13 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
     return Container(
       decoration: BoxDecoration(
         border: showBorder
-            ? Border(bottom: BorderSide(color: isDark ? Colors.white12 : Colors.black.withOpacity(0.05)))
+            ? Border(
+                bottom: BorderSide(
+                  color: isDark
+                      ? Colors.white12
+                      : Colors.black.withValues(alpha: 0.05),
+                ),
+              )
             : null,
       ),
       child: Material(
@@ -535,10 +624,12 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                 ),
                 Switch(
                   value: value,
-                  activeColor: Colors.white,
+                  activeThumbColor: Colors.white,
                   activeTrackColor: const Color(0xFF4143D5),
                   inactiveThumbColor: Colors.white,
-                  inactiveTrackColor: isDark ? Colors.white24 : const Color(0xFFC6C5D7),
+                  inactiveTrackColor: isDark
+                      ? Colors.white24
+                      : const Color(0xFFC6C5D7),
                   onChanged: onChanged,
                 ),
               ],
@@ -562,12 +653,20 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
   }) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final textColor = isDark ? Colors.white : const Color(0xFF0B1C30);
-    final defaultSubtitleColor = isDark ? Colors.white54 : const Color(0xFF767586);
+    final defaultSubtitleColor = isDark
+        ? Colors.white54
+        : const Color(0xFF767586);
 
     return Container(
       decoration: BoxDecoration(
         border: showBorder
-            ? Border(bottom: BorderSide(color: isDark ? Colors.white12 : Colors.black.withOpacity(0.05)))
+            ? Border(
+                bottom: BorderSide(
+                  color: isDark
+                      ? Colors.white12
+                      : Colors.black.withValues(alpha: 0.05),
+                ),
+              )
             : null,
       ),
       child: Material(
@@ -606,7 +705,9 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                         style: GoogleFonts.inter(
                           fontSize: 12,
                           color: subtitleColor ?? defaultSubtitleColor,
-                          fontWeight: subtitleColor != null ? FontWeight.w500 : FontWeight.normal,
+                          fontWeight: subtitleColor != null
+                              ? FontWeight.w500
+                              : FontWeight.normal,
                         ),
                       ),
                     ],
@@ -645,7 +746,7 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.03),
+            color: Colors.black.withValues(alpha: 0.03),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -676,10 +777,7 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
           Text(
             subtitle,
             textAlign: TextAlign.center,
-            style: GoogleFonts.inter(
-              fontSize: 10,
-              color: subtitleColor,
-            ),
+            style: GoogleFonts.inter(fontSize: 10, color: subtitleColor),
           ),
         ],
       ),
@@ -709,7 +807,7 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
           ),
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFFBA1A1A).withOpacity(0.2),
+              color: const Color(0xFFBA1A1A).withValues(alpha: 0.2),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
@@ -749,54 +847,67 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
         const SizedBox(height: 4),
         Text(
           "Version 1.0.0",
-          style: GoogleFonts.inter(
-            color: outlineColor,
-            fontSize: 14,
-          ),
+          style: GoogleFonts.inter(color: outlineColor, fontSize: 14),
         ),
         const SizedBox(height: 4),
         Text(
           "SmartKhata © 2026",
-          style: GoogleFonts.inter(
-            color: outlineColor,
-            fontSize: 14,
-          ),
+          style: GoogleFonts.inter(color: outlineColor, fontSize: 14),
         ),
       ],
     );
   }
 
   void _showEditNameDialog(BuildContext context, SettingsProvider settings) {
-    final TextEditingController controller = TextEditingController(text: settings.userName);
+    final TextEditingController controller = TextEditingController(
+      text: settings.userName,
+    );
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-          title: Text("Edit Name", style: GoogleFonts.inter(fontWeight: FontWeight.bold)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(24),
+          ),
+          title: Text(
+            "Edit Name",
+            style: GoogleFonts.inter(fontWeight: FontWeight.bold),
+          ),
           content: TextField(
             controller: controller,
             style: GoogleFonts.inter(),
             decoration: InputDecoration(
               hintText: "Enter your name",
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(color: Color(0xFF4143D5), width: 2),
+                borderSide: const BorderSide(
+                  color: Color(0xFF4143D5),
+                  width: 2,
+                ),
               ),
             ),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: Text("Cancel", style: GoogleFonts.inter(color: isDark ? Colors.white54 : Colors.grey)),
+              child: Text(
+                "Cancel",
+                style: GoogleFonts.inter(
+                  color: isDark ? Colors.white54 : Colors.grey,
+                ),
+              ),
             ),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF4143D5),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
               ),
               onPressed: () {
                 if (controller.text.trim().isNotEmpty) {
@@ -804,7 +915,10 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                 }
                 Navigator.pop(context);
               },
-              child: Text(AppLocalizations.of(context)!.save, style: GoogleFonts.inter(color: Colors.white)),
+              child: Text(
+                AppLocalizations.of(context)!.save,
+                style: GoogleFonts.inter(color: Colors.white),
+              ),
             ),
           ],
         );
@@ -819,7 +933,10 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text(AppLocalizations.of(context)!.language, style: GoogleFonts.inter(fontWeight: FontWeight.bold)),
+          title: Text(
+            AppLocalizations.of(context)!.language,
+            style: GoogleFonts.inter(fontWeight: FontWeight.bold),
+          ),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(24),
           ),
@@ -828,22 +945,38 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
             mainAxisSize: MainAxisSize.min,
             children: [
               ListTile(
-                title: Text(AppLocalizations.of(context)!.english, style: GoogleFonts.inter()),
-                trailing: settings.locale.languageCode == 'en' 
-                    ? const Icon(Icons.check_circle_rounded, color: Color(0xFF4143D5))
+                title: Text(
+                  AppLocalizations.of(context)!.english,
+                  style: GoogleFonts.inter(),
+                ),
+                trailing: settings.locale.languageCode == 'en'
+                    ? const Icon(
+                        Icons.check_circle_rounded,
+                        color: Color(0xFF4143D5),
+                      )
                     : null,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
                 onTap: () {
                   settings.setLocale(const Locale('en'));
                   Navigator.of(context).pop();
                 },
               ),
               ListTile(
-                title: Text(AppLocalizations.of(context)!.hindi, style: GoogleFonts.inter()),
-                trailing: settings.locale.languageCode == 'hi' 
-                    ? const Icon(Icons.check_circle_rounded, color: Color(0xFF4143D5))
+                title: Text(
+                  AppLocalizations.of(context)!.hindi,
+                  style: GoogleFonts.inter(),
+                ),
+                trailing: settings.locale.languageCode == 'hi'
+                    ? const Icon(
+                        Icons.check_circle_rounded,
+                        color: Color(0xFF4143D5),
+                      )
                     : null,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
                 onTap: () {
                   settings.setLocale(const Locale('hi'));
                   Navigator.of(context).pop();

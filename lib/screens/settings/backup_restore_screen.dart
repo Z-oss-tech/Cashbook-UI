@@ -1,7 +1,7 @@
+// ignore_for_file: unused_field
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-import 'package:intl/intl.dart';
 
 import '../../core/constants/app_colors.dart';
 import '../../providers/record_provider.dart';
@@ -17,7 +17,8 @@ class BackupRestoreScreen extends StatefulWidget {
   State<BackupRestoreScreen> createState() => _BackupRestoreScreenState();
 }
 
-class _BackupRestoreScreenState extends State<BackupRestoreScreen> with SingleTickerProviderStateMixin {
+class _BackupRestoreScreenState extends State<BackupRestoreScreen>
+    with SingleTickerProviderStateMixin {
   late TabController _tabController;
   List<Map<String, dynamic>> _history = [];
   List<Map<String, dynamic>> _recoveryItems = [];
@@ -52,14 +53,17 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> with SingleTi
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    
+
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: isDark ? Colors.white : Colors.black),
+          icon: Icon(
+            Icons.arrow_back,
+            color: isDark ? Colors.white : Colors.black,
+          ),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
@@ -103,9 +107,11 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> with SingleTi
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: isDark ? Colors.green.withOpacity(0.15) : const Color(0xFFE8F5E9),
+              color: isDark
+                  ? Colors.green.withValues(alpha: 0.15)
+                  : const Color(0xFFE8F5E9),
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: Colors.green.withOpacity(0.3)),
+              border: Border.all(color: Colors.green.withValues(alpha: 0.3)),
             ),
             child: Row(
               children: [
@@ -115,7 +121,11 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> with SingleTi
                     color: Colors.green,
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(Icons.cloud_done, color: Colors.white, size: 20),
+                  child: const Icon(
+                    Icons.cloud_done,
+                    color: Colors.white,
+                    size: 20,
+                  ),
                 ),
                 const SizedBox(width: 16),
                 Column(
@@ -131,7 +141,9 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> with SingleTi
                     ),
                     Text(
                       _history.isNotEmpty
-                          ? DateHelper.formatDateTime(DateTime.parse(_history.first['timestamp']))
+                          ? DateHelper.formatDateTime(
+                              DateTime.parse(_history.first['timestamp']),
+                            )
                           : "No backups yet",
                       style: GoogleFonts.poppins(
                         color: isDark ? Colors.white : Colors.black,
@@ -189,7 +201,9 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> with SingleTi
             ),
             style: OutlinedButton.styleFrom(
               minimumSize: const Size(double.infinity, 54),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
               side: BorderSide(color: Colors.grey.shade400),
             ),
           ),
@@ -210,7 +224,10 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> with SingleTi
             Center(
               child: Padding(
                 padding: const EdgeInsets.all(32.0),
-                child: Text("No backup history found.", style: GoogleFonts.poppins(color: Colors.grey)),
+                child: Text(
+                  "No backup history found.",
+                  style: GoogleFonts.poppins(color: Colors.grey),
+                ),
               ),
             )
           else
@@ -220,19 +237,24 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> with SingleTi
     );
   }
 
-  Widget _buildActionCard(bool isDark, {required IconData icon, required String title, required String subtitle}) {
+  Widget _buildActionCard(
+    bool isDark, {
+    required IconData icon,
+    required String title,
+    required String subtitle,
+  }) {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 8),
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey.withOpacity(0.2)),
+        border: Border.all(color: Colors.grey.withValues(alpha: 0.2)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.02),
+            color: Colors.black.withValues(alpha: 0.02),
             blurRadius: 10,
             offset: const Offset(0, 4),
-          )
+          ),
         ],
       ),
       child: Column(
@@ -240,7 +262,9 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> with SingleTi
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: isDark ? AppColors.primary.withOpacity(0.2) : AppColors.primary.withOpacity(0.1),
+              color: isDark
+                  ? AppColors.primary.withValues(alpha: 0.2)
+                  : AppColors.primary.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(16),
             ),
             child: Icon(icon, color: AppColors.primary, size: 32),
@@ -257,10 +281,7 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> with SingleTi
           const SizedBox(height: 4),
           Text(
             subtitle,
-            style: GoogleFonts.poppins(
-              color: Colors.grey,
-              fontSize: 11,
-            ),
+            style: GoogleFonts.poppins(color: Colors.grey, fontSize: 11),
           ),
         ],
       ),
@@ -274,17 +295,23 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> with SingleTi
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey.withOpacity(0.2)),
+        border: Border.all(color: Colors.grey.withValues(alpha: 0.2)),
       ),
       child: Row(
         children: [
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: isDark ? AppColors.primary.withOpacity(0.2) : AppColors.primary.withOpacity(0.1),
+              color: isDark
+                  ? AppColors.primary.withValues(alpha: 0.2)
+                  : AppColors.primary.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: const Icon(Icons.cloud_upload, color: AppColors.primary, size: 20),
+            child: const Icon(
+              Icons.cloud_upload,
+              color: AppColors.primary,
+              size: 20,
+            ),
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -305,7 +332,10 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> with SingleTi
                 const SizedBox(height: 4),
                 Text(
                   DateHelper.formatDateTime(DateTime.parse(item['timestamp'])),
-                  style: GoogleFonts.poppins(color: Colors.grey.shade400, fontSize: 11),
+                  style: GoogleFonts.poppins(
+                    color: Colors.grey.shade400,
+                    fontSize: 11,
+                  ),
                 ),
               ],
             ),
@@ -335,7 +365,10 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> with SingleTi
             Text(
               "Deleted records will appear here for 30 days\nbefore being permanently removed.",
               textAlign: TextAlign.center,
-              style: GoogleFonts.poppins(color: Colors.grey.shade500, fontSize: 13),
+              style: GoogleFonts.poppins(
+                color: Colors.grey.shade500,
+                fontSize: 13,
+              ),
             ),
           ],
         ),
@@ -349,22 +382,22 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> with SingleTi
         final item = _recoveryItems[index];
         final deletedAt = DateTime.parse(item['deletedAt']);
         final daysLeft = 30 - DateTime.now().difference(deletedAt).inDays;
-        
+
         final isCashbook = item['recoveryType'] == 'cashbook';
-        
+
         return Container(
           margin: const EdgeInsets.only(bottom: 12),
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             color: Theme.of(context).cardColor,
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: Colors.red.withOpacity(0.2)),
+            border: Border.all(color: Colors.red.withValues(alpha: 0.2)),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.02),
+                color: Colors.black.withValues(alpha: 0.02),
                 blurRadius: 10,
                 offset: const Offset(0, 4),
-              )
+              ),
             ],
           ),
           child: Row(
@@ -372,10 +405,14 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> with SingleTi
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: Colors.red.withOpacity(0.1),
+                  color: Colors.red.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: Icon(isCashbook ? Icons.library_books : Icons.delete_sweep, color: Colors.red, size: 24),
+                child: Icon(
+                  isCashbook ? Icons.library_books : Icons.delete_sweep,
+                  color: Colors.red,
+                  size: 24,
+                ),
               ),
               const SizedBox(width: 16),
               Expanded(
@@ -383,25 +420,34 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> with SingleTi
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      isCashbook ? (item['name'] ?? 'Unknown Cashbook') : (item['title'] ?? 'Unknown Record'),
+                      isCashbook
+                          ? (item['name'] ?? 'Unknown Cashbook')
+                          : (item['title'] ?? 'Unknown Record'),
                       style: GoogleFonts.poppins(
                         fontWeight: FontWeight.bold,
                         color: isDark ? Colors.white : Colors.black,
                       ),
                     ),
                     Text(
-                      isCashbook 
+                      isCashbook
                           ? "${(item['records'] as List).length} associated records"
                           : "₹${item['amount']} • ${item['type']}",
                       style: GoogleFonts.poppins(
-                        color: isCashbook ? Colors.grey : (item['type'] == 'IN' ? Colors.green : Colors.red),
+                        color: isCashbook
+                            ? Colors.grey
+                            : (item['type'] == 'IN'
+                                  ? Colors.green
+                                  : Colors.red),
                         fontWeight: FontWeight.w600,
                       ),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       "$daysLeft days left to recover",
-                      style: GoogleFonts.poppins(color: Colors.grey, fontSize: 11),
+                      style: GoogleFonts.poppins(
+                        color: Colors.grey,
+                        fontSize: 11,
+                      ),
                     ),
                   ],
                 ),
@@ -410,13 +456,22 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> with SingleTi
                 icon: const Icon(Icons.restore, color: AppColors.primary),
                 onPressed: () async {
                   setState(() => _isLoading = true);
-                  final provider = Provider.of<RecordProvider>(context, listen: false);
-                  final success = await RecoveryService.restoreItem(item, provider);
+                  final provider = Provider.of<RecordProvider>(
+                    context,
+                    listen: false,
+                  );
+                  final success = await RecoveryService.restoreItem(
+                    item,
+                    provider,
+                  );
                   await _loadRecoveryItems();
                   setState(() => _isLoading = false);
-                  
+
                   if (success && mounted) {
-                    ToastHelper.showToast(context, '${isCashbook ? 'Cashbook' : 'Record'} restored successfully!');
+                    ToastHelper.showToast(
+                      context,
+                      '${isCashbook ? 'Cashbook' : 'Record'} restored successfully!',
+                    );
                   }
                 },
               ),
@@ -436,12 +491,17 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> with SingleTi
           ElevatedButton.icon(
             onPressed: () {},
             icon: const Icon(Icons.refresh),
-            label: Text("Check Backup Health", style: GoogleFonts.poppins(fontWeight: FontWeight.bold)),
+            label: Text(
+              "Check Backup Health",
+              style: GoogleFonts.poppins(fontWeight: FontWeight.bold),
+            ),
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primary,
               foregroundColor: Colors.white,
               minimumSize: const Size(double.infinity, 54),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
           ),
           const SizedBox(height: 24),
@@ -450,9 +510,13 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> with SingleTi
             decoration: BoxDecoration(
               color: Theme.of(context).cardColor,
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: Colors.grey.withOpacity(0.2)),
+              border: Border.all(color: Colors.grey.withValues(alpha: 0.2)),
               boxShadow: [
-                BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 10, offset: const Offset(0, 4)),
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.02),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
               ],
             ),
             child: Column(
@@ -462,10 +526,14 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> with SingleTi
                     Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: Colors.green.withOpacity(0.15),
+                        color: Colors.green.withValues(alpha: 0.15),
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: const Icon(Icons.check_circle, color: Colors.green, size: 28),
+                      child: const Icon(
+                        Icons.check_circle,
+                        color: Colors.green,
+                        size: 28,
+                      ),
                     ),
                     const SizedBox(width: 16),
                     Expanded(
@@ -484,7 +552,10 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> with SingleTi
                             _history.isNotEmpty
                                 ? "${DateTime.now().difference(DateTime.parse(_history.first['timestamp'])).inDays} days since last backup"
                                 : "No backups created yet",
-                            style: GoogleFonts.poppins(color: Colors.grey, fontSize: 13),
+                            style: GoogleFonts.poppins(
+                              color: Colors.grey,
+                              fontSize: 13,
+                            ),
                           ),
                         ],
                       ),
@@ -498,7 +569,11 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> with SingleTi
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
-                    _buildStatItem("Total Backups", _history.length.toString(), isDark),
+                    _buildStatItem(
+                      "Total Backups",
+                      _history.length.toString(),
+                      isDark,
+                    ),
                     _buildStatItem("Failed", "0", isDark),
                     _buildStatItem("Archived", "0", isDark),
                   ],
@@ -517,9 +592,24 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> with SingleTi
             ),
           ),
           const SizedBox(height: 16),
-          _buildStepItem("1", "Check Backup Health", "Run a health check to see backup status", isDark),
-          _buildStepItem("2", "Export Backup", "Save your data to a JSON file", isDark),
-          _buildStepItem("3", "Restore If Needed", "Import a backup file to restore data", isDark),
+          _buildStepItem(
+            "1",
+            "Check Backup Health",
+            "Run a health check to see backup status",
+            isDark,
+          ),
+          _buildStepItem(
+            "2",
+            "Export Backup",
+            "Save your data to a JSON file",
+            isDark,
+          ),
+          _buildStepItem(
+            "3",
+            "Restore If Needed",
+            "Import a backup file to restore data",
+            isDark,
+          ),
         ],
       ),
     );
@@ -538,16 +628,18 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> with SingleTi
         ),
         Text(
           label,
-          style: GoogleFonts.poppins(
-            color: Colors.grey,
-            fontSize: 12,
-          ),
+          style: GoogleFonts.poppins(color: Colors.grey, fontSize: 12),
         ),
       ],
     );
   }
 
-  Widget _buildStepItem(String number, String title, String subtitle, bool isDark) {
+  Widget _buildStepItem(
+    String number,
+    String title,
+    String subtitle,
+    bool isDark,
+  ) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 20),
       child: Row(
@@ -557,7 +649,9 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> with SingleTi
             width: 36,
             height: 36,
             decoration: BoxDecoration(
-              color: isDark ? AppColors.primary.withOpacity(0.2) : AppColors.primary.withOpacity(0.1),
+              color: isDark
+                  ? AppColors.primary.withValues(alpha: 0.2)
+                  : AppColors.primary.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(10),
             ),
             alignment: Alignment.center,
@@ -586,10 +680,7 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> with SingleTi
                 const SizedBox(height: 2),
                 Text(
                   subtitle,
-                  style: GoogleFonts.poppins(
-                    color: Colors.grey,
-                    fontSize: 13,
-                  ),
+                  style: GoogleFonts.poppins(color: Colors.grey, fontSize: 13),
                 ),
               ],
             ),
@@ -602,9 +693,12 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> with SingleTi
   void _exportBackup({bool isPreMigration = false}) async {
     setState(() => _isLoading = true);
     final provider = Provider.of<RecordProvider>(context, listen: false);
-    final success = await BackupService.exportBackup(provider, isPreMigration: isPreMigration);
+    final success = await BackupService.exportBackup(
+      provider,
+      isPreMigration: isPreMigration,
+    );
     setState(() => _isLoading = false);
-    
+
     if (success) {
       _loadHistory();
       if (mounted) {
@@ -612,7 +706,11 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> with SingleTi
       }
     } else {
       if (mounted) {
-        ToastHelper.showToast(context, 'Failed to export backup.', isError: true);
+        ToastHelper.showToast(
+          context,
+          'Failed to export backup.',
+          isError: true,
+        );
       }
     }
   }
@@ -624,11 +722,16 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> with SingleTi
       builder: (BuildContext dialogContext) {
         final isDark = Theme.of(context).brightness == Brightness.dark;
         return AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
           backgroundColor: Theme.of(context).cardColor,
           title: Text(
             "Restore Backup?",
-            style: GoogleFonts.poppins(fontWeight: FontWeight.bold, color: isDark ? Colors.white : Colors.black87),
+            style: GoogleFonts.poppins(
+              fontWeight: FontWeight.bold,
+              color: isDark ? Colors.white : Colors.black87,
+            ),
           ),
           content: Column(
             mainAxisSize: MainAxisSize.min,
@@ -636,32 +739,53 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> with SingleTi
             children: [
               Text(
                 "This will OVERWRITE your current data with the backup data.",
-                style: GoogleFonts.poppins(color: Colors.red.shade600, fontWeight: FontWeight.w600),
+                style: GoogleFonts.poppins(
+                  color: Colors.red.shade600,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
               const SizedBox(height: 12),
               Text(
                 "Make sure you have a recent backup of your current data before proceeding.",
-                style: GoogleFonts.poppins(color: isDark ? Colors.white70 : Colors.black87, fontSize: 13),
+                style: GoogleFonts.poppins(
+                  color: isDark ? Colors.white70 : Colors.black87,
+                  fontSize: 13,
+                ),
               ),
               const SizedBox(height: 12),
               Text(
                 "This action cannot be undone.",
-                style: GoogleFonts.poppins(color: isDark ? Colors.white : Colors.black, fontWeight: FontWeight.bold, fontSize: 13),
+                style: GoogleFonts.poppins(
+                  color: isDark ? Colors.white : Colors.black,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 13,
+                ),
               ),
             ],
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(dialogContext, false),
-              child: Text("CANCEL", style: GoogleFonts.poppins(color: AppColors.primary)),
+              child: Text(
+                "CANCEL",
+                style: GoogleFonts.poppins(color: AppColors.primary),
+              ),
             ),
             ElevatedButton(
               onPressed: () => Navigator.pop(dialogContext, true),
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFFD32F2F), // Red button
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
               ),
-              child: Text("RESTORE BACKUP", style: GoogleFonts.poppins(color: Colors.white, fontWeight: FontWeight.bold)),
+              child: Text(
+                "RESTORE BACKUP",
+                style: GoogleFonts.poppins(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ),
           ],
         );
@@ -679,7 +803,11 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> with SingleTi
         if (success) {
           ToastHelper.showToast(context, 'Backup restored successfully!');
         } else {
-          ToastHelper.showToast(context, 'Failed to restore backup. Invalid file format.', isError: true);
+          ToastHelper.showToast(
+            context,
+            'Failed to restore backup. Invalid file format.',
+            isError: true,
+          );
         }
       }
     }

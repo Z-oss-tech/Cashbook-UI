@@ -7,10 +7,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 class ApiService {
   // Use Localtunnel to securely bypass Windows Firewall so your real phone can connect instantly
   // static const String baseUrl = 'https://stupid-geckos-obey.loca.lt/api';
-  
+
   // Local LAN IP for reliable development
   // static const String baseUrl = 'http://10.234.18.43:3000/api';
-  
+
   // Live Production Server
   static const String baseUrl = 'https://cashbook-a3kn.onrender.com/api';
 
@@ -44,16 +44,24 @@ class ApiService {
   // --- Auth ---
 
   Future<Map<String, dynamic>> login(String username, String password) async {
-    final res = await _post('/auth/login', {'username': username, 'password': password});
+    final res = await _post('/auth/login', {
+      'username': username,
+      'password': password,
+    });
     if (res['token'] != null) {
       await saveToken(res['token']);
     }
     return res;
   }
 
-  Future<Map<String, dynamic>> register(String username, String password, {String? name, String? email}) async {
+  Future<Map<String, dynamic>> register(
+    String username,
+    String password, {
+    String? name,
+    String? email,
+  }) async {
     final res = await _post('/auth/register', {
-      'username': username, 
+      'username': username,
       'password': password,
       if (name != null) 'name': name,
       if (email != null) 'email': email,
@@ -82,19 +90,21 @@ class ApiService {
     return res;
   }
 
-  
   Future<Map<String, dynamic>> getCurrentUser() async {
     return await _get('/auth/me');
   }
 
-  Future<Map<String, dynamic>> updateProfile({required String name, required String email}) async {
-    return await _post('/auth/update-profile', {
-      'name': name,
-      'email': email,
-    });
+  Future<Map<String, dynamic>> updateProfile({
+    required String name,
+    required String email,
+  }) async {
+    return await _post('/auth/update-profile', {'name': name, 'email': email});
   }
 
-  Future<Map<String, dynamic>> changePassword({required String currentPassword, required String newPassword}) async {
+  Future<Map<String, dynamic>> changePassword({
+    required String currentPassword,
+    required String newPassword,
+  }) async {
     return await _post('/auth/change-password', {
       'currentPassword': currentPassword,
       'newPassword': newPassword,
@@ -116,7 +126,10 @@ class ApiService {
     return await _get('/cashbooks/$id/summary');
   }
 
-  Future<Map<String, dynamic>> updateCashbook(String id, Map<String, dynamic> data) async {
+  Future<Map<String, dynamic>> updateCashbook(
+    String id,
+    Map<String, dynamic> data,
+  ) async {
     return await _put('/cashbooks/$id', data);
   }
 
@@ -135,7 +148,10 @@ class ApiService {
     return await _post('/records', data);
   }
 
-  Future<Map<String, dynamic>> updateRecord(String id, Map<String, dynamic> data) async {
+  Future<Map<String, dynamic>> updateRecord(
+    String id,
+    Map<String, dynamic> data,
+  ) async {
     return await _put('/records/$id', data);
   }
 
@@ -152,27 +168,37 @@ class ApiService {
         final response = await http
             .get(Uri.parse('$baseUrl$path'), headers: await _getHeaders())
             .timeout(const Duration(seconds: 5));
-        
-        if (response.statusCode == 502 || response.statusCode == 503 || response.statusCode == 504) {
+
+        if (response.statusCode == 502 ||
+            response.statusCode == 503 ||
+            response.statusCode == 504) {
           retries--;
           if (retries == 0) return _handleResponse(response);
           await Future.delayed(const Duration(seconds: 1));
           continue;
         }
-        
+
         return _handleResponse(response);
       } on SocketException {
         retries--;
-        if (retries == 0) throw Exception('network_error: Connection failed. Check your network.');
+        if (retries == 0)
+          throw Exception(
+            'network_error: Connection failed. Check your network.',
+          );
         await Future.delayed(const Duration(seconds: 3));
       } on TimeoutException {
         retries--;
-        if (retries == 0) throw Exception('network_error: Connection timed out. Please try again.');
+        if (retries == 0)
+          throw Exception(
+            'network_error: Connection timed out. Please try again.',
+          );
         await Future.delayed(const Duration(seconds: 3));
       } catch (e) {
-        if (e.toString().contains('SocketException') || e.toString().contains('Failed host lookup')) {
+        if (e.toString().contains('SocketException') ||
+            e.toString().contains('Failed host lookup')) {
           retries--;
-          if (retries == 0) throw Exception('network_error: Connection failed.');
+          if (retries == 0)
+            throw Exception('network_error: Connection failed.');
           await Future.delayed(const Duration(seconds: 1));
           continue;
         }
@@ -192,27 +218,37 @@ class ApiService {
               body: jsonEncode(body),
             )
             .timeout(const Duration(seconds: 5));
-        
-        if (response.statusCode == 502 || response.statusCode == 503 || response.statusCode == 504) {
+
+        if (response.statusCode == 502 ||
+            response.statusCode == 503 ||
+            response.statusCode == 504) {
           retries--;
           if (retries == 0) return _handleResponse(response);
           await Future.delayed(const Duration(seconds: 1));
           continue;
         }
-        
+
         return _handleResponse(response);
       } on SocketException {
         retries--;
-        if (retries == 0) throw Exception('network_error: Connection failed. Check your network.');
+        if (retries == 0)
+          throw Exception(
+            'network_error: Connection failed. Check your network.',
+          );
         await Future.delayed(const Duration(seconds: 3));
       } on TimeoutException {
         retries--;
-        if (retries == 0) throw Exception('network_error: Connection timed out. Please try again.');
+        if (retries == 0)
+          throw Exception(
+            'network_error: Connection timed out. Please try again.',
+          );
         await Future.delayed(const Duration(seconds: 3));
       } catch (e) {
-        if (e.toString().contains('SocketException') || e.toString().contains('Failed host lookup')) {
+        if (e.toString().contains('SocketException') ||
+            e.toString().contains('Failed host lookup')) {
           retries--;
-          if (retries == 0) throw Exception('network_error: Connection failed.');
+          if (retries == 0)
+            throw Exception('network_error: Connection failed.');
           await Future.delayed(const Duration(seconds: 1));
           continue;
         }
@@ -232,27 +268,37 @@ class ApiService {
               body: jsonEncode(body),
             )
             .timeout(const Duration(seconds: 5));
-        
-        if (response.statusCode == 502 || response.statusCode == 503 || response.statusCode == 504) {
+
+        if (response.statusCode == 502 ||
+            response.statusCode == 503 ||
+            response.statusCode == 504) {
           retries--;
           if (retries == 0) return _handleResponse(response);
           await Future.delayed(const Duration(seconds: 1));
           continue;
         }
-        
+
         return _handleResponse(response);
       } on SocketException {
         retries--;
-        if (retries == 0) throw Exception('network_error: Connection failed. Check your network.');
+        if (retries == 0)
+          throw Exception(
+            'network_error: Connection failed. Check your network.',
+          );
         await Future.delayed(const Duration(seconds: 3));
       } on TimeoutException {
         retries--;
-        if (retries == 0) throw Exception('network_error: Connection timed out. Please try again.');
+        if (retries == 0)
+          throw Exception(
+            'network_error: Connection timed out. Please try again.',
+          );
         await Future.delayed(const Duration(seconds: 3));
       } catch (e) {
-        if (e.toString().contains('SocketException') || e.toString().contains('Failed host lookup')) {
+        if (e.toString().contains('SocketException') ||
+            e.toString().contains('Failed host lookup')) {
           retries--;
-          if (retries == 0) throw Exception('network_error: Connection failed.');
+          if (retries == 0)
+            throw Exception('network_error: Connection failed.');
           await Future.delayed(const Duration(seconds: 1));
           continue;
         }
@@ -269,27 +315,37 @@ class ApiService {
             .delete(Uri.parse('$baseUrl$path'), headers: await _getHeaders())
             .timeout(const Duration(seconds: 5));
         if (response.statusCode == 204) return null;
-        
-        if (response.statusCode == 502 || response.statusCode == 503 || response.statusCode == 504) {
+
+        if (response.statusCode == 502 ||
+            response.statusCode == 503 ||
+            response.statusCode == 504) {
           retries--;
           if (retries == 0) return _handleResponse(response);
           await Future.delayed(const Duration(seconds: 1));
           continue;
         }
-        
+
         return _handleResponse(response);
       } on SocketException {
         retries--;
-        if (retries == 0) throw Exception('network_error: Connection failed. Check your network.');
+        if (retries == 0)
+          throw Exception(
+            'network_error: Connection failed. Check your network.',
+          );
         await Future.delayed(const Duration(seconds: 3));
       } on TimeoutException {
         retries--;
-        if (retries == 0) throw Exception('network_error: Connection timed out. Please try again.');
+        if (retries == 0)
+          throw Exception(
+            'network_error: Connection timed out. Please try again.',
+          );
         await Future.delayed(const Duration(seconds: 3));
       } catch (e) {
-        if (e.toString().contains('SocketException') || e.toString().contains('Failed host lookup')) {
+        if (e.toString().contains('SocketException') ||
+            e.toString().contains('Failed host lookup')) {
           retries--;
-          if (retries == 0) throw Exception('network_error: Connection failed.');
+          if (retries == 0)
+            throw Exception('network_error: Connection failed.');
           await Future.delayed(const Duration(seconds: 1));
           continue;
         }
@@ -313,24 +369,29 @@ class ApiService {
     if (response.statusCode >= 200 && response.statusCode < 300) {
       if (response.body.isEmpty) return {};
       final json = jsonDecode(response.body);
-      
+
       // Unwrap the 'data' field if the API wraps responses (e.g. from ok() function)
       if (json is Map<String, dynamic> && json.containsKey('data')) {
         return json['data'];
       }
-      
+
       return json;
     } else {
       // Clean up server gateway errors (502, 503, 504) commonly caused by free tier sleeping containers
-      if (response.statusCode == 502 || response.statusCode == 503 || response.statusCode == 504) {
-        throw Exception('The cloud server is temporarily busy. Please try again in a few seconds.');
+      if (response.statusCode == 502 ||
+          response.statusCode == 503 ||
+          response.statusCode == 504) {
+        throw Exception(
+          'The cloud server is temporarily busy. Please try again in a few seconds.',
+        );
       }
 
       String? extractedError;
       try {
         final errJson = jsonDecode(response.body);
         if (errJson is Map<String, dynamic>) {
-          extractedError = errJson['message'] ?? errJson['error'] ?? errJson['msg'];
+          extractedError =
+              errJson['message'] ?? errJson['error'] ?? errJson['msg'];
         }
       } catch (_) {
         // Ignore JSON parsing errors
@@ -340,7 +401,9 @@ class ApiService {
         throw Exception(extractedError);
       }
 
-      throw Exception('Server error (${response.statusCode}). Please try again.');
+      throw Exception(
+        'Server error (${response.statusCode}). Please try again.',
+      );
     }
   }
 }

@@ -1,17 +1,15 @@
+// ignore_for_file: unused_field, unused_element, unused_local_variable
 import 'package:cashbook/l10n/generated/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:local_auth/local_auth.dart';
-import 'dart:ui';
 
-import '../../core/constants/app_colors.dart';
 import '../../providers/settings_provider.dart';
 import '../../providers/record_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../core/utils/toast_helper.dart';
 import '../../core/services/notification_service.dart';
-import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:open_filex/open_filex.dart';
@@ -26,7 +24,8 @@ class ProfileScreen extends StatefulWidget {
   State<ProfileScreen> createState() => _ProfileScreenState();
 }
 
-class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProviderStateMixin {
+class _ProfileScreenState extends State<ProfileScreen>
+    with SingleTickerProviderStateMixin {
   final LocalAuthentication _auth = LocalAuthentication();
 
   @override
@@ -46,12 +45,15 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
             Expanded(
               child: SingleChildScrollView(
                 physics: const BouncingScrollPhysics(),
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 16,
+                ),
                 child: Column(
                   children: [
                     _buildProfileCard(context, settings),
                     const SizedBox(height: 32),
-                    
+
                     _buildSectionHeader("GENERAL", outlineColor),
                     const SizedBox(height: 8),
                     _buildGlassCard(
@@ -61,49 +63,83 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                           _buildMenuTile(
                             context: context,
                             icon: Icons.info_rounded,
-                            iconBgColor: isDark ? Colors.white12 : const Color(0xFFDCE9FF),
+                            iconBgColor: isDark
+                                ? Colors.white12
+                                : const Color(0xFFDCE9FF),
                             iconColor: const Color(0xFF4143D5),
                             title: "About App",
                             subtitle: "Version 1.0.0",
                             onTap: () {
-                              ToastHelper.showToast(context, 'SmartKhata v1.0.0');
+                              ToastHelper.showToast(
+                                context,
+                                'SmartKhata v1.0.0',
+                              );
                             },
                             showBorder: true,
                           ),
                           _buildMenuTile(
                             context: context,
                             icon: Icons.system_update_rounded,
-                            iconBgColor: isDark ? Colors.white12 : const Color(0xFFDCE9FF),
+                            iconBgColor: isDark
+                                ? Colors.white12
+                                : const Color(0xFFDCE9FF),
                             iconColor: const Color(0xFF4143D5),
                             title: "App Updates",
                             subtitle: "Check for new versions",
                             onTap: () async {
-                              ToastHelper.showToast(context, 'Checking for updates...');
+                              ToastHelper.showToast(
+                                context,
+                                'Checking for updates...',
+                              );
                               try {
-                                final res = await ApiService().getLatestAppUpdate();
+                                final res = await ApiService()
+                                    .getLatestAppUpdate();
                                 if (!mounted) return;
-                                
-                                if (res['updateAvailable'] == true && res['update'] != null) {
+
+                                if (res['updateAvailable'] == true &&
+                                    res['update'] != null) {
                                   final update = res['update'];
-                                  final newVersion = update['version'] ?? '0.0.0';
-                                  
-                                  if (_isVersionGreater(currentAppVersion, newVersion)) {
+                                  final newVersion =
+                                      update['version'] ?? '0.0.0';
+
+                                  if (_isVersionGreater(
+                                    currentAppVersion,
+                                    newVersion,
+                                  )) {
                                     _showUpdateDialog(
                                       context,
                                       version: newVersion,
-                                      description: update['description'] ?? 'No description available',
+                                      description:
+                                          update['description'] ??
+                                          'No description available',
                                       size: update['size'] ?? 'Unknown size',
-                                      downloadUrl: update['downloadUrl'] ?? 'https://github.com/Z-oss-tech/Cashbook-UI/releases',
+                                      downloadUrl:
+                                          update['downloadUrl'] ??
+                                          'https://github.com/Z-oss-tech/Cashbook-UI/releases',
                                     );
-                                    NotificationService().showUpdateNotification(version: newVersion);
+                                    NotificationService()
+                                        .showUpdateNotification(
+                                          version: newVersion,
+                                        );
                                   } else {
-                                    ToastHelper.showToast(context, 'You are up to date!');
+                                    ToastHelper.showToast(
+                                      context,
+                                      'You are up to date!',
+                                    );
                                   }
                                 } else {
-                                  ToastHelper.showToast(context, 'You are up to date!');
+                                  ToastHelper.showToast(
+                                    context,
+                                    'You are up to date!',
+                                  );
                                 }
                               } catch (e) {
-                                if (mounted) ToastHelper.showToast(context, 'Failed to check updates', isError: true);
+                                if (mounted)
+                                  ToastHelper.showToast(
+                                    context,
+                                    'Failed to check updates',
+                                    isError: true,
+                                  );
                               }
                             },
                             showBorder: false,
@@ -120,7 +156,9 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                           _buildMenuTile(
                             context: context,
                             icon: Icons.lock_outline_rounded,
-                            iconBgColor: isDark ? Colors.white12 : const Color(0xFFFFE4E4),
+                            iconBgColor: isDark
+                                ? Colors.white12
+                                : const Color(0xFFFFE4E4),
                             iconColor: const Color(0xFFE53935),
                             title: "Change Password",
                             subtitle: "Update your login password",
@@ -150,9 +188,19 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
 
   bool _isVersionGreater(String currentVersion, String newVersion) {
     try {
-      List<int> currentParts = currentVersion.split('+').first.split('.').map((e) => int.tryParse(e) ?? 0).toList();
-      List<int> newParts = newVersion.split('+').first.split('.').map((e) => int.tryParse(e) ?? 0).toList();
-      
+      List<int> currentParts = currentVersion
+          .split('+')
+          .first
+          .split('.')
+          .map((e) => int.tryParse(e) ?? 0)
+          .toList();
+      List<int> newParts = newVersion
+          .split('+')
+          .first
+          .split('.')
+          .map((e) => int.tryParse(e) ?? 0)
+          .toList();
+
       for (int i = 0; i < 3; i++) {
         int currentPart = i < currentParts.length ? currentParts[i] : 0;
         int newPart = i < newParts.length ? newParts[i] : 0;
@@ -184,15 +232,21 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
           builder: (context, setState) {
             return AlertDialog(
               backgroundColor: isDark ? const Color(0xFF2D3133) : Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(24),
+              ),
               title: Row(
                 children: [
-                  const Icon(Icons.system_update_rounded, color: Color(0xFF4143D5), size: 28),
+                  const Icon(
+                    Icons.system_update_rounded,
+                    color: Color(0xFF4143D5),
+                    size: 28,
+                  ),
                   const SizedBox(width: 12),
                   Text(
-                    "App Update", 
+                    "App Update",
                     style: GoogleFonts.inter(
-                      fontWeight: FontWeight.bold, 
+                      fontWeight: FontWeight.bold,
                       fontSize: 20,
                       color: isDark ? Colors.white : const Color(0xFF191C1E),
                     ),
@@ -206,7 +260,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                   Text(
                     "A new version of SmartKhata is available!",
                     style: GoogleFonts.inter(
-                      fontSize: 16, 
+                      fontSize: 16,
                       fontWeight: FontWeight.w600,
                       color: isDark ? Colors.white : const Color(0xFF191C1E),
                     ),
@@ -215,7 +269,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                   Text(
                     description,
                     style: GoogleFonts.inter(
-                      fontSize: 14, 
+                      fontSize: 14,
                       color: isDark ? Colors.white70 : Colors.grey.shade600,
                     ),
                   ),
@@ -223,19 +277,27 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: isDark ? const Color(0xFF191C1E) : const Color(0xFFF2F4F6),
+                      color: isDark
+                          ? const Color(0xFF191C1E)
+                          : const Color(0xFFF2F4F6),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Row(
                       children: [
-                        const Icon(Icons.download_rounded, color: Color(0xFF4143D5), size: 20),
+                        const Icon(
+                          Icons.download_rounded,
+                          color: Color(0xFF4143D5),
+                          size: 20,
+                        ),
                         const SizedBox(width: 12),
                         Text(
                           "Version $version • $size",
                           style: GoogleFonts.inter(
-                            fontSize: 13, 
-                            fontWeight: FontWeight.w500, 
-                            color: isDark ? Colors.white70 : const Color(0xFF464555),
+                            fontSize: 13,
+                            fontWeight: FontWeight.w500,
+                            color: isDark
+                                ? Colors.white70
+                                : const Color(0xFF464555),
                           ),
                         ),
                       ],
@@ -257,11 +319,13 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                         style: GoogleFonts.inter(
                           fontSize: 13,
                           fontWeight: FontWeight.bold,
-                          color: isDark ? Colors.white : const Color(0xFF191C1E),
+                          color: isDark
+                              ? Colors.white
+                              : const Color(0xFF191C1E),
                         ),
                       ),
                     ),
-                  ]
+                  ],
                 ],
               ),
               actions: [
@@ -269,68 +333,86 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                   TextButton(
                     onPressed: () => Navigator.pop(dialogContext),
                     child: Text(
-                      "Later", 
+                      "Later",
                       style: GoogleFonts.inter(
-                        color: isDark ? Colors.white54 : Colors.grey.shade600, 
+                        color: isDark ? Colors.white54 : Colors.grey.shade600,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
                   ),
                 ElevatedButton(
-                  onPressed: isDownloading ? null : () async {
-                    setState(() {
-                      isDownloading = true;
-                      progress = 0.0;
-                    });
-                    
-                    try {
-                      final directory = await getTemporaryDirectory();
-                      final filePath = '${directory.path}/smartkhata_update_$version.apk';
-                      
-                      final dio = Dio();
-                      await dio.download(
-                        downloadUrl,
-                        filePath,
-                        onReceiveProgress: (received, total) {
-                          if (total != -1) {
+                  onPressed: isDownloading
+                      ? null
+                      : () async {
+                          setState(() {
+                            isDownloading = true;
+                            progress = 0.0;
+                          });
+
+                          try {
+                            final directory = await getTemporaryDirectory();
+                            final filePath =
+                                '${directory.path}/smartkhata_update_$version.apk';
+
+                            final dio = Dio();
+                            await dio.download(
+                              downloadUrl,
+                              filePath,
+                              onReceiveProgress: (received, total) {
+                                if (total != -1) {
+                                  setState(() {
+                                    progress = received / total;
+                                  });
+                                }
+                              },
+                            );
+
+                            if (dialogContext.mounted) {
+                              Navigator.pop(dialogContext);
+                              OpenFilex.open(filePath);
+                            }
+                          } catch (e) {
                             setState(() {
-                              progress = received / total;
+                              isDownloading = false;
+                              progress = 0.0;
                             });
+                            if (dialogContext.mounted) {
+                              ToastHelper.showToast(
+                                dialogContext,
+                                'Failed to download update',
+                                isError: true,
+                              );
+                              // Fallback to browser
+                              final Uri url = Uri.parse(downloadUrl);
+                              launchUrl(
+                                url,
+                                mode: LaunchMode.externalApplication,
+                              );
+                            }
                           }
                         },
-                      );
-                      
-                      if (dialogContext.mounted) {
-                        Navigator.pop(dialogContext);
-                        OpenFilex.open(filePath);
-                      }
-                    } catch (e) {
-                      setState(() {
-                        isDownloading = false;
-                        progress = 0.0;
-                      });
-                      if (dialogContext.mounted) {
-                        ToastHelper.showToast(dialogContext, 'Failed to download update', isError: true);
-                        // Fallback to browser
-                        final Uri url = Uri.parse(downloadUrl);
-                        launchUrl(url, mode: LaunchMode.externalApplication);
-                      }
-                    }
-                  },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF4143D5),
                     disabledBackgroundColor: Colors.grey,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 12,
+                    ),
                   ),
                   child: Text(
-                    isDownloading ? "Downloading..." : "Install Update", 
-                    style: GoogleFonts.inter(color: Colors.white, fontWeight: FontWeight.bold)
+                    isDownloading ? "Downloading..." : "Install Update",
+                    style: GoogleFonts.inter(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ],
             );
-          }
+          },
         );
       },
     );
@@ -359,16 +441,13 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(24),
         gradient: const LinearGradient(
-          colors: [
-            Color(0xFF4143D5),
-            Color(0xFF5B3CDD),
-          ],
+          colors: [Color(0xFF4143D5), Color(0xFF5B3CDD)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF4143D5).withOpacity(0.3),
+            color: const Color(0xFF4143D5).withValues(alpha: 0.3),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),
@@ -384,7 +463,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
               width: 128,
               height: 128,
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.1),
+                color: Colors.white.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
             ),
@@ -396,7 +475,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
               width: 96,
               height: 96,
               decoration: BoxDecoration(
-                color: const Color(0xFF7459F7).withOpacity(0.2),
+                color: const Color(0xFF7459F7).withValues(alpha: 0.2),
                 shape: BoxShape.circle,
               ),
             ),
@@ -410,9 +489,12 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                     width: 72,
                     height: 72,
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.2),
+                      color: Colors.white.withValues(alpha: 0.2),
                       shape: BoxShape.circle,
-                      border: Border.all(color: Colors.white.withOpacity(0.3), width: 2),
+                      border: Border.all(
+                        color: Colors.white.withValues(alpha: 0.3),
+                        width: 2,
+                      ),
                     ),
                     child: Center(
                       child: Text(
@@ -441,7 +523,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                       Text(
                         "Smart Finance User",
                         style: GoogleFonts.inter(
-                          color: Colors.white.withOpacity(0.8),
+                          color: Colors.white.withValues(alpha: 0.8),
                           fontSize: 14,
                         ),
                       ),
@@ -454,9 +536,11 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                 child: Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.2),
+                    color: Colors.white.withValues(alpha: 0.2),
                     shape: BoxShape.circle,
-                    border: Border.all(color: Colors.white.withOpacity(0.2)),
+                    border: Border.all(
+                      color: Colors.white.withValues(alpha: 0.2),
+                    ),
                   ),
                   child: const Icon(
                     Icons.edit_rounded,
@@ -492,26 +576,27 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
 
   Widget _buildGlassCard(BuildContext context, {required Widget child}) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    
+
     return Container(
       decoration: BoxDecoration(
-        color: isDark ? Colors.white.withOpacity(0.05) : Colors.white.withOpacity(0.7),
+        color: isDark
+            ? Colors.white.withValues(alpha: 0.05)
+            : Colors.white.withValues(alpha: 0.7),
         borderRadius: BorderRadius.circular(24),
         border: Border.all(
-          color: isDark ? Colors.white.withOpacity(0.1) : Colors.white.withOpacity(0.3),
+          color: isDark
+              ? Colors.white.withValues(alpha: 0.1)
+              : Colors.white.withValues(alpha: 0.3),
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.03),
+            color: Colors.black.withValues(alpha: 0.03),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
         ],
       ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(24),
-        child: child,
-      ),
+      child: ClipRRect(borderRadius: BorderRadius.circular(24), child: child),
     );
   }
 
@@ -533,7 +618,13 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
     return Container(
       decoration: BoxDecoration(
         border: showBorder
-            ? Border(bottom: BorderSide(color: isDark ? Colors.white12 : Colors.black.withOpacity(0.05)))
+            ? Border(
+                bottom: BorderSide(
+                  color: isDark
+                      ? Colors.white12
+                      : Colors.black.withValues(alpha: 0.05),
+                ),
+              )
             : null,
       ),
       child: Material(
@@ -579,10 +670,12 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                 ),
                 Switch(
                   value: value,
-                  activeColor: Colors.white,
+                  activeThumbColor: Colors.white,
                   activeTrackColor: const Color(0xFF4143D5),
                   inactiveThumbColor: Colors.white,
-                  inactiveTrackColor: isDark ? Colors.white24 : const Color(0xFFC6C5D7),
+                  inactiveTrackColor: isDark
+                      ? Colors.white24
+                      : const Color(0xFFC6C5D7),
                   onChanged: onChanged,
                 ),
               ],
@@ -606,12 +699,20 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
   }) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final textColor = isDark ? Colors.white : const Color(0xFF0B1C30);
-    final defaultSubtitleColor = isDark ? Colors.white54 : const Color(0xFF767586);
+    final defaultSubtitleColor = isDark
+        ? Colors.white54
+        : const Color(0xFF767586);
 
     return Container(
       decoration: BoxDecoration(
         border: showBorder
-            ? Border(bottom: BorderSide(color: isDark ? Colors.white12 : Colors.black.withOpacity(0.05)))
+            ? Border(
+                bottom: BorderSide(
+                  color: isDark
+                      ? Colors.white12
+                      : Colors.black.withValues(alpha: 0.05),
+                ),
+              )
             : null,
       ),
       child: Material(
@@ -650,7 +751,9 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                         style: GoogleFonts.inter(
                           fontSize: 12,
                           color: subtitleColor ?? defaultSubtitleColor,
-                          fontWeight: subtitleColor != null ? FontWeight.w500 : FontWeight.normal,
+                          fontWeight: subtitleColor != null
+                              ? FontWeight.w500
+                              : FontWeight.normal,
                         ),
                       ),
                     ],
@@ -689,7 +792,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.03),
+            color: Colors.black.withValues(alpha: 0.03),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -720,10 +823,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
           Text(
             subtitle,
             textAlign: TextAlign.center,
-            style: GoogleFonts.inter(
-              fontSize: 10,
-              color: subtitleColor,
-            ),
+            style: GoogleFonts.inter(fontSize: 10, color: subtitleColor),
           ),
         ],
       ),
@@ -753,7 +853,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
           ),
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFFBA1A1A).withOpacity(0.2),
+              color: const Color(0xFFBA1A1A).withValues(alpha: 0.2),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
@@ -793,54 +893,67 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
         const SizedBox(height: 4),
         Text(
           "Version 1.0.0",
-          style: GoogleFonts.inter(
-            color: outlineColor,
-            fontSize: 14,
-          ),
+          style: GoogleFonts.inter(color: outlineColor, fontSize: 14),
         ),
         const SizedBox(height: 4),
         Text(
           "SmartKhata © 2026",
-          style: GoogleFonts.inter(
-            color: outlineColor,
-            fontSize: 14,
-          ),
+          style: GoogleFonts.inter(color: outlineColor, fontSize: 14),
         ),
       ],
     );
   }
 
   void _showEditNameDialog(BuildContext context, SettingsProvider settings) {
-    final TextEditingController controller = TextEditingController(text: settings.userName);
+    final TextEditingController controller = TextEditingController(
+      text: settings.userName,
+    );
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-          title: Text("Edit Name", style: GoogleFonts.inter(fontWeight: FontWeight.bold)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(24),
+          ),
+          title: Text(
+            "Edit Name",
+            style: GoogleFonts.inter(fontWeight: FontWeight.bold),
+          ),
           content: TextField(
             controller: controller,
             style: GoogleFonts.inter(),
             decoration: InputDecoration(
               hintText: "Enter your name",
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(color: Color(0xFF4143D5), width: 2),
+                borderSide: const BorderSide(
+                  color: Color(0xFF4143D5),
+                  width: 2,
+                ),
               ),
             ),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: Text("Cancel", style: GoogleFonts.inter(color: isDark ? Colors.white54 : Colors.grey)),
+              child: Text(
+                "Cancel",
+                style: GoogleFonts.inter(
+                  color: isDark ? Colors.white54 : Colors.grey,
+                ),
+              ),
             ),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF4143D5),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
               ),
               onPressed: () {
                 if (controller.text.trim().isNotEmpty) {
@@ -848,7 +961,10 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                 }
                 Navigator.pop(context);
               },
-              child: Text(AppLocalizations.of(context)!.save, style: GoogleFonts.inter(color: Colors.white)),
+              child: Text(
+                AppLocalizations.of(context)!.save,
+                style: GoogleFonts.inter(color: Colors.white),
+              ),
             ),
           ],
         );
@@ -863,7 +979,10 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text(AppLocalizations.of(context)!.language, style: GoogleFonts.inter(fontWeight: FontWeight.bold)),
+          title: Text(
+            AppLocalizations.of(context)!.language,
+            style: GoogleFonts.inter(fontWeight: FontWeight.bold),
+          ),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(24),
           ),
@@ -872,22 +991,38 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
             mainAxisSize: MainAxisSize.min,
             children: [
               ListTile(
-                title: Text(AppLocalizations.of(context)!.english, style: GoogleFonts.inter()),
-                trailing: settings.locale.languageCode == 'en' 
-                    ? const Icon(Icons.check_circle_rounded, color: Color(0xFF4143D5))
+                title: Text(
+                  AppLocalizations.of(context)!.english,
+                  style: GoogleFonts.inter(),
+                ),
+                trailing: settings.locale.languageCode == 'en'
+                    ? const Icon(
+                        Icons.check_circle_rounded,
+                        color: Color(0xFF4143D5),
+                      )
                     : null,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
                 onTap: () {
                   settings.setLocale(const Locale('en'));
                   Navigator.of(context).pop();
                 },
               ),
               ListTile(
-                title: Text(AppLocalizations.of(context)!.hindi, style: GoogleFonts.inter()),
-                trailing: settings.locale.languageCode == 'hi' 
-                    ? const Icon(Icons.check_circle_rounded, color: Color(0xFF4143D5))
+                title: Text(
+                  AppLocalizations.of(context)!.hindi,
+                  style: GoogleFonts.inter(),
+                ),
+                trailing: settings.locale.languageCode == 'hi'
+                    ? const Icon(
+                        Icons.check_circle_rounded,
+                        color: Color(0xFF4143D5),
+                      )
                     : null,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
                 onTap: () {
                   settings.setLocale(const Locale('hi'));
                   Navigator.of(context).pop();
@@ -901,7 +1036,8 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
   }
 
   void _showChangePasswordDialog(BuildContext context) {
-    final TextEditingController currentPasswordController = TextEditingController();
+    final TextEditingController currentPasswordController =
+        TextEditingController();
     final TextEditingController newPasswordController = TextEditingController();
     final isDark = Theme.of(context).brightness == Brightness.dark;
     bool isObscureCurrent = true;
@@ -914,26 +1050,50 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
           builder: (context, setState) {
             return AlertDialog(
               backgroundColor: isDark ? const Color(0xFF2D3133) : Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-              title: Text("Change Password", style: GoogleFonts.inter(fontWeight: FontWeight.bold, color: isDark ? Colors.white : const Color(0xFF191C1E))),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(24),
+              ),
+              title: Text(
+                "Change Password",
+                style: GoogleFonts.inter(
+                  fontWeight: FontWeight.bold,
+                  color: isDark ? Colors.white : const Color(0xFF191C1E),
+                ),
+              ),
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   TextField(
                     controller: currentPasswordController,
                     obscureText: isObscureCurrent,
-                    style: GoogleFonts.inter(color: isDark ? Colors.white : const Color(0xFF191C1E)),
+                    style: GoogleFonts.inter(
+                      color: isDark ? Colors.white : const Color(0xFF191C1E),
+                    ),
                     decoration: InputDecoration(
                       hintText: "Current Password",
-                      hintStyle: GoogleFonts.inter(color: isDark ? Colors.white54 : Colors.grey),
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                      hintStyle: GoogleFonts.inter(
+                        color: isDark ? Colors.white54 : Colors.grey,
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(color: Color(0xFF4143D5), width: 2),
+                        borderSide: const BorderSide(
+                          color: Color(0xFF4143D5),
+                          width: 2,
+                        ),
                       ),
                       suffixIcon: IconButton(
-                        icon: Icon(isObscureCurrent ? Icons.visibility_off : Icons.visibility, color: isDark ? Colors.white54 : Colors.grey),
-                        onPressed: () => setState(() => isObscureCurrent = !isObscureCurrent),
+                        icon: Icon(
+                          isObscureCurrent
+                              ? Icons.visibility_off
+                              : Icons.visibility,
+                          color: isDark ? Colors.white54 : Colors.grey,
+                        ),
+                        onPressed: () => setState(
+                          () => isObscureCurrent = !isObscureCurrent,
+                        ),
                       ),
                     ),
                   ),
@@ -941,18 +1101,33 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                   TextField(
                     controller: newPasswordController,
                     obscureText: isObscureNew,
-                    style: GoogleFonts.inter(color: isDark ? Colors.white : const Color(0xFF191C1E)),
+                    style: GoogleFonts.inter(
+                      color: isDark ? Colors.white : const Color(0xFF191C1E),
+                    ),
                     decoration: InputDecoration(
                       hintText: "New Password",
-                      hintStyle: GoogleFonts.inter(color: isDark ? Colors.white54 : Colors.grey),
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                      hintStyle: GoogleFonts.inter(
+                        color: isDark ? Colors.white54 : Colors.grey,
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(color: Color(0xFF4143D5), width: 2),
+                        borderSide: const BorderSide(
+                          color: Color(0xFF4143D5),
+                          width: 2,
+                        ),
                       ),
                       suffixIcon: IconButton(
-                        icon: Icon(isObscureNew ? Icons.visibility_off : Icons.visibility, color: isDark ? Colors.white54 : Colors.grey),
-                        onPressed: () => setState(() => isObscureNew = !isObscureNew),
+                        icon: Icon(
+                          isObscureNew
+                              ? Icons.visibility_off
+                              : Icons.visibility,
+                          color: isDark ? Colors.white54 : Colors.grey,
+                        ),
+                        onPressed: () =>
+                            setState(() => isObscureNew = !isObscureNew),
                       ),
                     ),
                   ),
@@ -961,45 +1136,90 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(dialogContext),
-                  child: Text("Cancel", style: GoogleFonts.inter(color: isDark ? Colors.white54 : Colors.grey, fontWeight: FontWeight.w600)),
+                  child: Text(
+                    "Cancel",
+                    style: GoogleFonts.inter(
+                      color: isDark ? Colors.white54 : Colors.grey,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                 ),
                 Consumer<AuthProvider>(
                   builder: (context, authProvider, child) {
                     return ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF4143D5),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 12,
+                        ),
                       ),
-                      onPressed: authProvider.isLoading ? null : () async {
-                        final currentPassword = currentPasswordController.text.trim();
-                        final newPassword = newPasswordController.text.trim();
-                        
-                        if (currentPassword.isEmpty || newPassword.isEmpty) {
-                          ToastHelper.showToast(context, 'Both passwords are required', isError: true);
-                          return;
-                        }
-                        
-                        final success = await authProvider.changePassword(currentPassword, newPassword);
-                        
-                        if (context.mounted) {
-                          if (success) {
-                            Navigator.pop(dialogContext);
-                            ToastHelper.showToast(context, 'Password changed successfully');
-                          } else {
-                            ToastHelper.showToast(context, authProvider.error ?? 'Failed to change password', isError: true);
-                          }
-                        }
-                      },
-                      child: authProvider.isLoading 
-                          ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                          : Text("Update", style: GoogleFonts.inter(color: Colors.white, fontWeight: FontWeight.bold)),
+                      onPressed: authProvider.isLoading
+                          ? null
+                          : () async {
+                              final currentPassword = currentPasswordController
+                                  .text
+                                  .trim();
+                              final newPassword = newPasswordController.text
+                                  .trim();
+
+                              if (currentPassword.isEmpty ||
+                                  newPassword.isEmpty) {
+                                ToastHelper.showToast(
+                                  context,
+                                  'Both passwords are required',
+                                  isError: true,
+                                );
+                                return;
+                              }
+
+                              final success = await authProvider.changePassword(
+                                currentPassword,
+                                newPassword,
+                              );
+
+                              if (context.mounted) {
+                                if (success) {
+                                  Navigator.pop(dialogContext);
+                                  ToastHelper.showToast(
+                                    context,
+                                    'Password changed successfully',
+                                  );
+                                } else {
+                                  ToastHelper.showToast(
+                                    context,
+                                    authProvider.error ??
+                                        'Failed to change password',
+                                    isError: true,
+                                  );
+                                }
+                              }
+                            },
+                      child: authProvider.isLoading
+                          ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                color: Colors.white,
+                                strokeWidth: 2,
+                              ),
+                            )
+                          : Text(
+                              "Update",
+                              style: GoogleFonts.inter(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                     );
-                  }
+                  },
                 ),
               ],
             );
-          }
+          },
         );
       },
     );

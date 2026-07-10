@@ -19,7 +19,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await NotificationService().init();
   NotificationService().scheduleInactivityReminder();
-  
+
   runApp(const SmartKhataApp());
 }
 
@@ -28,38 +28,23 @@ class SmartKhataApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     return MultiProvider(
       providers: [
+        ChangeNotifierProvider(create: (_) => PersonProvider()),
 
-        ChangeNotifierProvider(
-          create: (_) => PersonProvider(),
-        ),
+        ChangeNotifierProvider(create: (_) => RecordProvider()),
 
-        ChangeNotifierProvider(
-          create: (_) => RecordProvider(),
-        ),
-
-        ChangeNotifierProvider(
-          create: (_) => SettingsProvider(),
-        ),
-        ChangeNotifierProvider(
-          create: (_) => AuthProvider(),
-        ),
+        ChangeNotifierProvider(create: (_) => SettingsProvider()),
+        ChangeNotifierProvider(create: (_) => AuthProvider()),
       ],
 
       child: Consumer<SettingsProvider>(
-        builder: (
-            context,
-            settingsProvider,
-            child,
-            ) {
-
+        builder: (context, settingsProvider, child) {
           return MaterialApp(
             debugShowCheckedModeBanner: false,
 
             title: 'SmartKhata',
-            
+
             builder: (context, child) {
               return LockScreenWrapper(child: child!);
             },
@@ -67,9 +52,10 @@ class SmartKhataApp extends StatelessWidget {
             theme: LightTheme.theme,
             darkTheme: DarkTheme.theme,
 
-            themeMode:
-            settingsProvider.darkMode ? ThemeMode.dark : ThemeMode.light,
-            
+            themeMode: settingsProvider.darkMode
+                ? ThemeMode.dark
+                : ThemeMode.light,
+
             locale: settingsProvider.locale,
             localizationsDelegates: const [
               AppLocalizations.delegate,
@@ -77,10 +63,7 @@ class SmartKhataApp extends StatelessWidget {
               GlobalWidgetsLocalizations.delegate,
               GlobalCupertinoLocalizations.delegate,
             ],
-            supportedLocales: const [
-              Locale('en'),
-              Locale('hi'),
-            ],
+            supportedLocales: const [Locale('en'), Locale('hi')],
 
             home: const SplashScreen(),
           );

@@ -4,7 +4,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:provider/provider.dart';
 
-import '../../core/constants/app_colors.dart';
 import '../../providers/record_provider.dart';
 import '../../models/transaction_model.dart';
 import '../../core/utils/animation_helper.dart';
@@ -17,12 +16,13 @@ class VoiceEntryScreen extends StatefulWidget {
   State<VoiceEntryScreen> createState() => _VoiceEntryScreenState();
 }
 
-class _VoiceEntryScreenState extends State<VoiceEntryScreen> with TickerProviderStateMixin {
+class _VoiceEntryScreenState extends State<VoiceEntryScreen>
+    with TickerProviderStateMixin {
   bool isListening = false;
   late AnimationController _pulseController;
   late AnimationController _floatController;
   String recognizedText = "";
-  
+
   final stt.SpeechToText _speechToText = stt.SpeechToText();
   String? parsedCashbook;
   double? parsedAmount;
@@ -63,7 +63,7 @@ class _VoiceEntryScreenState extends State<VoiceEntryScreen> with TickerProvider
     if (!_speechToText.isAvailable) {
       await _speechToText.initialize();
     }
-    
+
     if (isListening) {
       _speechToText.stop();
       setState(() {
@@ -93,22 +93,31 @@ class _VoiceEntryScreenState extends State<VoiceEntryScreen> with TickerProvider
 
   void _parseSpeechText(String text) {
     text = text.toLowerCase();
-    
+
     // Find numbers for amount
     final amountMatch = RegExp(r'\d+').firstMatch(text);
     if (amountMatch != null) {
       parsedAmount = double.tryParse(amountMatch.group(0)!);
     }
-    
+
     // Find transaction type
-    if (text.contains('receive') || text.contains('got') || text.contains('liye') || text.contains('salary')) {
+    if (text.contains('receive') ||
+        text.contains('got') ||
+        text.contains('liye') ||
+        text.contains('salary')) {
       parsedIsGiven = false;
-    } else if (text.contains('give') || text.contains('gave') || text.contains('diye') || text.contains('paid')) {
+    } else if (text.contains('give') ||
+        text.contains('gave') ||
+        text.contains('diye') ||
+        text.contains('paid')) {
       parsedIsGiven = true;
     }
-    
+
     // Simple category inference
-    if (text.contains('food') || text.contains('dinner') || text.contains('lunch') || text.contains('restaurant')) {
+    if (text.contains('food') ||
+        text.contains('dinner') ||
+        text.contains('lunch') ||
+        text.contains('restaurant')) {
       parsedCategory = "Food & Dining";
     } else if (text.contains('rent') || text.contains('house')) {
       parsedCategory = "Housing";
@@ -125,24 +134,48 @@ class _VoiceEntryScreenState extends State<VoiceEntryScreen> with TickerProvider
       final w = words[i];
       if (w == 'me' || w == 'in') {
         if (i > 0) {
-          parsedCashbook = _capitalize(words[i-1]);
+          parsedCashbook = _capitalize(words[i - 1]);
           foundCashbook = true;
           break;
         }
       }
     }
-    
+
     if (!foundCashbook && words.isNotEmpty) {
-      final stopWords = ['i', 'we', 'he', 'she', 'they', 'received', 'got', 'gave', 'paid', 'diye', 'liye', 'ko', 'se', 'me', 'in', 'for', 'to', 'from', 'a', 'the', 'my'];
+      final stopWords = [
+        'i',
+        'we',
+        'he',
+        'she',
+        'they',
+        'received',
+        'got',
+        'gave',
+        'paid',
+        'diye',
+        'liye',
+        'ko',
+        'se',
+        'me',
+        'in',
+        'for',
+        'to',
+        'from',
+        'a',
+        'the',
+        'my',
+      ];
       for (var w in words) {
-        if (!stopWords.contains(w) && double.tryParse(w) == null && w.length > 2) {
+        if (!stopWords.contains(w) &&
+            double.tryParse(w) == null &&
+            w.length > 2) {
           parsedCashbook = _capitalize(w);
           break;
         }
       }
     }
   }
-  
+
   String _capitalize(String s) {
     if (s.isEmpty) return s;
     return s[0].toUpperCase() + s.substring(1);
@@ -150,21 +183,31 @@ class _VoiceEntryScreenState extends State<VoiceEntryScreen> with TickerProvider
 
   Future<void> _saveRecord() async {
     if (parsedCashbook == null || parsedAmount == null) {
-      ToastHelper.showToast(context, "Couldn't detect cashbook or amount correctly.", isError: true);
+      ToastHelper.showToast(
+        context,
+        "Couldn't detect cashbook or amount correctly.",
+        isError: true,
+      );
       return;
     }
-    
+
     final recordProvider = Provider.of<RecordProvider>(context, listen: false);
 
-    if (!recordProvider.cashbooks.any((c) => c.name.toLowerCase() == parsedCashbook!.toLowerCase())) {
+    if (!recordProvider.cashbooks.any(
+      (c) => c.name.toLowerCase() == parsedCashbook!.toLowerCase(),
+    )) {
       recordProvider.addCashbook(parsedCashbook!);
     }
 
     final cashbook = recordProvider.cashbooks.firstWhere(
       (c) => c.name.toLowerCase() == parsedCashbook!.toLowerCase(),
-      orElse: () => recordProvider.cashbooks.isNotEmpty 
-          ? recordProvider.cashbooks.first 
-          : CashbookModel(id: '', name: parsedCashbook!, createdAt: DateTime.now())
+      orElse: () => recordProvider.cashbooks.isNotEmpty
+          ? recordProvider.cashbooks.first
+          : CashbookModel(
+              id: '',
+              name: parsedCashbook!,
+              createdAt: DateTime.now(),
+            ),
     );
 
     final record = RecordModel(
@@ -188,7 +231,11 @@ class _VoiceEntryScreenState extends State<VoiceEntryScreen> with TickerProvider
     }
 
     ToastHelper.showToast(context, "Record saved successfully!");
-    AnimationHelper.showEmojiAnimation(context, isIncome: !parsedIsGiven, amount: parsedAmount!);
+    AnimationHelper.showEmojiAnimation(
+      context,
+      isIncome: !parsedIsGiven,
+      amount: parsedAmount!,
+    );
 
     setState(() {
       recognizedText = "";
@@ -228,13 +275,16 @@ class _VoiceEntryScreenState extends State<VoiceEntryScreen> with TickerProvider
               ),
             ),
           ),
-          
+
           SafeArea(
             child: Column(
               children: [
                 // Top App Bar
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24,
+                    vertical: 16,
+                  ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -274,10 +324,15 @@ class _VoiceEntryScreenState extends State<VoiceEntryScreen> with TickerProvider
                       ),
                       const SizedBox(width: 8),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 4,
+                        ),
                         decoration: BoxDecoration(
                           color: Colors.white.withValues(alpha: 0.04),
-                          border: Border.all(color: Colors.white.withValues(alpha: 0.12)),
+                          border: Border.all(
+                            color: Colors.white.withValues(alpha: 0.12),
+                          ),
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Row(
@@ -318,7 +373,9 @@ class _VoiceEntryScreenState extends State<VoiceEntryScreen> with TickerProvider
                           "Speak naturally and let AI organize your finances automatically",
                           textAlign: TextAlign.center,
                           style: GoogleFonts.inter(
-                            color: const Color(0xFFC8C4D8).withValues(alpha: 0.8),
+                            color: const Color(
+                              0xFFC8C4D8,
+                            ).withValues(alpha: 0.8),
                             fontSize: 14,
                           ),
                         ),
@@ -339,13 +396,21 @@ class _VoiceEntryScreenState extends State<VoiceEntryScreen> with TickerProvider
                                     return Stack(
                                       alignment: Alignment.center,
                                       children: [
-                                        _buildPulseRing(280, _pulseController.value, 0.2),
-                                        _buildPulseRing(220, (_pulseController.value + 0.5) % 1.0, 0.4),
+                                        _buildPulseRing(
+                                          280,
+                                          _pulseController.value,
+                                          0.2,
+                                        ),
+                                        _buildPulseRing(
+                                          220,
+                                          (_pulseController.value + 0.5) % 1.0,
+                                          0.4,
+                                        ),
                                       ],
                                     );
                                   },
                                 ),
-                              
+
                               // The Orb
                               GestureDetector(
                                 onTap: toggleListening,
@@ -353,27 +418,41 @@ class _VoiceEntryScreenState extends State<VoiceEntryScreen> with TickerProvider
                                   animation: _floatController,
                                   builder: (context, child) {
                                     return Transform.translate(
-                                      offset: Offset(0, isListening ? 0 : -10 * _floatController.value),
+                                      offset: Offset(
+                                        0,
+                                        isListening
+                                            ? 0
+                                            : -10 * _floatController.value,
+                                      ),
                                       child: Container(
                                         width: 140,
                                         height: 140,
                                         decoration: BoxDecoration(
                                           shape: BoxShape.circle,
                                           gradient: const LinearGradient(
-                                            colors: [Color(0xFF6D5BFF), Color(0xFF3CD7FF)],
+                                            colors: [
+                                              Color(0xFF6D5BFF),
+                                              Color(0xFF3CD7FF),
+                                            ],
                                             begin: Alignment.topLeft,
                                             end: Alignment.bottomRight,
                                           ),
                                           boxShadow: [
                                             BoxShadow(
-                                              color: const Color(0xFF6D5BFF).withValues(alpha: 0.4),
+                                              color: const Color(
+                                                0xFF6D5BFF,
+                                              ).withValues(alpha: 0.4),
                                               blurRadius: isListening ? 40 : 20,
-                                              spreadRadius: isListening ? 10 : 0,
+                                              spreadRadius: isListening
+                                                  ? 10
+                                                  : 0,
                                             ),
                                           ],
                                         ),
                                         child: Icon(
-                                          isListening ? Icons.mic : Icons.mic_none_rounded,
+                                          isListening
+                                              ? Icons.mic
+                                              : Icons.mic_none_rounded,
                                           color: Colors.white,
                                           size: 56,
                                         ),
@@ -385,14 +464,18 @@ class _VoiceEntryScreenState extends State<VoiceEntryScreen> with TickerProvider
                             ],
                           ),
                         ),
-                        
+
                         const SizedBox(height: 20),
-                        
+
                         // Listening Status
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(Icons.mic, color: const Color(0xFF3CD7FF), size: 20),
+                            Icon(
+                              Icons.mic,
+                              color: const Color(0xFF3CD7FF),
+                              size: 20,
+                            ),
                             const SizedBox(width: 8),
                             Text(
                               isListening ? "Listening..." : "Tap to speak",
@@ -413,7 +496,10 @@ class _VoiceEntryScreenState extends State<VoiceEntryScreen> with TickerProvider
                               animation: _floatController,
                               builder: (context, child) {
                                 return Transform.translate(
-                                  offset: Offset(0, -5 * _floatController.value),
+                                  offset: Offset(
+                                    0,
+                                    -5 * _floatController.value,
+                                  ),
                                   child: _buildGlassContainer(
                                     padding: const EdgeInsets.all(16),
                                     child: Center(
@@ -430,14 +516,16 @@ class _VoiceEntryScreenState extends State<VoiceEntryScreen> with TickerProvider
                                     ),
                                   ),
                                 );
-                              }
+                              },
                             ),
                           ),
 
                         const SizedBox(height: 40),
 
                         // AI Understanding Grid
-                        if (isReadyToSave || parsedCashbook != null || parsedAmount != null)
+                        if (isReadyToSave ||
+                            parsedCashbook != null ||
+                            parsedAmount != null)
                           GridView.count(
                             crossAxisCount: 2,
                             shrinkWrap: true,
@@ -456,7 +544,9 @@ class _VoiceEntryScreenState extends State<VoiceEntryScreen> with TickerProvider
                                 icon: Icons.payments,
                                 iconColor: const Color(0xFF3CD7FF),
                                 title: "AMOUNT",
-                                value: parsedAmount != null ? "₹${parsedAmount!.toStringAsFixed(2)}" : "Searching...",
+                                value: parsedAmount != null
+                                    ? "₹${parsedAmount!.toStringAsFixed(2)}"
+                                    : "Searching...",
                               ),
                               _buildGridItem(
                                 icon: Icons.restaurant,
@@ -483,9 +573,13 @@ class _VoiceEntryScreenState extends State<VoiceEntryScreen> with TickerProvider
                               scrollDirection: Axis.horizontal,
                               physics: const BouncingScrollPhysics(),
                               children: [
-                                _buildSuggestionChip('Try: "Received salary 50000"'),
+                                _buildSuggestionChip(
+                                  'Try: "Received salary 50000"',
+                                ),
                                 _buildSuggestionChip('Try: "Paid Rent 15000"'),
-                                _buildSuggestionChip('Try: "Stock investment 2000"'),
+                                _buildSuggestionChip(
+                                  'Try: "Stock investment 2000"',
+                                ),
                               ],
                             ),
                           ),
@@ -515,15 +609,20 @@ class _VoiceEntryScreenState extends State<VoiceEntryScreen> with TickerProvider
                                 end: Alignment.bottomRight,
                               )
                             : LinearGradient(
-                                colors: [Colors.white.withValues(alpha: 0.1), Colors.white.withValues(alpha: 0.05)],
+                                colors: [
+                                  Colors.white.withValues(alpha: 0.1),
+                                  Colors.white.withValues(alpha: 0.05),
+                                ],
                               ),
                         boxShadow: isReadyToSave
                             ? [
                                 BoxShadow(
-                                  color: const Color(0xFF6D5BFF).withValues(alpha: 0.4),
+                                  color: const Color(
+                                    0xFF6D5BFF,
+                                  ).withValues(alpha: 0.4),
                                   blurRadius: 20,
                                   offset: const Offset(0, 0),
-                                )
+                                ),
                               ]
                             : [],
                       ),
@@ -532,13 +631,17 @@ class _VoiceEntryScreenState extends State<VoiceEntryScreen> with TickerProvider
                         children: [
                           Icon(
                             Icons.check_circle,
-                            color: isReadyToSave ? Colors.white : Colors.white54,
+                            color: isReadyToSave
+                                ? Colors.white
+                                : Colors.white54,
                           ),
                           const SizedBox(width: 8),
                           Text(
                             "Save Transaction",
                             style: GoogleFonts.geist(
-                              color: isReadyToSave ? Colors.white : Colors.white54,
+                              color: isReadyToSave
+                                  ? Colors.white
+                                  : Colors.white54,
                               fontSize: 18,
                               fontWeight: FontWeight.w600,
                             ),
@@ -565,7 +668,9 @@ class _VoiceEntryScreenState extends State<VoiceEntryScreen> with TickerProvider
         decoration: BoxDecoration(
           shape: BoxShape.circle,
           border: Border.all(
-            color: const Color(0xFF6D5BFF).withValues(alpha: startOpacity * (1 - progress)),
+            color: const Color(
+              0xFF6D5BFF,
+            ).withValues(alpha: startOpacity * (1 - progress)),
             width: 2,
           ),
         ),
@@ -573,7 +678,10 @@ class _VoiceEntryScreenState extends State<VoiceEntryScreen> with TickerProvider
     );
   }
 
-  Widget _buildGlassContainer({required Widget child, EdgeInsetsGeometry? padding}) {
+  Widget _buildGlassContainer({
+    required Widget child,
+    EdgeInsetsGeometry? padding,
+  }) {
     return ClipRRect(
       borderRadius: BorderRadius.circular(16),
       child: BackdropFilter(

@@ -20,11 +20,16 @@ class _AddPeopleScreenState extends State<AddPeopleScreen> {
   final TextEditingController phoneController = TextEditingController();
 
   Future<void> _pickContact() async {
-    final status = await FlutterContacts.permissions.request(PermissionType.read);
+    final status = await FlutterContacts.permissions.request(
+      PermissionType.read,
+    );
     if (status == PermissionStatus.granted) {
       final pickedContact = await FlutterContacts.native.showPicker();
       if (pickedContact != null) {
-        final contact = await FlutterContacts.get(pickedContact, properties: {ContactProperty.phone});
+        final contact = await FlutterContacts.get(
+          pickedContact,
+          properties: {ContactProperty.phone},
+        );
         if (contact != null) {
           setState(() {
             nameController.text = contact.displayName ?? '';
@@ -36,7 +41,11 @@ class _AddPeopleScreenState extends State<AddPeopleScreen> {
       }
     } else {
       if (mounted) {
-        ToastHelper.showToast(context, "Permission to access contacts is required.", isError: true);
+        ToastHelper.showToast(
+          context,
+          "Permission to access contacts is required.",
+          isError: true,
+        );
       }
     }
   }
@@ -46,7 +55,11 @@ class _AddPeopleScreenState extends State<AddPeopleScreen> {
     final String phone = phoneController.text.trim();
 
     if (name.isEmpty) {
-      ToastHelper.showToast(context, "Please enter a person's name", isError: true);
+      ToastHelper.showToast(
+        context,
+        "Please enter a person's name",
+        isError: true,
+      );
       return;
     }
 
@@ -76,7 +89,6 @@ class _AddPeopleScreenState extends State<AddPeopleScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -95,7 +107,7 @@ class _AddPeopleScreenState extends State<AddPeopleScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 10),
-            
+
             _buildLabel("Person Name"),
             const SizedBox(height: 10),
             _buildTextField(
@@ -107,9 +119,9 @@ class _AddPeopleScreenState extends State<AddPeopleScreen> {
                 onPressed: _pickContact,
               ),
             ),
-            
+
             const SizedBox(height: 24),
-            
+
             _buildLabel("Phone Number (Optional)"),
             const SizedBox(height: 10),
             _buildTextField(
@@ -118,9 +130,9 @@ class _AddPeopleScreenState extends State<AddPeopleScreen> {
               icon: Icons.phone_outlined,
               keyboardType: TextInputType.phone,
             ),
-            
+
             const SizedBox(height: 40),
-            
+
             SizedBox(
               width: double.infinity,
               height: 58,
@@ -152,10 +164,7 @@ class _AddPeopleScreenState extends State<AddPeopleScreen> {
   Widget _buildLabel(String title) {
     return Text(
       title,
-      style: GoogleFonts.poppins(
-        fontSize: 15,
-        fontWeight: FontWeight.w600,
-      ),
+      style: GoogleFonts.poppins(fontSize: 15, fontWeight: FontWeight.w600),
     );
   }
 
@@ -169,7 +178,7 @@ class _AddPeopleScreenState extends State<AddPeopleScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
-color: Theme.of(context).cardColor,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(18),
       ),
       child: TextField(

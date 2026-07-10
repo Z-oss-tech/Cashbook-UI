@@ -2,18 +2,24 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class ToastHelper {
-  static void showToast(BuildContext context, String message, {bool isError = false}) {
+  static void showToast(
+    BuildContext context,
+    String message, {
+    bool isError = false,
+  }) {
     final overlay = Overlay.of(context);
     late OverlayEntry overlayEntry;
-    
+
     String displayMessage = message;
-    if (isError && (message.contains('network_error') || 
-                   message.contains('TimeoutException') || 
-                   message.contains('SocketException') || 
-                   message.contains('Failed host lookup') || 
-                   message.contains('Connection refused') || 
-                   message.contains('timed out'))) {
-      displayMessage = "Unable to connect to the server. Please check your connection or select 'Continue Offline (Guest)' at the bottom.";
+    if (isError &&
+        (message.contains('network_error') ||
+            message.contains('TimeoutException') ||
+            message.contains('SocketException') ||
+            message.contains('Failed host lookup') ||
+            message.contains('Connection refused') ||
+            message.contains('timed out'))) {
+      displayMessage =
+          "Unable to connect to the server. Please check your connection or select 'Continue Offline (Guest)' at the bottom.";
     }
 
     overlayEntry = OverlayEntry(
@@ -47,7 +53,10 @@ class ToastHelper {
                 Expanded(
                   child: Text(
                     displayMessage,
-                    style: GoogleFonts.poppins(color: Colors.white, fontWeight: FontWeight.w500),
+                    style: GoogleFonts.poppins(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
                 ),
               ],

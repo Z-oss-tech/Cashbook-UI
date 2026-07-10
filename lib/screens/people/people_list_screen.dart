@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
-import '../../core/constants/app_colors.dart';
 import '../../providers/record_provider.dart';
 import '../records/cashbook_screen.dart';
 import '../../core/utils/date_helper.dart';
@@ -31,12 +30,13 @@ class _PeopleListScreenState extends State<PeopleListScreen> {
   String formatCurrencyNoDecimal(double amount) {
     final double absoluteAmount = amount.abs();
     String beforeDecimal = absoluteAmount.toStringAsFixed(0);
-    
+
     if (beforeDecimal.length > 3) {
       String formatted = beforeDecimal.substring(beforeDecimal.length - 3);
       beforeDecimal = beforeDecimal.substring(0, beforeDecimal.length - 3);
       while (beforeDecimal.length > 2) {
-        formatted = '${beforeDecimal.substring(beforeDecimal.length - 2)},$formatted';
+        formatted =
+            '${beforeDecimal.substring(beforeDecimal.length - 2)},$formatted';
         beforeDecimal = beforeDecimal.substring(0, beforeDecimal.length - 2);
       }
       formatted = '$beforeDecimal,$formatted';
@@ -55,16 +55,28 @@ class _PeopleListScreenState extends State<PeopleListScreen> {
     // Apply Filters
     if (filterType == "Positive") {
       cashbookList = cashbookList.where((book) {
-        final records = recordProvider.records.where((r) => r.cashbookName == book.name);
-        final received = records.where((r) => !r.isGiven).fold(0.0, (s, r) => s + r.amount);
-        final given = records.where((r) => r.isGiven).fold(0.0, (s, r) => s + r.amount);
+        final records = recordProvider.records.where(
+          (r) => r.cashbookName == book.name,
+        );
+        final received = records
+            .where((r) => !r.isGiven)
+            .fold(0.0, (s, r) => s + r.amount);
+        final given = records
+            .where((r) => r.isGiven)
+            .fold(0.0, (s, r) => s + r.amount);
         return (received - given) > 0;
       }).toList();
     } else if (filterType == "Negative") {
       cashbookList = cashbookList.where((book) {
-        final records = recordProvider.records.where((r) => r.cashbookName == book.name);
-        final received = records.where((r) => !r.isGiven).fold(0.0, (s, r) => s + r.amount);
-        final given = records.where((r) => r.isGiven).fold(0.0, (s, r) => s + r.amount);
+        final records = recordProvider.records.where(
+          (r) => r.cashbookName == book.name,
+        );
+        final received = records
+            .where((r) => !r.isGiven)
+            .fold(0.0, (s, r) => s + r.amount);
+        final given = records
+            .where((r) => r.isGiven)
+            .fold(0.0, (s, r) => s + r.amount);
         return (received - given) < 0;
       }).toList();
     } else if (filterType == "Recent") {
@@ -79,7 +91,10 @@ class _PeopleListScreenState extends State<PeopleListScreen> {
         elevation: 0,
         leading: Builder(
           builder: (context) => IconButton(
-            icon: Icon(Icons.arrow_back, color: Theme.of(context).textTheme.bodyLarge?.color),
+            icon: Icon(
+              Icons.arrow_back,
+              color: Theme.of(context).textTheme.bodyLarge?.color,
+            ),
             onPressed: () {
               HapticFeedback.lightImpact();
               Navigator.pop(context);
@@ -113,7 +128,11 @@ class _PeopleListScreenState extends State<PeopleListScreen> {
                 decoration: BoxDecoration(
                   color: Theme.of(context).cardColor,
                   borderRadius: BorderRadius.circular(18),
-                  border: Border.all(color: isDark ? const Color(0xFF464555) : const Color(0xFFE6E8EA)),
+                  border: Border.all(
+                    color: isDark
+                        ? const Color(0xFF464555)
+                        : const Color(0xFFE6E8EA),
+                  ),
                 ),
                 child: TextField(
                   controller: searchController,
@@ -125,10 +144,17 @@ class _PeopleListScreenState extends State<PeopleListScreen> {
                   decoration: InputDecoration(
                     border: InputBorder.none,
                     hintText: "Search books...",
-                    hintStyle: GoogleFonts.poppins(color: isDark ? Colors.white54 : Colors.black54),
-                    icon: Icon(Icons.search, color: isDark ? Colors.white54 : Colors.black54),
+                    hintStyle: GoogleFonts.poppins(
+                      color: isDark ? Colors.white54 : Colors.black54,
+                    ),
+                    icon: Icon(
+                      Icons.search,
+                      color: isDark ? Colors.white54 : Colors.black54,
+                    ),
                   ),
-                  style: GoogleFonts.poppins(color: Theme.of(context).textTheme.bodyLarge?.color),
+                  style: GoogleFonts.poppins(
+                    color: Theme.of(context).textTheme.bodyLarge?.color,
+                  ),
                 ),
               ),
               const SizedBox(height: 16),
@@ -138,7 +164,9 @@ class _PeopleListScreenState extends State<PeopleListScreen> {
                 scrollDirection: Axis.horizontal,
                 physics: const BouncingScrollPhysics(),
                 child: Row(
-                  children: ["All", "Positive", "Negative", "Recent"].map((filter) {
+                  children: ["All", "Positive", "Negative", "Recent"].map((
+                    filter,
+                  ) {
                     final isSelected = filterType == filter;
                     return Padding(
                       padding: const EdgeInsets.only(right: 8),
@@ -146,13 +174,19 @@ class _PeopleListScreenState extends State<PeopleListScreen> {
                         label: Text(
                           filter,
                           style: GoogleFonts.inter(
-                            color: isSelected ? Colors.white : (isDark ? Colors.white70 : Colors.black87),
-                            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                            color: isSelected
+                                ? Colors.white
+                                : (isDark ? Colors.white70 : Colors.black87),
+                            fontWeight: isSelected
+                                ? FontWeight.bold
+                                : FontWeight.normal,
                           ),
                         ),
                         selected: isSelected,
                         selectedColor: const Color(0xFF4143D5),
-                        backgroundColor: isDark ? const Color(0xFF2D3133) : const Color(0xFFF2F4F6),
+                        backgroundColor: isDark
+                            ? const Color(0xFF2D3133)
+                            : const Color(0xFFF2F4F6),
                         onSelected: (selected) {
                           if (selected) {
                             HapticFeedback.lightImpact();
@@ -176,41 +210,61 @@ class _PeopleListScreenState extends State<PeopleListScreen> {
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Icon(Icons.menu_book_rounded, size: 80, color: isDark ? Colors.white24 : Colors.black12),
+                              Icon(
+                                Icons.menu_book_rounded,
+                                size: 80,
+                                color: isDark ? Colors.white24 : Colors.black12,
+                              ),
                               const SizedBox(height: 16),
                               Text(
                                 "No cashbooks found.",
-                                style: GoogleFonts.inter(color: isDark ? Colors.white54 : Colors.grey, fontSize: 16),
+                                style: GoogleFonts.inter(
+                                  color: isDark ? Colors.white54 : Colors.grey,
+                                  fontSize: 16,
+                                ),
                               ),
                             ],
                           ),
                         ),
                       )
                     : ListView.builder(
-                        physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+                        physics: const AlwaysScrollableScrollPhysics(
+                          parent: BouncingScrollPhysics(),
+                        ),
                         itemCount: cashbookList.length,
                         itemBuilder: (context, index) {
                           final cashbook = cashbookList[index];
                           final name = cashbook.name;
-                          final date = DateHelper.formatDateTime(cashbook.createdAt);
+                          final date = DateHelper.formatDateTime(
+                            cashbook.createdAt,
+                          );
 
                           // Calculate Balance
-                          final records = recordProvider.records.where((r) => r.cashbookName == name).toList();
-                          final double received = records.where((r) => !r.isGiven).fold(0, (s, r) => s + r.amount);
-                          final double given = records.where((r) => r.isGiven).fold(0, (s, r) => s + r.amount);
+                          final records = recordProvider.records
+                              .where((r) => r.cashbookName == name)
+                              .toList();
+                          final double received = records
+                              .where((r) => !r.isGiven)
+                              .fold(0, (s, r) => s + r.amount);
+                          final double given = records
+                              .where((r) => r.isGiven)
+                              .fold(0, (s, r) => s + r.amount);
                           final double balance = received - given;
                           final bool isPositive = balance >= 0;
-                          
+
                           final int transactionCount = records.length;
                           String lastActivity = date;
                           if (records.isNotEmpty) {
                             // Sort by date just to be sure
-                            records.sort((a,b) => a.date.compareTo(b.date));
+                            records.sort((a, b) => a.date.compareTo(b.date));
                             final lastRecord = records.last;
-                            lastActivity = DateHelper.formatDateTime(lastRecord.date);
+                            lastActivity = DateHelper.formatDateTime(
+                              lastRecord.date,
+                            );
                           }
 
-                          final String amountText = "${isPositive ? '+' : '-'} ${formatCurrencyNoDecimal(balance)}";
+                          final String amountText =
+                              "${isPositive ? '+' : '-'} ${formatCurrencyNoDecimal(balance)}";
 
                           return FadeInUp(
                             duration: const Duration(milliseconds: 400),
@@ -246,7 +300,9 @@ class _PeopleListScreenState extends State<PeopleListScreen> {
   }) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final cardColor = isDark ? const Color(0xFF2D3133) : Colors.white;
-    final borderColor = isDark ? const Color(0xFF464555) : const Color(0xFFE6E8EA);
+    final borderColor = isDark
+        ? const Color(0xFF464555)
+        : const Color(0xFFE6E8EA);
     final textColor = isDark ? Colors.white : const Color(0xFF191C1E);
     final subTextColor = isDark ? Colors.white70 : const Color(0xFF464555);
 
@@ -255,7 +311,9 @@ class _PeopleListScreenState extends State<PeopleListScreen> {
         HapticFeedback.lightImpact();
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => CashbookScreen(cashbookName: name)),
+          MaterialPageRoute(
+            builder: (context) => CashbookScreen(cashbookName: name),
+          ),
         );
       },
       child: Container(
@@ -267,7 +325,7 @@ class _PeopleListScreenState extends State<PeopleListScreen> {
           border: Border.all(color: borderColor),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.02),
+              color: Colors.black.withValues(alpha: 0.02),
               blurRadius: 30,
               offset: const Offset(0, 10),
             ),
@@ -310,7 +368,11 @@ class _PeopleListScreenState extends State<PeopleListScreen> {
                             ),
                           ),
                           PopupMenuButton<String>(
-                            icon: Icon(Icons.more_vert_rounded, color: subTextColor, size: 20),
+                            icon: Icon(
+                              Icons.more_vert_rounded,
+                              color: subTextColor,
+                              size: 20,
+                            ),
                             padding: EdgeInsets.zero,
                             onSelected: (value) {
                               if (value == 'edit') {
@@ -324,9 +386,16 @@ class _PeopleListScreenState extends State<PeopleListScreen> {
                                 value: 'edit',
                                 child: Row(
                                   children: [
-                                    Icon(Icons.edit_rounded, size: 18, color: textColor),
+                                    Icon(
+                                      Icons.edit_rounded,
+                                      size: 18,
+                                      color: textColor,
+                                    ),
                                     const SizedBox(width: 8),
-                                    Text("Edit Name", style: TextStyle(color: textColor)),
+                                    Text(
+                                      "Edit Name",
+                                      style: TextStyle(color: textColor),
+                                    ),
                                   ],
                                 ),
                               ),
@@ -334,9 +403,16 @@ class _PeopleListScreenState extends State<PeopleListScreen> {
                                 value: 'delete',
                                 child: Row(
                                   children: [
-                                    const Icon(Icons.delete_rounded, size: 18, color: Colors.red),
+                                    const Icon(
+                                      Icons.delete_rounded,
+                                      size: 18,
+                                      color: Colors.red,
+                                    ),
                                     const SizedBox(width: 8),
-                                    const Text("Delete", style: TextStyle(color: Colors.red)),
+                                    const Text(
+                                      "Delete",
+                                      style: TextStyle(color: Colors.red),
+                                    ),
                                   ],
                                 ),
                               ),
@@ -347,7 +423,11 @@ class _PeopleListScreenState extends State<PeopleListScreen> {
                       const SizedBox(height: 4),
                       Row(
                         children: [
-                          Icon(Icons.swap_horiz_rounded, size: 14, color: subTextColor),
+                          Icon(
+                            Icons.swap_horiz_rounded,
+                            size: 14,
+                            color: subTextColor,
+                          ),
                           const SizedBox(width: 4),
                           Text(
                             "$transactionCount Txns",
@@ -358,7 +438,11 @@ class _PeopleListScreenState extends State<PeopleListScreen> {
                             ),
                           ),
                           const SizedBox(width: 12),
-                          Icon(Icons.access_time_rounded, size: 14, color: subTextColor),
+                          Icon(
+                            Icons.access_time_rounded,
+                            size: 14,
+                            color: subTextColor,
+                          ),
                           const SizedBox(width: 4),
                           Expanded(
                             child: Text(
@@ -402,15 +486,22 @@ class _PeopleListScreenState extends State<PeopleListScreen> {
                       style: GoogleFonts.inter(
                         fontWeight: FontWeight.bold,
                         fontSize: 18,
-                        color: isPositive ? const Color(0xFF008339) : const Color(0xFFE53935),
+                        color: isPositive
+                            ? const Color(0xFF008339)
+                            : const Color(0xFFE53935),
                       ),
                     ),
                   ],
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
                   decoration: BoxDecoration(
-                    color: isDark ? const Color(0xFF191C1E) : const Color(0xFFF2F4F6),
+                    color: isDark
+                        ? const Color(0xFF191C1E)
+                        : const Color(0xFFF2F4F6),
                     borderRadius: BorderRadius.circular(30),
                   ),
                   child: Row(
@@ -424,7 +515,11 @@ class _PeopleListScreenState extends State<PeopleListScreen> {
                         ),
                       ),
                       const SizedBox(width: 4),
-                      Icon(Icons.arrow_forward_ios_rounded, size: 10, color: textColor),
+                      Icon(
+                        Icons.arrow_forward_ios_rounded,
+                        size: 10,
+                        color: textColor,
+                      ),
                     ],
                   ),
                 ),
@@ -437,20 +532,32 @@ class _PeopleListScreenState extends State<PeopleListScreen> {
   }
 
   void _showEditDialog(String id, String currentName) {
-    final TextEditingController nameController = TextEditingController(text: currentName);
+    final TextEditingController nameController = TextEditingController(
+      text: currentName,
+    );
     showDialog(
       context: context,
       builder: (context) {
         final isDark = Theme.of(context).brightness == Brightness.dark;
         return AlertDialog(
           backgroundColor: isDark ? const Color(0xFF1E1E26) : Colors.white,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          title: Text("Edit Cashbook", style: GoogleFonts.inter(color: isDark ? Colors.white : Colors.black, fontWeight: FontWeight.bold)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          title: Text(
+            "Edit Cashbook",
+            style: GoogleFonts.inter(
+              color: isDark ? Colors.white : Colors.black,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
           content: TextField(
             controller: nameController,
             decoration: InputDecoration(
               hintText: "Cashbook Name",
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
             autofocus: true,
           ),
@@ -462,12 +569,17 @@ class _PeopleListScreenState extends State<PeopleListScreen> {
             ElevatedButton(
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF4143D5),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
               ),
               onPressed: () {
                 final newName = nameController.text.trim();
                 if (newName.isNotEmpty) {
-                  Provider.of<RecordProvider>(context, listen: false).updateCashbook(id, newName);
+                  Provider.of<RecordProvider>(
+                    context,
+                    listen: false,
+                  ).updateCashbook(id, newName);
                 }
                 Navigator.pop(context);
               },
@@ -486,10 +598,21 @@ class _PeopleListScreenState extends State<PeopleListScreen> {
         final isDark = Theme.of(context).brightness == Brightness.dark;
         return AlertDialog(
           backgroundColor: isDark ? const Color(0xFF1E1E26) : Colors.white,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          title: Text("Delete Cashbook", style: GoogleFonts.inter(color: isDark ? Colors.white : Colors.black, fontWeight: FontWeight.bold)),
-          content: Text("Are you sure you want to delete '$name'? This action can be undone via Recovery Bin within 30 days.",
-            style: GoogleFonts.inter(color: isDark ? Colors.white70 : Colors.black87),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          title: Text(
+            "Delete Cashbook",
+            style: GoogleFonts.inter(
+              color: isDark ? Colors.white : Colors.black,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          content: Text(
+            "Are you sure you want to delete '$name'? This action can be undone via Recovery Bin within 30 days.",
+            style: GoogleFonts.inter(
+              color: isDark ? Colors.white70 : Colors.black87,
+            ),
           ),
           actions: [
             TextButton(
@@ -499,13 +622,21 @@ class _PeopleListScreenState extends State<PeopleListScreen> {
             ElevatedButton(
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.red,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
               ),
               onPressed: () {
-                Provider.of<RecordProvider>(context, listen: false).deleteCashbook(id);
+                Provider.of<RecordProvider>(
+                  context,
+                  listen: false,
+                ).deleteCashbook(id);
                 Navigator.pop(context);
               },
-              child: const Text("Delete", style: TextStyle(color: Colors.white)),
+              child: const Text(
+                "Delete",
+                style: TextStyle(color: Colors.white),
+              ),
             ),
           ],
         );

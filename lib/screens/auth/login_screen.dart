@@ -33,7 +33,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> _checkFirstTime() async {
     final prefs = await SharedPreferences.getInstance();
     final hasRunBefore = prefs.getBool('hasRunBefore') ?? false;
-    
+
     if (mounted) {
       setState(() {
         _isFirstTime = !hasRunBefore;
@@ -49,17 +49,25 @@ class _LoginScreenState extends State<LoginScreen> {
     final username = _usernameController.text.trim();
     final password = _passwordController.text.trim();
     if (username.isEmpty || password.isEmpty) {
-      ToastHelper.showToast(context, 'Please enter username and password', isError: true);
+      ToastHelper.showToast(
+        context,
+        'Please enter username and password',
+        isError: true,
+      );
       return;
     }
 
     if (password.length < 6) {
-      ToastHelper.showToast(context, 'Password must be at least 6 characters', isError: true);
+      ToastHelper.showToast(
+        context,
+        'Password must be at least 6 characters',
+        isError: true,
+      );
       return;
     }
 
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    
+
     Map<String, dynamic>? res;
     if (_isLogin) {
       res = await authProvider.login(username, password);
@@ -69,7 +77,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
     if (res != null && mounted) {
       final isNewUser = res['isNewUser'] == true;
-      
+
       if (isNewUser) {
         Navigator.pushReplacement(
           context,
@@ -77,7 +85,10 @@ class _LoginScreenState extends State<LoginScreen> {
         );
       } else {
         if (res['name'] != null) {
-          Provider.of<SettingsProvider>(context, listen: false).setUserName(res['name']);
+          Provider.of<SettingsProvider>(
+            context,
+            listen: false,
+          ).setUserName(res['name']);
         }
         Navigator.pushReplacement(
           context,
@@ -87,7 +98,7 @@ class _LoginScreenState extends State<LoginScreen> {
     } else if (mounted) {
       final errorMsg = authProvider.error ?? 'Authentication failed';
       ToastHelper.showToast(context, errorMsg, isError: true);
-      
+
       if (_isLogin && errorMsg.toLowerCase().contains('user not found')) {
         setState(() {
           _isLogin = false;
@@ -150,7 +161,9 @@ class _LoginScreenState extends State<LoginScreen> {
                               ),
                               boxShadow: [
                                 BoxShadow(
-                                  color: AppColors.primary.withOpacity(0.25),
+                                  color: AppColors.primary.withValues(
+                                    alpha: 0.25,
+                                  ),
                                   blurRadius: 25,
                                   offset: const Offset(0, 12),
                                 ),
@@ -183,7 +196,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             borderRadius: BorderRadius.circular(18),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withOpacity(0.03),
+                                color: Colors.black.withValues(alpha: 0.03),
                                 blurRadius: 8,
                                 offset: const Offset(0, 4),
                               ),
@@ -220,7 +233,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             borderRadius: BorderRadius.circular(18),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withOpacity(0.03),
+                                color: Colors.black.withValues(alpha: 0.03),
                                 blurRadius: 8,
                                 offset: const Offset(0, 4),
                               ),
@@ -236,7 +249,9 @@ class _LoginScreenState extends State<LoginScreen> {
                               icon: const Icon(Icons.lock_rounded),
                               suffixIcon: IconButton(
                                 icon: Icon(
-                                  _obscurePassword ? Icons.visibility_off : Icons.visibility,
+                                  _obscurePassword
+                                      ? Icons.visibility_off
+                                      : Icons.visibility,
                                   color: Colors.grey,
                                 ),
                                 onPressed: () {
@@ -265,7 +280,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                     borderRadius: BorderRadius.circular(18),
                                   ),
                                 ),
-                                onPressed: authProvider.isLoading ? null : _handleAuth,
+                                onPressed: authProvider.isLoading
+                                    ? null
+                                    : _handleAuth,
                                 child: authProvider.isLoading
                                     ? const SizedBox(
                                         width: 24,
@@ -298,7 +315,9 @@ class _LoginScreenState extends State<LoginScreen> {
                               });
                             },
                             child: Text(
-                              _isLogin ? "Don't have an account? Register" : "Already have an account? Login",
+                              _isLogin
+                                  ? "Don't have an account? Register"
+                                  : "Already have an account? Login",
                               style: GoogleFonts.poppins(
                                 color: AppColors.primary,
                                 fontWeight: FontWeight.w600,
@@ -313,12 +332,12 @@ class _LoginScreenState extends State<LoginScreen> {
                         Row(
                           children: [
                             Expanded(
-                              child: Divider(
-                                color: Colors.grey.shade300,
-                              ),
+                              child: Divider(color: Colors.grey.shade300),
                             ),
                             Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 14),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 14,
+                              ),
                               child: Text(
                                 "OR",
                                 style: GoogleFonts.poppins(
@@ -327,9 +346,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               ),
                             ),
                             Expanded(
-                              child: Divider(
-                                color: Colors.grey.shade300,
-                              ),
+                              child: Divider(color: Colors.grey.shade300),
                             ),
                           ],
                         ),
@@ -343,25 +360,41 @@ class _LoginScreenState extends State<LoginScreen> {
                               onTap: authProvider.isLoading
                                   ? null
                                   : () async {
-                                      final res = await authProvider.googleLogin();
+                                      final res = await authProvider
+                                          .googleLogin();
                                       if (res != null && mounted) {
-                                        final isNewUser = res['isNewUser'] == true;
+                                        final isNewUser =
+                                            res['isNewUser'] == true;
                                         if (isNewUser) {
                                           Navigator.pushReplacement(
                                             context,
-                                            MaterialPageRoute(builder: (_) => const CompleteProfileScreen()),
+                                            MaterialPageRoute(
+                                              builder: (_) =>
+                                                  const CompleteProfileScreen(),
+                                            ),
                                           );
                                         } else {
                                           if (res['name'] != null) {
-                                            Provider.of<SettingsProvider>(context, listen: false).setUserName(res['name']);
+                                            Provider.of<SettingsProvider>(
+                                              context,
+                                              listen: false,
+                                            ).setUserName(res['name']);
                                           }
                                           Navigator.pushReplacement(
                                             context,
-                                            MaterialPageRoute(builder: (_) => const MainNavigationScreen()),
+                                            MaterialPageRoute(
+                                              builder: (_) =>
+                                                  const MainNavigationScreen(),
+                                            ),
                                           );
                                         }
-                                      } else if (mounted && authProvider.error != null) {
-                                        ToastHelper.showToast(context, authProvider.error!, isError: true);
+                                      } else if (mounted &&
+                                          authProvider.error != null) {
+                                        ToastHelper.showToast(
+                                          context,
+                                          authProvider.error!,
+                                          isError: true,
+                                        );
                                       }
                                     },
                               child: Container(
@@ -395,20 +428,26 @@ class _LoginScreenState extends State<LoginScreen> {
                           },
                         ),
                         const SizedBox(height: 24),
-                        
+
                         // Offline Guest Button
-                        
                         Center(
                           child: TextButton(
                             onPressed: () async {
-                              final authProvider = Provider.of<AuthProvider>(context, listen: false);
+                              final authProvider = Provider.of<AuthProvider>(
+                                context,
+                                listen: false,
+                              );
                               await authProvider.loginOffline();
                               if (mounted) {
-                                Provider.of<SettingsProvider>(context, listen: false).setUserName("Offline Guest");
+                                Provider.of<SettingsProvider>(
+                                  context,
+                                  listen: false,
+                                ).setUserName("Offline Guest");
                                 Navigator.pushReplacement(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (_) => const MainNavigationScreen(),
+                                    builder: (_) =>
+                                        const MainNavigationScreen(),
                                   ),
                                 );
                               }

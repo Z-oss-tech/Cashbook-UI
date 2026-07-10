@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import '../models/people_model.dart';
 
 class PersonProvider extends ChangeNotifier {
-
   final List<PersonModel> _people = [
     PersonModel(
       id: 'person_1',
@@ -59,21 +58,14 @@ class PersonProvider extends ChangeNotifier {
 
   // Delete Person
   void deletePerson(String id) {
-    _people.removeWhere(
-          (person) => person.id == id,
-    );
+    _people.removeWhere((person) => person.id == id);
 
     notifyListeners();
   }
 
   // Update Person
-  void updatePerson(
-      String id,
-      PersonModel updatedPerson,
-      ) {
-    final index = _people.indexWhere(
-          (person) => person.id == id,
-    );
+  void updatePerson(String id, PersonModel updatedPerson) {
+    final index = _people.indexWhere((person) => person.id == id);
 
     if (index != -1) {
       _people[index] = updatedPerson;
@@ -84,9 +76,7 @@ class PersonProvider extends ChangeNotifier {
   // Get Person By ID
   PersonModel? getPersonById(String id) {
     try {
-      return _people.firstWhere(
-            (person) => person.id == id,
-      );
+      return _people.firstWhere((person) => person.id == id);
     } catch (e) {
       return null;
     }

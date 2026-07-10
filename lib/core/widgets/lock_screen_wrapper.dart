@@ -9,10 +9,7 @@ import '../constants/app_colors.dart';
 class LockScreenWrapper extends StatefulWidget {
   final Widget child;
 
-  const LockScreenWrapper({
-    super.key,
-    required this.child,
-  });
+  const LockScreenWrapper({super.key, required this.child});
 
   @override
   State<LockScreenWrapper> createState() => _LockScreenWrapperState();
@@ -66,7 +63,7 @@ class _LockScreenWrapperState extends State<LockScreenWrapper> {
         _isLocked = false;
       });
     }
-    
+
     setState(() {
       _isAuthenticating = false;
     });

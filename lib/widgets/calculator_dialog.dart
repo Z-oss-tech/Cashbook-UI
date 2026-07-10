@@ -25,14 +25,19 @@ class _CalculatorDialogState extends State<CalculatorDialog> {
         _firstOperand = '';
         _operator = '';
         _result = 0.0;
-      } else if (buttonText == '+' || buttonText == '-' || buttonText == '*' || buttonText == '/') {
+      } else if (buttonText == '+' ||
+          buttonText == '-' ||
+          buttonText == '*' ||
+          buttonText == '/') {
         if (_display.isNotEmpty) {
           _firstOperand = _display;
           _operator = buttonText;
           _display = '';
         }
       } else if (buttonText == '=') {
-        if (_firstOperand.isNotEmpty && _display.isNotEmpty && _operator.isNotEmpty) {
+        if (_firstOperand.isNotEmpty &&
+            _display.isNotEmpty &&
+            _operator.isNotEmpty) {
           double num1 = double.tryParse(_firstOperand) ?? 0.0;
           double num2 = double.tryParse(_display) ?? 0.0;
           switch (_operator) {
@@ -50,7 +55,9 @@ class _CalculatorDialogState extends State<CalculatorDialog> {
               break;
           }
           // Remove decimal if integer
-          _display = _result.toStringAsFixed(_result.truncateToDouble() == _result ? 0 : 2);
+          _display = _result.toStringAsFixed(
+            _result.truncateToDouble() == _result ? 0 : 2,
+          );
           _firstOperand = '';
           _operator = '';
         }
@@ -67,7 +74,14 @@ class _CalculatorDialogState extends State<CalculatorDialog> {
     });
   }
 
-  Widget _buildButton(String text, {Color? color, Color? textColor, double width = 60, double height = 60, double fontSize = 24}) {
+  Widget _buildButton(
+    String text, {
+    Color? color,
+    Color? textColor,
+    double width = 60,
+    double height = 60,
+    double fontSize = 24,
+  }) {
     return GestureDetector(
       onTap: () => _onButtonPressed(text),
       child: Container(
@@ -79,7 +93,7 @@ class _CalculatorDialogState extends State<CalculatorDialog> {
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withValues(alpha: 0.05),
               blurRadius: 4,
               offset: const Offset(0, 2),
             ),
@@ -116,7 +130,7 @@ class _CalculatorDialogState extends State<CalculatorDialog> {
               decoration: BoxDecoration(
                 color: Theme.of(context).cardColor,
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: Colors.grey.withOpacity(0.2)),
+                border: Border.all(color: Colors.grey.withValues(alpha: 0.2)),
               ),
               child: Text(
                 _display.isEmpty ? '0' : _display,
@@ -163,7 +177,11 @@ class _CalculatorDialogState extends State<CalculatorDialog> {
                 _buildButton('1'),
                 _buildButton('2'),
                 _buildButton('3'),
-                _buildButton('=', color: AppColors.primary, textColor: Colors.white),
+                _buildButton(
+                  '=',
+                  color: AppColors.primary,
+                  textColor: Colors.white,
+                ),
               ],
             ),
             Row(
@@ -171,7 +189,12 @@ class _CalculatorDialogState extends State<CalculatorDialog> {
               children: [
                 _buildButton('0', width: 130),
                 _buildButton('.'),
-                _buildButton('Apply', color: AppColors.success, textColor: Colors.white, fontSize: 14),
+                _buildButton(
+                  'Apply',
+                  color: AppColors.success,
+                  textColor: Colors.white,
+                  fontSize: 14,
+                ),
               ],
             ),
           ],

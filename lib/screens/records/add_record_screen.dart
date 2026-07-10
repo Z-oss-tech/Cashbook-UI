@@ -1,3 +1,4 @@
+// ignore_for_file: unused_field
 import 'dart:ui';
 import 'package:cashbook/l10n/generated/app_localizations.dart';
 import 'package:flutter/material.dart';
@@ -7,7 +8,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 
-import '../../core/constants/app_colors.dart';
 import '../../providers/record_provider.dart';
 import '../../models/transaction_model.dart';
 import '../../core/utils/animation_helper.dart';
@@ -29,7 +29,13 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
   String? selectedReason;
   bool _showAdvancedOptions = false;
   String selectedPaymentMode = 'Cash';
-  final List<String> paymentModes = ['Cash', 'Online', 'Bank Transfer', 'Cheque', 'Other'];
+  final List<String> paymentModes = [
+    'Cash',
+    'Online',
+    'Bank Transfer',
+    'Cheque',
+    'Other',
+  ];
 
   final List<String> givenReasons = [
     'Food / Dining',
@@ -45,7 +51,7 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
     'Entertainment',
     'Business',
     'Miscellaneous',
-    'Other'
+    'Other',
   ];
 
   final List<String> receivedReasons = [
@@ -60,23 +66,35 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
     'Pocket Money',
     'Business',
     'Miscellaneous',
-    'Other'
+    'Other',
   ];
-  
+
   IconData _getCategoryIcon(String category) {
     switch (category) {
-      case 'Food / Dining': return Icons.restaurant;
-      case 'Transportation': return Icons.directions_car;
-      case 'Utilities / Bills': return Icons.receipt_long;
-      case 'Shopping': return Icons.shopping_bag;
-      case 'Rent / EMI': return Icons.home;
-      case 'Salary / Wages': return Icons.account_balance_wallet;
-      case 'Business': return Icons.business_center;
-      case 'Health / Medical': return Icons.medical_services;
-      case 'Entertainment': return Icons.movie;
-      case 'Groceries & Supplies': return Icons.local_grocery_store;
-      case 'Sales / Business Income': return Icons.storefront;
-      default: return Icons.category;
+      case 'Food / Dining':
+        return Icons.restaurant;
+      case 'Transportation':
+        return Icons.directions_car;
+      case 'Utilities / Bills':
+        return Icons.receipt_long;
+      case 'Shopping':
+        return Icons.shopping_bag;
+      case 'Rent / EMI':
+        return Icons.home;
+      case 'Salary / Wages':
+        return Icons.account_balance_wallet;
+      case 'Business':
+        return Icons.business_center;
+      case 'Health / Medical':
+        return Icons.medical_services;
+      case 'Entertainment':
+        return Icons.movie;
+      case 'Groceries & Supplies':
+        return Icons.local_grocery_store;
+      case 'Sales / Business Income':
+        return Icons.storefront;
+      default:
+        return Icons.category;
     }
   }
 
@@ -112,7 +130,8 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
             if (_initialNoteText.trim().isEmpty) {
               noteController.text = val.recognizedWords;
             } else {
-              noteController.text = '$_initialNoteText ${val.recognizedWords}'.trim();
+              noteController.text = '$_initialNoteText ${val.recognizedWords}'
+                  .trim();
             }
           }),
         );
@@ -134,21 +153,30 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
 
     final double? amount = double.tryParse(amountText);
     if (amount == null || amount <= 0) {
-      ToastHelper.showToast(context, "Please enter a valid amount greater than 0", isError: true);
+      ToastHelper.showToast(
+        context,
+        "Please enter a valid amount greater than 0",
+        isError: true,
+      );
       return;
     }
 
     final recordProvider = Provider.of<RecordProvider>(context, listen: false);
 
     final cashbook = recordProvider.cashbooks.firstWhere(
-      (c) => c.name == widget.cashbookName, 
-      orElse: () => recordProvider.cashbooks.isNotEmpty 
-          ? recordProvider.cashbooks.first 
-          : CashbookModel(id: '', name: widget.cashbookName, createdAt: DateTime.now())
+      (c) => c.name == widget.cashbookName,
+      orElse: () => recordProvider.cashbooks.isNotEmpty
+          ? recordProvider.cashbooks.first
+          : CashbookModel(
+              id: '',
+              name: widget.cashbookName,
+              createdAt: DateTime.now(),
+            ),
     );
 
-    final String defaultTitle = selectedReason ?? (isGiven ? 'Expense' : 'Income');
-    
+    final String defaultTitle =
+        selectedReason ?? (isGiven ? 'Expense' : 'Income');
+
     DateTime finalDateTime = DateTime(
       selectedDate.year,
       selectedDate.month,
@@ -170,9 +198,14 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
       cashbookName: widget.cashbookName,
     );
 
-    setState(() { _isLoading = true; });
+    setState(() {
+      _isLoading = true;
+    });
     await recordProvider.addRecord(record);
-    if (mounted) setState(() { _isLoading = false; });
+    if (mounted)
+      setState(() {
+        _isLoading = false;
+      });
 
     if (!mounted) return;
 
@@ -184,7 +217,11 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
     ToastHelper.showToast(context, "Record saved successfully!");
 
     // Call emoji animation before popping
-    AnimationHelper.showEmojiAnimation(context, isIncome: !isGiven, amount: amount);
+    AnimationHelper.showEmojiAnimation(
+      context,
+      isIncome: !isGiven,
+      amount: amount,
+    );
 
     Navigator.pop(context);
   }
@@ -210,7 +247,14 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
           child: Column(
             children: [
               const SizedBox(height: 12),
-              Container(width: 40, height: 4, decoration: BoxDecoration(color: Colors.grey.withOpacity(0.3), borderRadius: BorderRadius.circular(2))),
+              Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.grey.withValues(alpha: 0.3),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
               const SizedBox(height: 16),
               Text(
                 "Select Category",
@@ -239,17 +283,26 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
                         margin: const EdgeInsets.only(bottom: 8),
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          color: isSelected 
-                              ? const Color(0xFF4143D5).withOpacity(0.1) 
-                              : (isDark ? Colors.white10 : const Color(0xFFF5F2FE)),
+                          color: isSelected
+                              ? const Color(0xFF4143D5).withValues(alpha: 0.1)
+                              : (isDark
+                                    ? Colors.white10
+                                    : const Color(0xFFF5F2FE)),
                           borderRadius: BorderRadius.circular(16),
-                          border: isSelected ? Border.all(color: const Color(0xFF4143D5), width: 1.5) : null,
+                          border: isSelected
+                              ? Border.all(
+                                  color: const Color(0xFF4143D5),
+                                  width: 1.5,
+                                )
+                              : null,
                         ),
                         child: Row(
                           children: [
                             Icon(
                               _getCategoryIcon(option),
-                              color: isSelected ? const Color(0xFF4143D5) : (isDark ? Colors.white54 : Colors.black54),
+                              color: isSelected
+                                  ? const Color(0xFF4143D5)
+                                  : (isDark ? Colors.white54 : Colors.black54),
                               size: 24,
                             ),
                             const SizedBox(width: 16),
@@ -258,13 +311,20 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
                                 option,
                                 style: GoogleFonts.hankenGrotesk(
                                   fontSize: 16,
-                                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                                  color: isDark ? Colors.white : const Color(0xFF1B1B23),
+                                  fontWeight: isSelected
+                                      ? FontWeight.w600
+                                      : FontWeight.w500,
+                                  color: isDark
+                                      ? Colors.white
+                                      : const Color(0xFF1B1B23),
                                 ),
                               ),
                             ),
                             if (isSelected)
-                              const Icon(Icons.check_circle_rounded, color: Color(0xFF4143D5)),
+                              const Icon(
+                                Icons.check_circle_rounded,
+                                color: Color(0xFF4143D5),
+                              ),
                           ],
                         ),
                       ),
@@ -298,7 +358,14 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
             mainAxisSize: MainAxisSize.min,
             children: [
               const SizedBox(height: 12),
-              Container(width: 40, height: 4, decoration: BoxDecoration(color: Colors.grey.withOpacity(0.3), borderRadius: BorderRadius.circular(2))),
+              Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.grey.withValues(alpha: 0.3),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
               const SizedBox(height: 16),
               Text(
                 "Select Payment Mode",
@@ -316,11 +383,18 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
                     mode,
                     style: GoogleFonts.hankenGrotesk(
                       fontSize: 16,
-                      fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                      fontWeight: isSelected
+                          ? FontWeight.w600
+                          : FontWeight.w500,
                       color: isDark ? Colors.white : const Color(0xFF1B1B23),
                     ),
                   ),
-                  trailing: isSelected ? const Icon(Icons.check_circle_rounded, color: Color(0xFF4143D5)) : null,
+                  trailing: isSelected
+                      ? const Icon(
+                          Icons.check_circle_rounded,
+                          color: Color(0xFF4143D5),
+                        )
+                      : null,
                   onTap: () {
                     setState(() {
                       selectedPaymentMode = mode;
@@ -342,8 +416,12 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final bgColor = isDark ? const Color(0xFF121212) : const Color(0xFFF8FAFC);
     final surfaceColor = isDark ? const Color(0xFF1E1E26) : Colors.white;
-    final glassColor = isDark ? Colors.white.withOpacity(0.05) : Colors.white.withOpacity(0.7);
-    final glassBorder = isDark ? Colors.white.withOpacity(0.1) : Colors.white.withOpacity(0.5);
+    final glassColor = isDark
+        ? Colors.white.withValues(alpha: 0.05)
+        : Colors.white.withValues(alpha: 0.7);
+    final glassBorder = isDark
+        ? Colors.white.withValues(alpha: 0.1)
+        : Colors.white.withValues(alpha: 0.5);
     final textColor = isDark ? Colors.white : const Color(0xFF1B1B23);
     final textMuted = isDark ? Colors.white60 : const Color(0xFF464555);
 
@@ -357,16 +435,23 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
             filter: ImageFilter.blur(sigmaX: 30, sigmaY: 30),
             child: Container(
               height: MediaQuery.of(context).padding.top + 64,
-              padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top, left: 8, right: 8),
+              padding: EdgeInsets.only(
+                top: MediaQuery.of(context).padding.top,
+                left: 8,
+                right: 8,
+              ),
               decoration: BoxDecoration(
-                color: surfaceColor.withOpacity(0.7),
+                color: surfaceColor.withValues(alpha: 0.7),
                 border: Border(bottom: BorderSide(color: glassBorder)),
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   IconButton(
-                    icon: Icon(Icons.close_rounded, color: const Color(0xFF4143D5)),
+                    icon: Icon(
+                      Icons.close_rounded,
+                      color: const Color(0xFF4143D5),
+                    ),
                     onPressed: () => Navigator.pop(context),
                   ),
                   Text(
@@ -378,7 +463,10 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
                     ),
                   ),
                   IconButton(
-                    icon: Icon(Icons.calculate_outlined, color: const Color(0xFF4143D5)),
+                    icon: Icon(
+                      Icons.calculate_outlined,
+                      color: const Color(0xFF4143D5),
+                    ),
                     onPressed: () {
                       showDialog(
                         context: context,
@@ -411,11 +499,13 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
               height: 200,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: const Color(0xFF4143D5).withOpacity(isDark ? 0.1 : 0.05),
+                color: const Color(
+                  0xFF4143D5,
+                ).withValues(alpha: isDark ? 0.1 : 0.05),
               ),
             ).animateBlur(),
           ),
-          
+
           SafeArea(
             bottom: false,
             child: ListView(
@@ -423,19 +513,26 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
               children: [
                 // Amount Hero Section
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24,
+                    vertical: 24,
+                  ),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(24),
                     gradient: LinearGradient(
-                      colors: isGiven 
-                        ? [const Color(0xFFFF6B6B), const Color(0xFFEE5253)]
-                        : [const Color(0xFF34D399), const Color(0xFF059669)],
+                      colors: isGiven
+                          ? [const Color(0xFFFF6B6B), const Color(0xFFEE5253)]
+                          : [const Color(0xFF34D399), const Color(0xFF059669)],
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: (isGiven ? const Color(0xFFFF6B6B) : const Color(0xFF059669)).withOpacity(0.3),
+                        color:
+                            (isGiven
+                                    ? const Color(0xFFFF6B6B)
+                                    : const Color(0xFF059669))
+                                .withValues(alpha: 0.3),
                         blurRadius: 16,
                         offset: const Offset(0, 6),
                       ),
@@ -446,7 +543,7 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
                       Text(
                         "Total Amount",
                         style: GoogleFonts.hankenGrotesk(
-                          color: Colors.white.withOpacity(0.8),
+                          color: Colors.white.withValues(alpha: 0.8),
                           fontSize: 14,
                           fontWeight: FontWeight.w500,
                         ),
@@ -460,7 +557,7 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
                           Text(
                             "₹",
                             style: GoogleFonts.manrope(
-                              color: Colors.white.withOpacity(0.9),
+                              color: Colors.white.withValues(alpha: 0.9),
                               fontSize: 32,
                               fontWeight: FontWeight.w800,
                             ),
@@ -470,8 +567,15 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
                             child: TextField(
                               controller: amountController,
                               focusNode: _amountFocusNode,
-                              keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                              inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*'))],
+                              keyboardType:
+                                  const TextInputType.numberWithOptions(
+                                    decimal: true,
+                                  ),
+                              inputFormatters: [
+                                FilteringTextInputFormatter.allow(
+                                  RegExp(r'^\d*\.?\d*'),
+                                ),
+                              ],
                               textAlign: TextAlign.center,
                               style: GoogleFonts.manrope(
                                 color: Colors.white,
@@ -485,7 +589,7 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
                                 contentPadding: EdgeInsets.zero,
                                 hintText: "0",
                                 hintStyle: GoogleFonts.manrope(
-                                  color: Colors.white.withOpacity(0.5),
+                                  color: Colors.white.withValues(alpha: 0.5),
                                   fontSize: 48,
                                   fontWeight: FontWeight.w800,
                                 ),
@@ -496,11 +600,16 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
                       ),
                       const SizedBox(height: 16),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 4,
+                        ),
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.2),
+                          color: Colors.white.withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(20),
-                          border: Border.all(color: Colors.white.withOpacity(0.3)),
+                          border: Border.all(
+                            color: Colors.white.withValues(alpha: 0.3),
+                          ),
                         ),
                         child: Text(
                           isGiven ? "Expense Mode" : "Income Mode",
@@ -514,7 +623,7 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
                     ],
                   ),
                 ),
-                
+
                 const SizedBox(height: 24),
 
                 // Segmented Control (Neumorphic)
@@ -522,16 +631,22 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
                   height: 52,
                   padding: const EdgeInsets.all(6),
                   decoration: BoxDecoration(
-                    color: isDark ? const Color(0xFF1E1E26) : const Color(0xFFE9E6F3),
+                    color: isDark
+                        ? const Color(0xFF1E1E26)
+                        : const Color(0xFFE9E6F3),
                     borderRadius: BorderRadius.circular(26),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
+                        color: Colors.black.withValues(
+                          alpha: isDark ? 0.3 : 0.05,
+                        ),
                         blurRadius: 5,
                         offset: const Offset(2, 2),
                       ),
                       BoxShadow(
-                        color: isDark ? Colors.white.withOpacity(0.02) : Colors.white.withOpacity(0.8),
+                        color: isDark
+                            ? Colors.white.withValues(alpha: 0.02)
+                            : Colors.white.withValues(alpha: 0.8),
                         blurRadius: 5,
                         offset: const Offset(-2, -2),
                       ),
@@ -542,17 +657,22 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
                       AnimatedPositioned(
                         duration: const Duration(milliseconds: 300),
                         curve: Curves.easeOutCubic,
-                        left: isGiven ? 0 : (MediaQuery.of(context).size.width - 48 - 12) / 2,
-                        width: (MediaQuery.of(context).size.width - 48 - 12) / 2,
+                        left: isGiven
+                            ? 0
+                            : (MediaQuery.of(context).size.width - 48 - 12) / 2,
+                        width:
+                            (MediaQuery.of(context).size.width - 48 - 12) / 2,
                         top: 0,
                         bottom: 0,
                         child: Container(
                           decoration: BoxDecoration(
-                            color: isDark ? const Color(0xFF2D2D3A) : Colors.white,
+                            color: isDark
+                                ? const Color(0xFF2D2D3A)
+                                : Colors.white,
                             borderRadius: BorderRadius.circular(20),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withOpacity(0.08),
+                                color: Colors.black.withValues(alpha: 0.08),
                                 blurRadius: 4,
                                 offset: const Offset(0, 2),
                               ),
@@ -649,43 +769,63 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
                       height: 40,
                       child: ListView(
                         scrollDirection: Axis.horizontal,
-                        children: (isGiven ? givenReasons : receivedReasons).take(5).map((category) {
-                          final isSelected = selectedReason == category;
-                          return GestureDetector(
-                            onTap: () {
-                              HapticFeedback.selectionClick();
-                              setState(() {
-                                selectedReason = category;
-                              });
-                            },
-                            child: Container(
-                              margin: const EdgeInsets.only(right: 8),
-                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                              decoration: BoxDecoration(
-                                color: isSelected ? const Color(0xFF4143D5) : (isDark ? Colors.white10 : const Color(0xFFE4E1ED)),
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              child: Row(
-                                children: [
-                                  Icon(
-                                    _getCategoryIcon(category),
-                                    size: 16,
-                                    color: isSelected ? Colors.white : (isDark ? Colors.white70 : const Color(0xFF464555)),
+                        children: (isGiven ? givenReasons : receivedReasons)
+                            .take(5)
+                            .map((category) {
+                              final isSelected = selectedReason == category;
+                              return GestureDetector(
+                                onTap: () {
+                                  HapticFeedback.selectionClick();
+                                  setState(() {
+                                    selectedReason = category;
+                                  });
+                                },
+                                child: Container(
+                                  margin: const EdgeInsets.only(right: 8),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                    vertical: 8,
                                   ),
-                                  const SizedBox(width: 6),
-                                  Text(
-                                    category.split(' ')[0], // Short name
-                                    style: GoogleFonts.hankenGrotesk(
-                                      color: isSelected ? Colors.white : (isDark ? Colors.white70 : const Color(0xFF464555)),
-                                      fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                                      fontSize: 14,
-                                    ),
+                                  decoration: BoxDecoration(
+                                    color: isSelected
+                                        ? const Color(0xFF4143D5)
+                                        : (isDark
+                                              ? Colors.white10
+                                              : const Color(0xFFE4E1ED)),
+                                    borderRadius: BorderRadius.circular(20),
                                   ),
-                                ],
-                              ),
-                            ),
-                          );
-                        }).toList(),
+                                  child: Row(
+                                    children: [
+                                      Icon(
+                                        _getCategoryIcon(category),
+                                        size: 16,
+                                        color: isSelected
+                                            ? Colors.white
+                                            : (isDark
+                                                  ? Colors.white70
+                                                  : const Color(0xFF464555)),
+                                      ),
+                                      const SizedBox(width: 6),
+                                      Text(
+                                        category.split(' ')[0], // Short name
+                                        style: GoogleFonts.hankenGrotesk(
+                                          color: isSelected
+                                              ? Colors.white
+                                              : (isDark
+                                                    ? Colors.white70
+                                                    : const Color(0xFF464555)),
+                                          fontWeight: isSelected
+                                              ? FontWeight.w600
+                                              : FontWeight.w500,
+                                          fontSize: 14,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            })
+                            .toList(),
                       ),
                     ),
                     const SizedBox(height: 16),
@@ -705,11 +845,15 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
                               width: 48,
                               height: 48,
                               decoration: BoxDecoration(
-                                color: isDark ? const Color(0xFF2D2D3A) : const Color(0xFFE4E1ED),
+                                color: isDark
+                                    ? const Color(0xFF2D2D3A)
+                                    : const Color(0xFFE4E1ED),
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: Icon(
-                                selectedReason != null ? _getCategoryIcon(selectedReason!) : Icons.category_rounded,
+                                selectedReason != null
+                                    ? _getCategoryIcon(selectedReason!)
+                                    : Icons.category_rounded,
                                 color: const Color(0xFF5B5FEF),
                               ),
                             ),
@@ -737,13 +881,16 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
                                 ],
                               ),
                             ),
-                            Icon(Icons.expand_more_rounded, color: const Color(0xFF767586)),
+                            Icon(
+                              Icons.expand_more_rounded,
+                              color: const Color(0xFF767586),
+                            ),
                           ],
                         ),
                       ),
                     ),
                     const SizedBox(height: 16),
-                    
+
                     // Payment Mode Picker
                     GestureDetector(
                       onTap: _showPaymentModePicker,
@@ -760,7 +907,9 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
                               width: 48,
                               height: 48,
                               decoration: BoxDecoration(
-                                color: isDark ? const Color(0xFF2D2D3A) : const Color(0xFFE4E1ED),
+                                color: isDark
+                                    ? const Color(0xFF2D2D3A)
+                                    : const Color(0xFFE4E1ED),
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: const Icon(
@@ -792,13 +941,16 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
                                 ],
                               ),
                             ),
-                            Icon(Icons.expand_more_rounded, color: const Color(0xFF767586)),
+                            Icon(
+                              Icons.expand_more_rounded,
+                              color: const Color(0xFF767586),
+                            ),
                           ],
                         ),
                       ),
                     ),
                     const SizedBox(height: 16),
-                    
+
                     // Notes Input
                     Container(
                       padding: const EdgeInsets.all(16),
@@ -827,13 +979,19 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
                                   width: 32,
                                   height: 32,
                                   decoration: BoxDecoration(
-                                    color: isDark ? const Color(0xFF2D2D3A) : const Color(0xFFF5F2FE),
+                                    color: isDark
+                                        ? const Color(0xFF2D2D3A)
+                                        : const Color(0xFFF5F2FE),
                                     shape: BoxShape.circle,
                                   ),
                                   child: Icon(
-                                    _isListening ? Icons.mic_off_rounded : Icons.mic_rounded, 
-                                    color: _isListening ? Colors.red : const Color(0xFF4143D5), 
-                                    size: 18
+                                    _isListening
+                                        ? Icons.mic_off_rounded
+                                        : Icons.mic_rounded,
+                                    color: _isListening
+                                        ? Colors.red
+                                        : const Color(0xFF4143D5),
+                                    size: 18,
                                   ),
                                 ),
                               ),
@@ -857,7 +1015,9 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
                               hintStyle: GoogleFonts.manrope(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w600,
-                                color: const Color(0xFF767586).withOpacity(0.6),
+                                color: const Color(
+                                  0xFF767586,
+                                ).withValues(alpha: 0.6),
                               ),
                             ),
                           ),
@@ -895,7 +1055,9 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
                                     width: 40,
                                     height: 40,
                                     decoration: BoxDecoration(
-                                      color: isDark ? const Color(0xFF2D2D3A) : const Color(0xFFE4E1ED),
+                                      color: isDark
+                                          ? const Color(0xFF2D2D3A)
+                                          : const Color(0xFFE4E1ED),
                                       borderRadius: BorderRadius.circular(10),
                                     ),
                                     child: const Icon(
@@ -907,7 +1069,8 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
                                   const SizedBox(width: 12),
                                   Expanded(
                                     child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
                                         Text(
                                           "Date",
@@ -958,7 +1121,9 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
                                     width: 40,
                                     height: 40,
                                     decoration: BoxDecoration(
-                                      color: isDark ? const Color(0xFF2D2D3A) : const Color(0xFFE4E1ED),
+                                      color: isDark
+                                          ? const Color(0xFF2D2D3A)
+                                          : const Color(0xFFE4E1ED),
                                       borderRadius: BorderRadius.circular(10),
                                     ),
                                     child: const Icon(
@@ -970,7 +1135,8 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
                                   const SizedBox(width: 12),
                                   Expanded(
                                     child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
                                         Text(
                                           "Time",
@@ -1000,12 +1166,12 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
                     ),
                   ],
                 ),
-                
+
                 const SizedBox(height: 40),
               ],
             ),
           ),
-          
+
           // Bottom Fixed Action Button
           Positioned(
             bottom: 0,
@@ -1016,8 +1182,8 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    bgColor.withOpacity(0),
-                    bgColor.withOpacity(0.8),
+                    bgColor.withValues(alpha: 0),
+                    bgColor.withValues(alpha: 0.8),
                     bgColor,
                   ],
                   begin: Alignment.topCenter,
@@ -1037,23 +1203,29 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: const Color(0xFF4143D5).withOpacity(0.4),
+                        color: const Color(0xFF4143D5).withValues(alpha: 0.4),
                         blurRadius: 24,
                         offset: const Offset(0, 8),
                       ),
                     ],
                   ),
                   child: Center(
-                    child: _isLoading 
+                    child: _isLoading
                         ? const SizedBox(
-                            width: 28, 
-                            height: 28, 
-                            child: CircularProgressIndicator(color: Colors.white, strokeWidth: 3)
+                            width: 28,
+                            height: 28,
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                              strokeWidth: 3,
+                            ),
                           )
                         : Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              const Icon(Icons.check_circle_outline_rounded, color: Colors.white),
+                              const Icon(
+                                Icons.check_circle_outline_rounded,
+                                color: Colors.white,
+                              ),
                               const SizedBox(width: 12),
                               Text(
                                 "Save Transaction",
@@ -1074,11 +1246,13 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
       ),
     );
   }
-
 }
 
 extension BackgroundExtension on Widget {
   Widget animateBlur() {
-    return BackdropFilter(filter: ImageFilter.blur(sigmaX: 50, sigmaY: 50), child: this);
+    return BackdropFilter(
+      filter: ImageFilter.blur(sigmaX: 50, sigmaY: 50),
+      child: this,
+    );
   }
 }

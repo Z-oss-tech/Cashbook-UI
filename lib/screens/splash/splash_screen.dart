@@ -20,7 +20,6 @@ class SplashScreen extends StatefulWidget {
 
 class _SplashScreenState extends State<SplashScreen>
     with TickerProviderStateMixin {
-
   late AnimationController _animationController;
 
   late Animation<double> _fadeAnimation;
@@ -39,24 +38,12 @@ class _SplashScreenState extends State<SplashScreen>
       duration: const Duration(seconds: 2),
     );
 
-    _fadeAnimation = Tween<double>(
-      begin: 0,
-      end: 1,
-    ).animate(
-      CurvedAnimation(
-        parent: _animationController,
-        curve: Curves.easeIn,
-      ),
+    _fadeAnimation = Tween<double>(begin: 0, end: 1).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeIn),
     );
 
-    _scaleAnimation = Tween<double>(
-      begin: 0.8,
-      end: 1,
-    ).animate(
-      CurvedAnimation(
-        parent: _animationController,
-        curve: Curves.elasticOut,
-      ),
+    _scaleAnimation = Tween<double>(begin: 0.8, end: 1).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.elasticOut),
     );
 
     _animationController.forward();
@@ -64,7 +51,7 @@ class _SplashScreenState extends State<SplashScreen>
     Future.delayed(const Duration(seconds: 3), () async {
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
       final isLoggedIn = await authProvider.checkAuth();
-      
+
       if (mounted) {
         if (isLoggedIn) {
           Navigator.pushReplacement(
@@ -97,9 +84,11 @@ class _SplashScreenState extends State<SplashScreen>
       if (res['updateAvailable'] == true && res['update'] != null) {
         final update = res['update'];
         final newVersion = update['version'] ?? '0.0.0';
-        
+
         if (_isVersionGreater(_appVersion, newVersion)) {
-          await NotificationService().showUpdateNotification(version: newVersion);
+          await NotificationService().showUpdateNotification(
+            version: newVersion,
+          );
         }
       }
     } catch (e) {
@@ -109,9 +98,19 @@ class _SplashScreenState extends State<SplashScreen>
 
   bool _isVersionGreater(String currentVersion, String newVersion) {
     try {
-      List<int> currentParts = currentVersion.split('+').first.split('.').map((e) => int.tryParse(e) ?? 0).toList();
-      List<int> newParts = newVersion.split('+').first.split('.').map((e) => int.tryParse(e) ?? 0).toList();
-      
+      List<int> currentParts = currentVersion
+          .split('+')
+          .first
+          .split('.')
+          .map((e) => int.tryParse(e) ?? 0)
+          .toList();
+      List<int> newParts = newVersion
+          .split('+')
+          .first
+          .split('.')
+          .map((e) => int.tryParse(e) ?? 0)
+          .toList();
+
       for (int i = 0; i < 3; i++) {
         int currentPart = i < currentParts.length ? currentParts[i] : 0;
         int newPart = i < newParts.length ? newParts[i] : 0;
@@ -135,7 +134,6 @@ class _SplashScreenState extends State<SplashScreen>
 
       body: Stack(
         children: [
-
           // Background Glow
           Positioned(
             top: -100,
@@ -145,7 +143,7 @@ class _SplashScreenState extends State<SplashScreen>
               width: 250,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: AppColors.primary.withOpacity(0.25),
+                color: AppColors.primary.withValues(alpha: 0.25),
               ),
             ),
           ),
@@ -158,7 +156,7 @@ class _SplashScreenState extends State<SplashScreen>
               width: 300,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: AppColors.secondary.withOpacity(0.18),
+                color: AppColors.secondary.withValues(alpha: 0.18),
               ),
             ),
           ),
@@ -171,87 +169,82 @@ class _SplashScreenState extends State<SplashScreen>
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-
                   // Logo Container
-                    ScaleTransition(
-                      scale: _scaleAnimation,
-                      child: Container(
-                        height: 120,
-                        width: 120,
+                  ScaleTransition(
+                    scale: _scaleAnimation,
+                    child: Container(
+                      height: 120,
+                      width: 120,
 
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(30),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(30),
 
                         gradient: const LinearGradient(
-                          colors: [
-                            AppColors.primary,
-                            AppColors.secondary,
-                          ],
+                          colors: [AppColors.primary, AppColors.secondary],
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                         ),
 
                         boxShadow: [
                           BoxShadow(
-                            color:
-                            AppColors.primary.withOpacity(0.4),
+                            color: AppColors.primary.withValues(alpha: 0.4),
                             blurRadius: 25,
                             offset: const Offset(0, 12),
                           ),
                         ],
                       ),
 
-                        child: const Icon(
-                          Icons.account_balance_wallet_rounded,
-                          size: 60,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-
-                    const SizedBox(height: 30),
-
-                    // App Name
-                    Text(
-                      "SmartKhata",
-                      style: GoogleFonts.poppins(
+                      child: const Icon(
+                        Icons.account_balance_wallet_rounded,
+                        size: 60,
                         color: Colors.white,
-                        fontSize: 34,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 1,
                       ),
                     ),
+                  ),
 
-                    const SizedBox(height: 10),
+                  const SizedBox(height: 30),
 
-                    // Tagline
-                    Text(
-                      "Smart Business Ledger",
-                      style: GoogleFonts.poppins(
-                        color: Colors.white70,
-                        fontSize: 15,
-                        fontWeight: FontWeight.w400,
+                  // App Name
+                  Text(
+                    "SmartKhata",
+                    style: GoogleFonts.poppins(
+                      color: Colors.white,
+                      fontSize: 34,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1,
+                    ),
+                  ),
+
+                  const SizedBox(height: 10),
+
+                  // Tagline
+                  Text(
+                    "Smart Business Ledger",
+                    style: GoogleFonts.poppins(
+                      color: Colors.white70,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
+
+                  const SizedBox(height: 50),
+
+                  // Loader
+                  SizedBox(
+                    width: 40,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(10),
+                      child: const LinearProgressIndicator(
+                        color: Colors.white,
+                        backgroundColor: Colors.white24,
+                        minHeight: 4,
                       ),
                     ),
-
-                    const SizedBox(height: 50),
-
-                    // Loader
-                    SizedBox(
-                      width: 40,
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(10),
-                        child: const LinearProgressIndicator(
-                          color: Colors.white,
-                          backgroundColor: Colors.white24,
-                          minHeight: 4,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
+          ),
           // Bottom Text
           Positioned(
             bottom: 30,

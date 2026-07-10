@@ -1,8 +1,8 @@
 import 'package:cashbook/l10n/generated/app_localizations.dart';
+import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-import 'dart:ui';
 
 import '../../core/constants/app_colors.dart';
 import '../../providers/record_provider.dart';
@@ -11,8 +11,6 @@ import '../../models/transaction_model.dart';
 import '../people/people_list_screen.dart';
 import '../records/cashbook_screen.dart';
 import '../reports/reports_screen.dart';
-import '../settings/backup_restore_screen.dart';
-import '../voice/voice_entry_screen.dart';
 import '../../core/utils/export_helper.dart';
 import '../../core/utils/date_helper.dart';
 import 'package:flutter/services.dart';
@@ -26,12 +24,13 @@ class DashboardScreen extends StatelessWidget {
     final List<String> parts = absoluteAmount.toStringAsFixed(2).split('.');
     String beforeDecimal = parts[0];
     final String afterDecimal = parts[1];
-    
+
     if (beforeDecimal.length > 3) {
       String formatted = beforeDecimal.substring(beforeDecimal.length - 3);
       beforeDecimal = beforeDecimal.substring(0, beforeDecimal.length - 3);
       while (beforeDecimal.length > 2) {
-        formatted = '${beforeDecimal.substring(beforeDecimal.length - 2)},$formatted';
+        formatted =
+            '${beforeDecimal.substring(beforeDecimal.length - 2)},$formatted';
         beforeDecimal = beforeDecimal.substring(0, beforeDecimal.length - 2);
       }
       formatted = '$beforeDecimal,$formatted';
@@ -44,12 +43,13 @@ class DashboardScreen extends StatelessWidget {
     final String sign = amount < 0 ? '-' : '';
     final double absoluteAmount = amount.abs();
     String beforeDecimal = absoluteAmount.toStringAsFixed(0);
-    
+
     if (beforeDecimal.length > 3) {
       String formatted = beforeDecimal.substring(beforeDecimal.length - 3);
       beforeDecimal = beforeDecimal.substring(0, beforeDecimal.length - 3);
       while (beforeDecimal.length > 2) {
-        formatted = '${beforeDecimal.substring(beforeDecimal.length - 2)},$formatted';
+        formatted =
+            '${beforeDecimal.substring(beforeDecimal.length - 2)},$formatted';
         beforeDecimal = beforeDecimal.substring(0, beforeDecimal.length - 2);
       }
       formatted = '$beforeDecimal,$formatted';
@@ -90,12 +90,24 @@ class DashboardScreen extends StatelessWidget {
     final TextEditingController descController = TextEditingController();
     final isDark = Theme.of(context).brightness == Brightness.dark;
     bool isCreating = false;
-    
+
     int selectedIconIndex = 0;
     int selectedColorIndex = 0;
-    
-    final List<IconData> icons = [Icons.account_balance_wallet, Icons.business, Icons.home, Icons.shopping_bag, Icons.directions_car];
-    final List<Color> colors = [const Color(0xFF4143D5), const Color(0xFFFF6B6B), const Color(0xFF34D399), const Color(0xFFFBBF24), const Color(0xFFA855F7)];
+
+    final List<IconData> icons = [
+      Icons.account_balance_wallet,
+      Icons.business,
+      Icons.home,
+      Icons.shopping_bag,
+      Icons.directions_car,
+    ];
+    final List<Color> colors = [
+      const Color(0xFF4143D5),
+      const Color(0xFFFF6B6B),
+      const Color(0xFF34D399),
+      const Color(0xFFFBBF24),
+      const Color(0xFFA855F7),
+    ];
 
     showDialog(
       context: context,
@@ -112,7 +124,7 @@ class DashboardScreen extends StatelessWidget {
                   borderRadius: BorderRadius.circular(28),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(isDark ? 0.4 : 0.1),
+                      color: Colors.black.withValues(alpha: isDark ? 0.4 : 0.1),
                       blurRadius: 30,
                       offset: const Offset(0, 15),
                     ),
@@ -133,7 +145,9 @@ class DashboardScreen extends StatelessWidget {
                               style: GoogleFonts.hankenGrotesk(
                                 fontSize: 20,
                                 fontWeight: FontWeight.bold,
-                                color: isDark ? Colors.white : const Color(0xFF191C1E),
+                                color: isDark
+                                    ? Colors.white
+                                    : const Color(0xFF191C1E),
                               ),
                             ),
                             GestureDetector(
@@ -141,20 +155,30 @@ class DashboardScreen extends StatelessWidget {
                               child: Container(
                                 padding: const EdgeInsets.all(8),
                                 decoration: BoxDecoration(
-                                  color: isDark ? Colors.white10 : const Color(0xFFF5F2FE),
+                                  color: isDark
+                                      ? Colors.white10
+                                      : const Color(0xFFF5F2FE),
                                   shape: BoxShape.circle,
                                 ),
                                 child: Icon(
                                   Icons.close_rounded,
                                   size: 20,
-                                  color: isDark ? Colors.white70 : const Color(0xFF4143D5),
+                                  color: isDark
+                                      ? Colors.white70
+                                      : const Color(0xFF4143D5),
                                 ),
                               ),
                             ),
                           ],
                         ),
                       ),
-                      Divider(height: 1, thickness: 1, color: isDark ? Colors.white10 : const Color(0xFFE4E1ED)),
+                      Divider(
+                        height: 1,
+                        thickness: 1,
+                        color: isDark
+                            ? Colors.white10
+                            : const Color(0xFFE4E1ED),
+                      ),
                       // Body
                       Padding(
                         padding: const EdgeInsets.all(24),
@@ -166,7 +190,9 @@ class DashboardScreen extends StatelessWidget {
                               style: GoogleFonts.hankenGrotesk(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w600,
-                                color: isDark ? Colors.white70 : const Color(0xFF464555),
+                                color: isDark
+                                    ? Colors.white70
+                                    : const Color(0xFF464555),
                               ),
                             ),
                             const SizedBox(height: 8),
@@ -175,30 +201,41 @@ class DashboardScreen extends StatelessWidget {
                               style: GoogleFonts.manrope(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w600,
-                                color: isDark ? Colors.white : const Color(0xFF191C1E),
+                                color: isDark
+                                    ? Colors.white
+                                    : const Color(0xFF191C1E),
                               ),
                               decoration: InputDecoration(
                                 hintText: 'E.g. Office Expenses',
                                 hintStyle: GoogleFonts.manrope(
-                                  color: isDark ? Colors.white30 : Colors.grey.shade400,
+                                  color: isDark
+                                      ? Colors.white30
+                                      : Colors.grey.shade400,
                                 ),
                                 filled: true,
-                                fillColor: isDark ? Colors.white.withOpacity(0.05) : const Color(0xFFF8FAFC),
+                                fillColor: isDark
+                                    ? Colors.white.withValues(alpha: 0.05)
+                                    : const Color(0xFFF8FAFC),
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(16),
                                   borderSide: BorderSide.none,
                                 ),
-                                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                                contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 16,
+                                ),
                               ),
                             ),
                             const SizedBox(height: 16),
-                            
+
                             Text(
                               "Description (Optional)",
                               style: GoogleFonts.hankenGrotesk(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w600,
-                                color: isDark ? Colors.white70 : const Color(0xFF464555),
+                                color: isDark
+                                    ? Colors.white70
+                                    : const Color(0xFF464555),
                               ),
                             ),
                             const SizedBox(height: 8),
@@ -207,30 +244,41 @@ class DashboardScreen extends StatelessWidget {
                               style: GoogleFonts.manrope(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w600,
-                                color: isDark ? Colors.white : const Color(0xFF191C1E),
+                                color: isDark
+                                    ? Colors.white
+                                    : const Color(0xFF191C1E),
                               ),
                               decoration: InputDecoration(
                                 hintText: 'What is this cashbook for?',
                                 hintStyle: GoogleFonts.manrope(
-                                  color: isDark ? Colors.white30 : Colors.grey.shade400,
+                                  color: isDark
+                                      ? Colors.white30
+                                      : Colors.grey.shade400,
                                 ),
                                 filled: true,
-                                fillColor: isDark ? Colors.white.withOpacity(0.05) : const Color(0xFFF8FAFC),
+                                fillColor: isDark
+                                    ? Colors.white.withValues(alpha: 0.05)
+                                    : const Color(0xFFF8FAFC),
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(16),
                                   borderSide: BorderSide.none,
                                 ),
-                                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                                contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 16,
+                                ),
                               ),
                             ),
                             const SizedBox(height: 24),
-                            
+
                             Text(
                               "Select Icon",
                               style: GoogleFonts.hankenGrotesk(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w600,
-                                color: isDark ? Colors.white70 : const Color(0xFF464555),
+                                color: isDark
+                                    ? Colors.white70
+                                    : const Color(0xFF464555),
                               ),
                             ),
                             const SizedBox(height: 12),
@@ -247,13 +295,27 @@ class DashboardScreen extends StatelessWidget {
                                     width: 48,
                                     height: 48,
                                     decoration: BoxDecoration(
-                                      color: isSelected ? colors[selectedColorIndex].withOpacity(0.15) : (isDark ? Colors.white10 : const Color(0xFFF5F2FE)),
+                                      color: isSelected
+                                          ? colors[selectedColorIndex]
+                                                .withValues(alpha: 0.15)
+                                          : (isDark
+                                                ? Colors.white10
+                                                : const Color(0xFFF5F2FE)),
                                       shape: BoxShape.circle,
-                                      border: isSelected ? Border.all(color: colors[selectedColorIndex], width: 2) : null,
+                                      border: isSelected
+                                          ? Border.all(
+                                              color: colors[selectedColorIndex],
+                                              width: 2,
+                                            )
+                                          : null,
                                     ),
                                     child: Icon(
                                       icons[index],
-                                      color: isSelected ? colors[selectedColorIndex] : (isDark ? Colors.white54 : const Color(0xFF464555)),
+                                      color: isSelected
+                                          ? colors[selectedColorIndex]
+                                          : (isDark
+                                                ? Colors.white54
+                                                : const Color(0xFF464555)),
                                       size: 24,
                                     ),
                                   ),
@@ -261,13 +323,15 @@ class DashboardScreen extends StatelessWidget {
                               }),
                             ),
                             const SizedBox(height: 24),
-                            
+
                             Text(
                               "Select Color",
                               style: GoogleFonts.hankenGrotesk(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w600,
-                                color: isDark ? Colors.white70 : const Color(0xFF464555),
+                                color: isDark
+                                    ? Colors.white70
+                                    : const Color(0xFF464555),
                               ),
                             ),
                             const SizedBox(height: 12),
@@ -286,14 +350,23 @@ class DashboardScreen extends StatelessWidget {
                                     decoration: BoxDecoration(
                                       color: colors[index],
                                       shape: BoxShape.circle,
-                                      border: isSelected ? Border.all(color: Colors.white, width: 3) : null,
-                                      boxShadow: isSelected ? [
-                                        BoxShadow(
-                                          color: colors[index].withOpacity(0.4),
-                                          blurRadius: 8,
-                                          offset: const Offset(0, 2),
-                                        )
-                                      ] : null,
+                                      border: isSelected
+                                          ? Border.all(
+                                              color: Colors.white,
+                                              width: 3,
+                                            )
+                                          : null,
+                                      boxShadow: isSelected
+                                          ? [
+                                              BoxShadow(
+                                                color: colors[index].withValues(
+                                                  alpha: 0.4,
+                                                ),
+                                                blurRadius: 8,
+                                                offset: const Offset(0, 2),
+                                              ),
+                                            ]
+                                          : null,
                                     ),
                                   ),
                                 );
@@ -304,26 +377,36 @@ class DashboardScreen extends StatelessWidget {
                               width: double.infinity,
                               height: 56,
                               child: ElevatedButton(
-                                onPressed: isCreating ? null : () async {
-                                  HapticFeedback.mediumImpact();
-                                  final cashbookName = nameController.text.trim().isEmpty 
-                                      ? "New Cashbook" 
-                                      : nameController.text.trim();
-                                  
-                                  setState(() => isCreating = true);
-                                  await Provider.of<RecordProvider>(context, listen: false).addCashbook(cashbookName);
-                                  setState(() => isCreating = false);
-                                  
-                                  if (context.mounted) {
-                                    Navigator.pop(dialogContext); // Close dialog
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (_) => CashbookScreen(cashbookName: cashbookName),
-                                      ),
-                                    );
-                                  }
-                                },
+                                onPressed: isCreating
+                                    ? null
+                                    : () async {
+                                        HapticFeedback.mediumImpact();
+                                        final cashbookName =
+                                            nameController.text.trim().isEmpty
+                                            ? "New Cashbook"
+                                            : nameController.text.trim();
+
+                                        setState(() => isCreating = true);
+                                        await Provider.of<RecordProvider>(
+                                          context,
+                                          listen: false,
+                                        ).addCashbook(cashbookName);
+                                        setState(() => isCreating = false);
+
+                                        if (context.mounted) {
+                                          Navigator.pop(
+                                            dialogContext,
+                                          ); // Close dialog
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (_) => CashbookScreen(
+                                                cashbookName: cashbookName,
+                                              ),
+                                            ),
+                                          );
+                                        }
+                                      },
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: colors[selectedColorIndex],
                                   foregroundColor: Colors.white,
@@ -331,13 +414,17 @@ class DashboardScreen extends StatelessWidget {
                                     borderRadius: BorderRadius.circular(16),
                                   ),
                                   elevation: 4,
-                                  shadowColor: colors[selectedColorIndex].withOpacity(0.5),
+                                  shadowColor: colors[selectedColorIndex]
+                                      .withValues(alpha: 0.5),
                                 ),
                                 child: isCreating
                                     ? const SizedBox(
                                         height: 24,
                                         width: 24,
-                                        child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5),
+                                        child: CircularProgressIndicator(
+                                          color: Colors.white,
+                                          strokeWidth: 2.5,
+                                        ),
                                       )
                                     : Text(
                                         "CREATE CASHBOOK",
@@ -349,14 +436,14 @@ class DashboardScreen extends StatelessWidget {
                                       ),
                               ),
                             ),
-                        ],
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
-            ),
-          );
+            );
           },
         );
       },
@@ -392,7 +479,9 @@ class DashboardScreen extends StatelessWidget {
                   await Future.delayed(const Duration(milliseconds: 800));
                 },
                 child: SingleChildScrollView(
-                  physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+                  physics: const AlwaysScrollableScrollPhysics(
+                    parent: BouncingScrollPhysics(),
+                  ),
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20),
                     child: Column(
@@ -406,7 +495,12 @@ class DashboardScreen extends StatelessWidget {
                           recordProvider.totalGiven,
                         ),
                         const SizedBox(height: 32),
-                        _buildQuickStats(context, thisWeekAmount, recordProvider.cashbooks.length, recordProvider.records.length),
+                        _buildQuickStats(
+                          context,
+                          thisWeekAmount,
+                          recordProvider.cashbooks.length,
+                          recordProvider.records.length,
+                        ),
                         const SizedBox(height: 32),
                         _buildProductivitySection(context),
                         const SizedBox(height: 32),
@@ -451,7 +545,10 @@ class DashboardScreen extends StatelessWidget {
                     height: 44,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      border: Border.all(color: const Color(0xFFC0C1FF), width: 2),
+                      border: Border.all(
+                        color: const Color(0xFFC0C1FF),
+                        width: 2,
+                      ),
                       gradient: const LinearGradient(
                         colors: [AppColors.primary, AppColors.secondary],
                       ),
@@ -509,141 +606,160 @@ class DashboardScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildPremiumBalanceCard(BuildContext context, double balance, double income, double expense) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(32),
-        gradient: const LinearGradient(
-          colors: [
-            Color(0xFF4143D5), // rgb(65, 67, 213)
-            Color(0xFF7459F7), // rgb(116, 89, 247)
-            Color(0xFF2C2CC3), // rgb(44, 44, 195)
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFF4143D5).withOpacity(0.4),
-            blurRadius: 50,
-            offset: const Offset(0, 20),
-          ),
-        ],
-      ),
-      child: Stack(
-        children: [
-          Positioned(
-            right: -20,
-            top: -20,
-            child: Icon(
-              Icons.account_balance_wallet_rounded,
-              size: 100,
-              color: Colors.white.withOpacity(0.1),
-            ),
-          ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Text(
-                "TOTAL BALANCE",
-                style: GoogleFonts.inter(
-                  color: Colors.white.withOpacity(0.8),
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  letterSpacing: 2.0,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                formatCurrency(balance),
-                style: GoogleFonts.inter(
-                  color: Colors.white,
-                  fontSize: 42,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: -1.5,
-                ),
-              ),
-              const SizedBox(height: 32),
-              Row(
-                children: [
-                  Expanded(
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: Colors.white.withOpacity(0.2)),
-                      ),
-                      child: Column(
-                        children: [
-                          Text(
-                            "Received",
-                            style: GoogleFonts.inter(
-                              color: Colors.white.withOpacity(0.7),
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            formatCurrencyShort(income),
-                            style: GoogleFonts.inter(
-                              color: Colors.white,
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: Colors.white.withOpacity(0.2)),
-                      ),
-                      child: Column(
-                        children: [
-                          Text(
-                            "Given",
-                            style: GoogleFonts.inter(
-                              color: Colors.white.withOpacity(0.7),
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            formatCurrencyShort(expense),
-                            style: GoogleFonts.inter(
-                              color: Colors.white,
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+  Widget _buildPremiumBalanceCard(
+    BuildContext context,
+    double balance,
+    double income,
+    double expense,
+  ) {
+    return FadeInUp(
+      duration: const Duration(milliseconds: 600),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(24),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(32),
+          gradient: const LinearGradient(
+            colors: [
+              Color(0xFF4143D5), // rgb(65, 67, 213)
+              Color(0xFF7459F7), // rgb(116, 89, 247)
+              Color(0xFF2C2CC3), // rgb(44, 44, 195)
             ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
           ),
-        ],
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFF4143D5).withValues(alpha: 0.4),
+              blurRadius: 50,
+              offset: const Offset(0, 20),
+            ),
+          ],
+        ),
+        child: Stack(
+          children: [
+            Positioned(
+              right: -20,
+              top: -20,
+              child: Icon(
+                Icons.account_balance_wallet_rounded,
+                size: 100,
+                color: Colors.white.withValues(alpha: 0.1),
+              ),
+            ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Text(
+                  "TOTAL BALANCE",
+                  style: GoogleFonts.inter(
+                    color: Colors.white.withValues(alpha: 0.8),
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 2.0,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  formatCurrency(balance),
+                  style: GoogleFonts.inter(
+                    color: Colors.white,
+                    fontSize: 42,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: -1.5,
+                  ),
+                ),
+                const SizedBox(height: 32),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(
+                            color: Colors.white.withValues(alpha: 0.2),
+                          ),
+                        ),
+                        child: Column(
+                          children: [
+                            Text(
+                              "Received",
+                              style: GoogleFonts.inter(
+                                color: Colors.white.withValues(alpha: 0.7),
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              formatCurrencyShort(income),
+                              style: GoogleFonts.inter(
+                                color: Colors.white,
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(
+                            color: Colors.white.withValues(alpha: 0.2),
+                          ),
+                        ),
+                        child: Column(
+                          children: [
+                            Text(
+                              "Given",
+                              style: GoogleFonts.inter(
+                                color: Colors.white.withValues(alpha: 0.7),
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              formatCurrencyShort(expense),
+                              style: GoogleFonts.inter(
+                                color: Colors.white,
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildQuickStats(BuildContext context, double thisWeekAmount, int booksCount, int totalTxns) {
+  Widget _buildQuickStats(
+    BuildContext context,
+    double thisWeekAmount,
+    int booksCount,
+    int totalTxns,
+  ) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final cardColor = isDark ? const Color(0xFF2D3133) : Colors.white;
-    final borderColor = isDark ? const Color(0xFF464555) : const Color(0xFFE6E8EA);
+    final borderColor = isDark
+        ? const Color(0xFF464555)
+        : const Color(0xFFE6E8EA);
     final textColor = isDark ? Colors.white : const Color(0xFF191C1E);
     final subTextColor = isDark ? Colors.white70 : const Color(0xFF464555);
 
@@ -679,7 +795,9 @@ class DashboardScreen extends StatelessWidget {
               HapticFeedback.lightImpact();
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const PeopleListScreen()),
+                MaterialPageRoute(
+                  builder: (context) => const PeopleListScreen(),
+                ),
               );
             },
           ),
@@ -700,7 +818,8 @@ class DashboardScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildStatCard(BuildContext context, {
+  Widget _buildStatCard(
+    BuildContext context, {
     required String title,
     required String value,
     required IconData icon,
@@ -722,7 +841,7 @@ class DashboardScreen extends StatelessWidget {
           border: Border.all(color: borderColor),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.02),
+              color: Colors.black.withValues(alpha: 0.02),
               blurRadius: 30,
               offset: const Offset(0, 10),
             ),
@@ -735,7 +854,7 @@ class DashboardScreen extends StatelessWidget {
               width: 40,
               height: 40,
               decoration: BoxDecoration(
-                color: color.withOpacity(0.1),
+                color: color.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: Icon(icon, color: color, size: 20),
@@ -797,7 +916,9 @@ class DashboardScreen extends StatelessWidget {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (_) => CashbookScreen(cashbookName: recordProvider.cashbooks.first.name),
+                        builder: (_) => CashbookScreen(
+                          cashbookName: recordProvider.cashbooks.first.name,
+                        ),
                       ),
                     );
                   } else {
@@ -812,7 +933,10 @@ class DashboardScreen extends StatelessWidget {
                 icon: Icons.auto_awesome_rounded,
                 color: const Color(0xFF008339),
                 onTap: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (_) => const ReportsScreen()));
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const ReportsScreen()),
+                  );
                 },
               ),
               const SizedBox(width: 16),
@@ -855,7 +979,9 @@ class DashboardScreen extends StatelessWidget {
   }) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final cardColor = isDark ? const Color(0xFF2D3133) : Colors.white;
-    final borderColor = isDark ? const Color(0xFF464555) : const Color(0xFFE6E8EA);
+    final borderColor = isDark
+        ? const Color(0xFF464555)
+        : const Color(0xFFE6E8EA);
     final textColor = isDark ? Colors.white : const Color(0xFF191C1E);
 
     return GestureDetector(
@@ -872,7 +998,7 @@ class DashboardScreen extends StatelessWidget {
           border: Border.all(color: borderColor),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.02),
+              color: Colors.black.withValues(alpha: 0.02),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
@@ -884,7 +1010,7 @@ class DashboardScreen extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: color.withOpacity(0.1),
+                color: color.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Icon(icon, color: color, size: 20),
@@ -942,7 +1068,9 @@ class DashboardScreen extends StatelessWidget {
   Widget _buildCashbookList(BuildContext context) {
     final recordProvider = Provider.of<RecordProvider>(context);
     final allCashbooks = recordProvider.cashbooks;
-    final displayCashbooks = allCashbooks.length > 5 ? allCashbooks.sublist(0, 5) : allCashbooks;
+    final displayCashbooks = allCashbooks.length > 5
+        ? allCashbooks.sublist(0, 5)
+        : allCashbooks;
 
     if (displayCashbooks.isEmpty) {
       return Padding(
@@ -959,12 +1087,19 @@ class DashboardScreen extends StatelessWidget {
     return Column(
       children: displayCashbooks.map((cashbook) {
         final name = cashbook.name;
-        final records = recordProvider.records.where((r) => r.cashbookName == name);
-        final double received = records.where((r) => !r.isGiven).fold(0, (s, r) => s + r.amount);
-        final double given = records.where((r) => r.isGiven).fold(0, (s, r) => s + r.amount);
+        final records = recordProvider.records.where(
+          (r) => r.cashbookName == name,
+        );
+        final double received = records
+            .where((r) => !r.isGiven)
+            .fold(0, (s, r) => s + r.amount);
+        final double given = records
+            .where((r) => r.isGiven)
+            .fold(0, (s, r) => s + r.amount);
         final double balance = received - given;
         final bool isPositive = balance >= 0;
-        final String amountText = "${isPositive ? '+' : '-'} ${formatCurrencyNoDecimal(balance)}";
+        final String amountText =
+            "${isPositive ? '+' : '-'} ${formatCurrencyNoDecimal(balance)}";
 
         return _buildCashbookTile(
           context: context,
@@ -986,7 +1121,9 @@ class DashboardScreen extends StatelessWidget {
   }) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final cardColor = isDark ? const Color(0xFF2D3133) : Colors.white;
-    final borderColor = isDark ? const Color(0xFF464555) : const Color(0xFFE6E8EA);
+    final borderColor = isDark
+        ? const Color(0xFF464555)
+        : const Color(0xFFE6E8EA);
     final textColor = isDark ? Colors.white : const Color(0xFF191C1E);
     final subTextColor = isDark ? Colors.white70 : const Color(0xFF464555);
 
@@ -994,7 +1131,9 @@ class DashboardScreen extends StatelessWidget {
       onTap: () {
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => CashbookScreen(cashbookName: cashbook.name)),
+          MaterialPageRoute(
+            builder: (context) => CashbookScreen(cashbookName: cashbook.name),
+          ),
         );
       },
       child: Container(
@@ -1006,7 +1145,7 @@ class DashboardScreen extends StatelessWidget {
           border: Border.all(color: borderColor),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.02),
+              color: Colors.black.withValues(alpha: 0.02),
               blurRadius: 30,
               offset: const Offset(0, 10),
             ),
@@ -1070,7 +1209,10 @@ class DashboardScreen extends StatelessWidget {
                         children: [
                           Icon(Icons.edit_rounded, size: 18, color: textColor),
                           const SizedBox(width: 8),
-                          Text('Edit', style: GoogleFonts.inter(color: textColor)),
+                          Text(
+                            'Edit',
+                            style: GoogleFonts.inter(color: textColor),
+                          ),
                         ],
                       ),
                     ),
@@ -1078,9 +1220,16 @@ class DashboardScreen extends StatelessWidget {
                       value: 'delete',
                       child: Row(
                         children: [
-                          const Icon(Icons.delete_rounded, color: Colors.red, size: 18),
+                          const Icon(
+                            Icons.delete_rounded,
+                            color: Colors.red,
+                            size: 18,
+                          ),
                           const SizedBox(width: 8),
-                          Text('Delete', style: GoogleFonts.inter(color: Colors.red)),
+                          Text(
+                            'Delete',
+                            style: GoogleFonts.inter(color: Colors.red),
+                          ),
                         ],
                       ),
                     ),
@@ -1111,17 +1260,26 @@ class DashboardScreen extends StatelessWidget {
                       style: GoogleFonts.inter(
                         fontWeight: FontWeight.bold,
                         fontSize: 18,
-                        color: isPositive 
-                            ? (isDark ? const Color(0xFF86EFAC) : const Color(0xFF008339))
-                            : (isDark ? const Color(0xFFFCA5A5) : const Color(0xFFE53935)),
+                        color: isPositive
+                            ? (isDark
+                                  ? const Color(0xFF86EFAC)
+                                  : const Color(0xFF008339))
+                            : (isDark
+                                  ? const Color(0xFFFCA5A5)
+                                  : const Color(0xFFE53935)),
                       ),
                     ),
                   ],
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
                   decoration: BoxDecoration(
-                    color: isDark ? Colors.white.withOpacity(0.1) : const Color(0xFFF2F4F6),
+                    color: isDark
+                        ? Colors.white.withValues(alpha: 0.1)
+                        : const Color(0xFFF2F4F6),
                     borderRadius: BorderRadius.circular(30),
                   ),
                   child: Text(

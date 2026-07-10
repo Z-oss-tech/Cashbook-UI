@@ -37,7 +37,7 @@ class RecordProvider extends ChangeNotifier {
 
     final queue = await _localStorageService.getPendingSyncQueue();
     _pendingCount = queue.length;
-    
+
     notifyListeners();
   }
 
@@ -61,8 +61,12 @@ class RecordProvider extends ChangeNotifier {
 
     try {
       final cashbooksData = await _apiService.getCashbooks();
-      final List<Map<String, dynamic>> serializedBooks = cashbooksData.map((e) => Map<String, dynamic>.from(e as Map)).toList();
-      _cashbooks = serializedBooks.map((e) => CashbookModel.fromMap(e)).toList();
+      final List<Map<String, dynamic>> serializedBooks = cashbooksData
+          .map((e) => Map<String, dynamic>.from(e as Map))
+          .toList();
+      _cashbooks = serializedBooks
+          .map((e) => CashbookModel.fromMap(e))
+          .toList();
       await _localStorageService.saveCashbooks(serializedBooks);
 
       final recordsData = await _apiService.getRecords();
@@ -70,8 +74,12 @@ class RecordProvider extends ChangeNotifier {
         var map = Map<String, dynamic>.from(e as Map);
         // Find cashbook name using cashbookId
         var cb = _cashbooks.firstWhere(
-          (c) => c.id == map['cashbookId'], 
-          orElse: () => CashbookModel(id: '', name: 'TestBook', createdAt: DateTime.now())
+          (c) => c.id == map['cashbookId'],
+          orElse: () => CashbookModel(
+            id: '',
+            name: 'TestBook',
+            createdAt: DateTime.now(),
+          ),
         );
         map['cashbookName'] = cb.name;
         return map;
@@ -80,7 +88,7 @@ class RecordProvider extends ChangeNotifier {
       await _localStorageService.saveRecords(serializedRecords);
 
       _isOfflineMode = false;
-      
+
       // Auto-trigger sync queue in the background when connected
       if (_pendingCount > 0) {
         syncOfflineQueue();
@@ -208,9 +216,11 @@ class RecordProvider extends ChangeNotifier {
   Future<void> deleteCashbook(String id) async {
     final bookIndex = _cashbooks.indexWhere((c) => c.id == id);
     if (bookIndex == -1) return;
-    
+
     final deletedBook = _cashbooks[bookIndex];
-    final associatedRecords = _records.where((r) => r.cashbookId == id).toList();
+    final associatedRecords = _records
+        .where((r) => r.cashbookId == id)
+        .toList();
 
     // Save backup state for local restore in Recovery Bin
     await RecoveryService.saveDeletedCashbook(deletedBook, associatedRecords);
@@ -259,7 +269,7 @@ class RecordProvider extends ChangeNotifier {
     final String tempId = record.id.isEmpty || record.id.startsWith('temp_')
         ? 'local_rec_${DateTime.now().millisecondsSinceEpoch}'
         : record.id;
-        
+
     final newRecord = RecordModel(
       id: tempId,
       cashbookId: record.cashbookId,
@@ -276,7 +286,7 @@ class RecordProvider extends ChangeNotifier {
     // Optimistic insert
     _records.insert(0, newRecord);
     await _saveLocalRecords();
-    
+
     // Trigger Notifications
     NotificationService().showTransactionNotification(
       amount: record.amount,
@@ -341,7 +351,9 @@ class RecordProvider extends ChangeNotifier {
         category: data['category'] ?? old.category,
         paymentMethod: data['paymentMethod'] ?? old.paymentMethod,
         note: data['note'] ?? old.note,
-        date: data['transactionDate'] != null ? DateTime.parse(data['transactionDate']) : old.date,
+        date: data['transactionDate'] != null
+            ? DateTime.parse(data['transactionDate'])
+            : old.date,
         cashbookName: old.cashbookName,
       );
       await _saveLocalRecords();
@@ -433,17 +445,23 @@ class RecordProvider extends ChangeNotifier {
   // --- Helpers for Saving Cache ---
 
   Future<void> _saveLocalBooks() async {
-    final List<Map<String, dynamic>> list = _cashbooks.map((c) => {
-      'id': c.id,
-      'name': c.name,
-      'createdAt': c.createdAt.toIso8601String(),
-      'description': c.description,
-    }).toList();
+    final List<Map<String, dynamic>> list = _cashbooks
+        .map(
+          (c) => {
+            'id': c.id,
+            'name': c.name,
+            'createdAt': c.createdAt.toIso8601String(),
+            'description': c.description,
+          },
+        )
+        .toList();
     await _localStorageService.saveCashbooks(list);
   }
 
   Future<void> _saveLocalRecords() async {
-    final List<Map<String, dynamic>> list = _records.map((r) => r.toMap()).toList();
+    final List<Map<String, dynamic>> list = _records
+        .map((r) => r.toMap())
+        .toList();
     await _localStorageService.saveRecords(list);
   }
 
@@ -451,7 +469,7 @@ class RecordProvider extends ChangeNotifier {
 
   Future<void> syncOfflineQueue() async {
     if (_isSyncing) return;
-    
+
     // Check guest bypass
     final prefs = await SharedPreferences.getInstance();
     if (prefs.getString('auth_token') == 'offline_token') {
@@ -471,16 +489,20 @@ class RecordProvider extends ChangeNotifier {
       for (var actionItem in queue) {
         final String actionId = actionItem['id'];
         final String action = actionItem['action'];
-        final Map<String, dynamic> payload = Map<String, dynamic>.from(actionItem['payload']);
+        final Map<String, dynamic> payload = Map<String, dynamic>.from(
+          actionItem['payload'],
+        );
         final String? targetId = actionItem['targetId'];
 
         if (action == 'create_cashbook') {
           final localId = payload['id'];
           final name = payload['name'];
-          
+
           final res = await _apiService.createCashbook({'name': name});
           if (res['cashbook'] != null) {
-            final CashbookModel serverBook = CashbookModel.fromMap(res['cashbook']);
+            final CashbookModel serverBook = CashbookModel.fromMap(
+              res['cashbook'],
+            );
             cbIdTranslation[localId] = serverBook.id;
 
             // Update local memory & cache
@@ -508,21 +530,15 @@ class RecordProvider extends ChangeNotifier {
             }
             await _localStorageService.removePendingSyncAction(actionId);
           }
-        } 
-        
-        else if (action == 'update_cashbook') {
+        } else if (action == 'update_cashbook') {
           final realId = cbIdTranslation[targetId] ?? targetId!;
           await _apiService.updateCashbook(realId, {'name': payload['name']});
           await _localStorageService.removePendingSyncAction(actionId);
-        } 
-        
-        else if (action == 'delete_cashbook') {
+        } else if (action == 'delete_cashbook') {
           final realId = cbIdTranslation[targetId] ?? targetId!;
           await _apiService.deleteCashbook(realId);
           await _localStorageService.removePendingSyncAction(actionId);
-        } 
-        
-        else if (action == 'create_record') {
+        } else if (action == 'create_record') {
           final localCbId = payload['cashbookId'];
           // Translate cashbookId if it was a local temporary one
           if (cbIdTranslation.containsKey(localCbId)) {
@@ -531,7 +547,8 @@ class RecordProvider extends ChangeNotifier {
             // Find cashbook by name to get correct server ID
             final book = _cashbooks.firstWhere(
               (c) => c.name == payload['cashbookName'],
-              orElse: () => CashbookModel(id: '', name: '', createdAt: DateTime.now()),
+              orElse: () =>
+                  CashbookModel(id: '', name: '', createdAt: DateTime.now()),
             );
             if (book.id.isNotEmpty && !book.id.startsWith('local_cb_')) {
               payload['cashbookId'] = book.id;
@@ -548,14 +565,10 @@ class RecordProvider extends ChangeNotifier {
             }
             await _localStorageService.removePendingSyncAction(actionId);
           }
-        } 
-        
-        else if (action == 'update_record') {
+        } else if (action == 'update_record') {
           await _apiService.updateRecord(targetId!, payload);
           await _localStorageService.removePendingSyncAction(actionId);
-        } 
-        
-        else if (action == 'delete_record') {
+        } else if (action == 'delete_record') {
           await _apiService.deleteRecord(targetId!);
           await _localStorageService.removePendingSyncAction(actionId);
         }
@@ -567,7 +580,7 @@ class RecordProvider extends ChangeNotifier {
 
       final remainingQueue = await _localStorageService.getPendingSyncQueue();
       _pendingCount = remainingQueue.length;
-      
+
       if (_pendingCount == 0) {
         _isOfflineMode = false;
         print('Offline synchronization fully completed successfully!');

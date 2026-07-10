@@ -6,7 +6,6 @@ import 'package:provider/provider.dart';
 import 'package:csv/csv.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:pdf/widgets.dart' as pw;
 
 import '../../models/transaction_model.dart';
 import 'toast_helper.dart';
@@ -18,10 +17,10 @@ class ExportHelper {
   static void showExportOptions(BuildContext context, {String? cashbookName}) {
     final recordProvider = Provider.of<RecordProvider>(context, listen: false);
     final allRecords = recordProvider.records;
-    final records = cashbookName != null 
-        ? allRecords.where((r) => r.cashbookName == cashbookName).toList() 
+    final records = cashbookName != null
+        ? allRecords.where((r) => r.cashbookName == cashbookName).toList()
         : allRecords;
-    
+
     if (records.isEmpty) {
       ToastHelper.showToast(context, 'No records to export!', isError: true);
       return;
@@ -49,7 +48,10 @@ class ExportHelper {
               ),
               ListTile(
                 leading: const Icon(Icons.table_chart, color: Colors.green),
-                title: Text(AppLocalizations.of(context)!.csvExcel, style: GoogleFonts.poppins()),
+                title: Text(
+                  AppLocalizations.of(context)!.csvExcel,
+                  style: GoogleFonts.poppins(),
+                ),
                 onTap: () {
                   Navigator.pop(context);
                   _exportToCsv(context, records, cashbookName);
@@ -57,7 +59,10 @@ class ExportHelper {
               ),
               ListTile(
                 leading: const Icon(Icons.picture_as_pdf, color: Colors.red),
-                title: Text(AppLocalizations.of(context)!.pdfDocument, style: GoogleFonts.poppins()),
+                title: Text(
+                  AppLocalizations.of(context)!.pdfDocument,
+                  style: GoogleFonts.poppins(),
+                ),
                 onTap: () {
                   Navigator.pop(context);
                   _exportToPdf(context, records, cashbookName);
@@ -71,10 +76,24 @@ class ExportHelper {
     );
   }
 
-  static Future<void> _exportToCsv(BuildContext context, List<RecordModel> records, String? cashbookName) async {
+  static Future<void> _exportToCsv(
+    BuildContext context,
+    List<RecordModel> records,
+    String? cashbookName,
+  ) async {
     try {
       List<List<dynamic>> csvData = [
-        ['Date', 'Time', 'Cashbook', 'Payment Mode', 'Category', 'Title', 'Type', 'Amount', 'Note']
+        [
+          'Date',
+          'Time',
+          'Cashbook',
+          'Payment Mode',
+          'Category',
+          'Title',
+          'Type',
+          'Amount',
+          'Note',
+        ],
       ];
 
       for (var record in records) {
@@ -92,15 +111,23 @@ class ExportHelper {
       }
 
       String csvString = const CsvEncoder().convert(csvData);
-      
+
       final directory = await getTemporaryDirectory();
-      final prefix = cashbookName != null ? cashbookName.replaceAll(' ', '_').toLowerCase() : 'smartkhata';
-      final path = '${directory.path}/${prefix}_records_${DateTime.now().millisecondsSinceEpoch}.csv';
+      final prefix = cashbookName != null
+          ? cashbookName.replaceAll(' ', '_').toLowerCase()
+          : 'smartkhata';
+      final path =
+          '${directory.path}/${prefix}_records_${DateTime.now().millisecondsSinceEpoch}.csv';
       final file = File(path);
       await file.writeAsString(csvString);
-      
+
       // ignore: deprecated_member_use
-      await Share.shareXFiles([XFile(path)], text: cashbookName != null ? '$cashbookName Records (CSV)' : 'My SmartKhata Records (CSV)');
+      await Share.shareXFiles(
+        [XFile(path)],
+        text: cashbookName != null
+            ? '$cashbookName Records (CSV)'
+            : 'My SmartKhata Records (CSV)',
+      );
     } catch (e) {
       if (context.mounted) {
         ToastHelper.showToast(context, 'Export failed: $e', isError: true);
@@ -108,7 +135,15 @@ class ExportHelper {
     }
   }
 
-  static Future<void> _exportToPdf(BuildContext context, List<RecordModel> records, String? cashbookName) async {
-    await PremiumPdfGenerator.generateAndSharePdf(context, records, cashbookName);
+  static Future<void> _exportToPdf(
+    BuildContext context,
+    List<RecordModel> records,
+    String? cashbookName,
+  ) async {
+    await PremiumPdfGenerator.generateAndSharePdf(
+      context,
+      records,
+      cashbookName,
+    );
   }
 }

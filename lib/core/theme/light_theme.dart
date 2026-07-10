@@ -17,6 +17,5 @@ class LightTheme {
       elevation: 0,
       backgroundColor: Colors.transparent,
     ),
-
   );
 }

@@ -16,7 +16,9 @@ class CashbookModel {
       id: map['id'] ?? '',
       name: map['name'] ?? '',
       description: map['description'],
-      createdAt: map['createdAt'] != null ? DateTime.parse(map['createdAt']) : DateTime.now(),
+      createdAt: map['createdAt'] != null
+          ? DateTime.parse(map['createdAt'])
+          : DateTime.now(),
     );
   }
 }
@@ -32,9 +34,9 @@ class RecordModel {
   final String note;
   final DateTime date;
   final String? cashbookName;
-  
+
   // Computed properties for UI backwards compatibility
-  String get personName => title; 
+  String get personName => title;
   bool get isGiven => type == 'expense';
 
   RecordModel({
@@ -60,9 +62,11 @@ class RecordModel {
       category: map['category'],
       paymentMethod: map['paymentMethod'],
       note: map['note'] ?? '',
-      date: map['transactionDate'] != null 
-          ? DateTime.parse(map['transactionDate']) 
-          : (map['date'] != null ? DateTime.parse(map['date']) : DateTime.now()),
+      date: map['transactionDate'] != null
+          ? DateTime.parse(map['transactionDate'])
+          : (map['date'] != null
+                ? DateTime.parse(map['date'])
+                : DateTime.now()),
       cashbookName: map['cashbookName'] ?? 'TestBook',
     );
   }

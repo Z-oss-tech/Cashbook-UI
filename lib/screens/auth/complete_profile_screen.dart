@@ -24,7 +24,11 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
     final email = _emailController.text.trim();
 
     if (name.isEmpty || email.isEmpty) {
-      ToastHelper.showToast(context, 'Please enter name and email', isError: true);
+      ToastHelper.showToast(
+        context,
+        'Please enter name and email',
+        isError: true,
+      );
       return;
     }
 
@@ -35,12 +39,14 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
       Provider.of<SettingsProvider>(context, listen: false).setUserName(name);
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(
-          builder: (_) => const MainNavigationScreen(),
-        ),
+        MaterialPageRoute(builder: (_) => const MainNavigationScreen()),
       );
     } else if (mounted) {
-      ToastHelper.showToast(context, authProvider.error ?? 'Failed to update profile', isError: true);
+      ToastHelper.showToast(
+        context,
+        authProvider.error ?? 'Failed to update profile',
+        isError: true,
+      );
     }
   }
 
@@ -98,7 +104,7 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
                             borderRadius: BorderRadius.circular(18),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withOpacity(0.03),
+                                color: Colors.black.withValues(alpha: 0.03),
                                 blurRadius: 8,
                                 offset: const Offset(0, 4),
                               ),
@@ -134,7 +140,7 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
                             borderRadius: BorderRadius.circular(18),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withOpacity(0.03),
+                                color: Colors.black.withValues(alpha: 0.03),
                                 blurRadius: 8,
                                 offset: const Offset(0, 4),
                               ),
@@ -167,7 +173,9 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
                                     borderRadius: BorderRadius.circular(18),
                                   ),
                                 ),
-                                onPressed: authProvider.isLoading ? null : _handleSave,
+                                onPressed: authProvider.isLoading
+                                    ? null
+                                    : _handleSave,
                                 child: authProvider.isLoading
                                     ? const SizedBox(
                                         width: 24,
