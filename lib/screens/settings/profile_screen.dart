@@ -351,13 +351,21 @@ class _ProfileScreenState extends State<ProfileScreen>
                           });
 
                           try {
+                            String finalDownloadUrl = downloadUrl;
+                            
+                            // Automatically convert generic GitHub release URLs to direct APK downloads
+                            if (finalDownloadUrl.contains('github.com') && !finalDownloadUrl.endsWith('.apk')) {
+                              final repoBase = finalDownloadUrl.split('/releases').first;
+                              finalDownloadUrl = '$repoBase/releases/download/v$version/app-release.apk';
+                            }
+
                             final directory = await getTemporaryDirectory();
                             final filePath =
                                 '${directory.path}/smartkhata_update_$version.apk';
 
                             final dio = Dio();
                             await dio.download(
-                              downloadUrl,
+                              finalDownloadUrl,
                               filePath,
                               onReceiveProgress: (received, total) {
                                 if (total != -1) {
