@@ -24,10 +24,10 @@ class _AddPeopleScreenState extends State<AddPeopleScreen> {
     if (status == PermissionStatus.granted) {
       final pickedContact = await FlutterContacts.native.showPicker();
       if (pickedContact != null) {
-        final contact = await FlutterContacts.get(pickedContact.id, properties: {ContactProperty.phone});
+        final contact = await FlutterContacts.get(pickedContact, properties: {ContactProperty.phone});
         if (contact != null) {
           setState(() {
-            nameController.text = contact.displayName;
+            nameController.text = contact.displayName ?? '';
             if (contact.phones.isNotEmpty) {
               phoneController.text = contact.phones.first.number;
             }
