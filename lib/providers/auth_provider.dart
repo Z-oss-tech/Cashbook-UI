@@ -111,7 +111,7 @@ class AuthProvider extends ChangeNotifier {
       gsign.GoogleSignInAccount googleUser;
       try {
         await gsign.GoogleSignIn.instance.initialize(
-          serverClientId: '756245615589-ir1pno90qig2uk9ad1fa45hgohg7bkfk.apps.googleusercontent.com',
+          serverClientId: '60020710265-rtf4dfbrah3m6h7e1ck27hjrp1sru6nb.apps.googleusercontent.com',
         );
       } catch (_) {
         // Ignore initialization error if already initialized or if Web ID is wrong
