@@ -752,6 +752,28 @@ class _CashbookScreenState extends State<CashbookScreen> {
                           )
                         : premiumTheme.gradient;
 
+                    final isDarkGradient =
+                        isDefault ||
+                        premiumTheme.themeData.brightness == Brightness.dark;
+                    final titleColor = isDarkGradient
+                        ? Colors.white.withValues(alpha: 0.8)
+                        : const Color(0xFF881337);
+                    final borderColor = isDarkGradient
+                        ? Colors.white.withValues(alpha: 0.1)
+                        : Colors.black12;
+                    final totalInColor = isDarkGradient
+                        ? const Color(0xFF86EFAC)
+                        : const Color(0xFF059669);
+                    final totalOutColor = isDarkGradient
+                        ? const Color(0xFFFCA5A5)
+                        : const Color(0xFFE11D48);
+                    final balanceColor = isDarkGradient
+                        ? const Color(0xFFBFDBFE)
+                        : const Color(0xFF2563EB);
+                    final totalEntryColor = isDarkGradient
+                        ? Colors.white
+                        : Colors.black87;
+
                     return Container(
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(28),
@@ -780,9 +802,9 @@ class _CashbookScreenState extends State<CashbookScreen> {
                                       title: "Total IN",
                                       amount:
                                           "₹${totalReceived.toStringAsFixed(2)}",
-                                      amountColor: const Color(
-                                        0xFF86EFAC,
-                                      ), // green-300
+                                      amountColor: totalInColor,
+                                      titleColor: titleColor,
+                                      borderColor: borderColor,
                                       borderRight: true,
                                       borderBottom: true,
                                     ),
@@ -792,9 +814,9 @@ class _CashbookScreenState extends State<CashbookScreen> {
                                       title: "Total Out",
                                       amount:
                                           "₹${totalGiven.toStringAsFixed(2)}",
-                                      amountColor: const Color(
-                                        0xFFFCA5A5,
-                                      ), // red-300
+                                      amountColor: totalOutColor,
+                                      titleColor: titleColor,
+                                      borderColor: borderColor,
                                       alignRight: true,
                                       borderBottom: true,
                                     ),
@@ -809,9 +831,9 @@ class _CashbookScreenState extends State<CashbookScreen> {
                                     child: _buildOverviewTile(
                                       title: "Balance",
                                       amount: "₹${balance.toStringAsFixed(2)}",
-                                      amountColor: const Color(
-                                        0xFFBFDBFE,
-                                      ), // blue-200
+                                      amountColor: balanceColor,
+                                      titleColor: titleColor,
+                                      borderColor: borderColor,
                                       borderRight: true,
                                     ),
                                   ),
@@ -819,7 +841,9 @@ class _CashbookScreenState extends State<CashbookScreen> {
                                     child: _buildOverviewTile(
                                       title: "Total Entry",
                                       amount: cashbookRecords.length.toString(),
-                                      amountColor: Colors.white,
+                                      amountColor: totalEntryColor,
+                                      titleColor: titleColor,
+                                      borderColor: borderColor,
                                       alignRight: true,
                                     ),
                                   ),
@@ -1386,6 +1410,8 @@ class _CashbookScreenState extends State<CashbookScreen> {
     required String title,
     required String amount,
     required Color amountColor,
+    required Color titleColor,
+    required Color borderColor,
     bool alignRight = false,
     bool borderRight = false,
     bool borderBottom = false,
@@ -1394,11 +1420,9 @@ class _CashbookScreenState extends State<CashbookScreen> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         border: Border(
-          right: borderRight
-              ? BorderSide(color: Colors.white.withValues(alpha: 0.1))
-              : BorderSide.none,
+          right: borderRight ? BorderSide(color: borderColor) : BorderSide.none,
           bottom: borderBottom
-              ? BorderSide(color: Colors.white.withValues(alpha: 0.1))
+              ? BorderSide(color: borderColor)
               : BorderSide.none,
         ),
       ),
@@ -1410,7 +1434,7 @@ class _CashbookScreenState extends State<CashbookScreen> {
           Text(
             title.toUpperCase(),
             style: GoogleFonts.inter(
-              color: Colors.white.withValues(alpha: 0.8),
+              color: titleColor,
               fontSize: 12,
               fontWeight: FontWeight.bold,
               letterSpacing: 0.5,

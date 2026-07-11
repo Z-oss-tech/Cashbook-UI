@@ -4,6 +4,7 @@ import 'dart:ui';
 
 import '../../providers/record_provider.dart';
 import '../../providers/settings_provider.dart';
+import '../../core/widgets/glass_card.dart';
 import '../../core/theme/premium_themes.dart';
 import 'package:provider/provider.dart';
 
@@ -81,181 +82,184 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
               ),
               child: Container(
                 padding: const EdgeInsets.all(0),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).cardColor,
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // Header
-                    Padding(
-                      padding: const EdgeInsets.only(
-                        left: 20,
-                        right: 12,
-                        top: 12,
-                        bottom: 12,
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            "Create New Cashbook",
-                            style: GoogleFonts.inter(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: isDark
-                                  ? Colors.white
-                                  : const Color(0xFF191C1E),
-                            ),
-                          ),
-                          GestureDetector(
-                            onTap: () => Navigator.pop(dialogContext),
-                            child: Container(
-                              padding: const EdgeInsets.all(2),
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                border: Border.all(
-                                  color: isDark
-                                      ? Colors.white
-                                      : const Color(0xFF191C1E),
-                                  width: 2,
-                                ),
-                              ),
-                              child: Icon(
-                                Icons.close,
-                                size: 18,
+                child: GlassCard(
+                  padding: EdgeInsets.zero,
+                  borderRadius: 16,
+                  backgroundColor: Theme.of(context).cardColor,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // Header
+                      Padding(
+                        padding: const EdgeInsets.only(
+                          left: 20,
+                          right: 12,
+                          top: 12,
+                          bottom: 12,
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              "Create New Cashbook",
+                              style: GoogleFonts.inter(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
                                 color: isDark
                                     ? Colors.white
                                     : const Color(0xFF191C1E),
                               ),
                             ),
-                          ),
-                        ],
+                            GestureDetector(
+                              onTap: () => Navigator.pop(dialogContext),
+                              child: Container(
+                                padding: const EdgeInsets.all(2),
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  border: Border.all(
+                                    color: isDark
+                                        ? Colors.white
+                                        : const Color(0xFF191C1E),
+                                    width: 2,
+                                  ),
+                                ),
+                                child: Icon(
+                                  Icons.close,
+                                  size: 18,
+                                  color: isDark
+                                      ? Colors.white
+                                      : const Color(0xFF191C1E),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                    Divider(
-                      height: 1,
-                      thickness: 1,
-                      color: isDark ? Colors.white24 : const Color(0xFFE0E0E0),
-                    ),
-                    // Body
-                    Padding(
-                      padding: const EdgeInsets.all(24),
-                      child: Column(
-                        children: [
-                          TextField(
-                            controller: nameController,
-                            style: GoogleFonts.inter(
-                              color: Theme.of(
-                                context,
-                              ).textTheme.bodyLarge?.color,
-                            ),
-                            decoration: InputDecoration(
-                              labelText: 'Cashbook name',
-                              labelStyle: GoogleFonts.inter(
-                                color: isDark
-                                    ? Colors.grey.shade400
-                                    : Colors.grey.shade600,
+                      Divider(
+                        height: 1,
+                        thickness: 1,
+                        color: isDark
+                            ? Colors.white24
+                            : const Color(0xFFE0E0E0),
+                      ),
+                      // Body
+                      Padding(
+                        padding: const EdgeInsets.all(24),
+                        child: Column(
+                          children: [
+                            TextField(
+                              controller: nameController,
+                              style: GoogleFonts.inter(
+                                color: Theme.of(
+                                  context,
+                                ).textTheme.bodyLarge?.color,
                               ),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(8),
-                                borderSide: BorderSide(
+                              decoration: InputDecoration(
+                                labelText: 'Cashbook name',
+                                labelStyle: GoogleFonts.inter(
                                   color: isDark
-                                      ? Colors.grey.shade700
-                                      : Colors.grey.shade400,
+                                      ? Colors.grey.shade400
+                                      : Colors.grey.shade600,
                                 ),
-                              ),
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(8),
-                                borderSide: BorderSide(
-                                  color: isDark
-                                      ? Colors.grey.shade700
-                                      : Colors.grey.shade400,
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                  borderSide: BorderSide(
+                                    color: isDark
+                                        ? Colors.grey.shade700
+                                        : Colors.grey.shade400,
+                                  ),
                                 ),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(8),
-                                borderSide: const BorderSide(
-                                  color: Color(0xFF4143D5),
-                                  width: 2,
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                  borderSide: BorderSide(
+                                    color: isDark
+                                        ? Colors.grey.shade700
+                                        : Colors.grey.shade400,
+                                  ),
                                 ),
-                              ),
-                              contentPadding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 16,
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                  borderSide: const BorderSide(
+                                    color: Color(0xFF4143D5),
+                                    width: 2,
+                                  ),
+                                ),
+                                contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 16,
+                                ),
                               ),
                             ),
-                          ),
-                          const SizedBox(height: 24),
-                          Center(
-                            child: SizedBox(
-                              height: 48,
-                              child: ElevatedButton(
-                                onPressed: isCreating
-                                    ? null
-                                    : () async {
-                                        final cashbookName =
-                                            nameController.text.trim().isEmpty
-                                            ? "New Cashbook"
-                                            : nameController.text.trim();
+                            const SizedBox(height: 24),
+                            Center(
+                              child: SizedBox(
+                                height: 48,
+                                child: ElevatedButton(
+                                  onPressed: isCreating
+                                      ? null
+                                      : () async {
+                                          final cashbookName =
+                                              nameController.text.trim().isEmpty
+                                              ? "New Cashbook"
+                                              : nameController.text.trim();
 
-                                        setState(() => isCreating = true);
-                                        await Provider.of<RecordProvider>(
-                                          context,
-                                          listen: false,
-                                        ).addCashbook(cashbookName);
-                                        setState(() => isCreating = false);
-
-                                        if (context.mounted) {
-                                          Navigator.pop(
-                                            dialogContext,
-                                          ); // Close dialog
-                                          Navigator.push(
+                                          setState(() => isCreating = true);
+                                          await Provider.of<RecordProvider>(
                                             context,
-                                            MaterialPageRoute(
-                                              builder: (_) => CashbookScreen(
-                                                cashbookName: cashbookName,
+                                            listen: false,
+                                          ).addCashbook(cashbookName);
+                                          setState(() => isCreating = false);
+
+                                          if (context.mounted) {
+                                            Navigator.pop(
+                                              dialogContext,
+                                            ); // Close dialog
+                                            Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (_) => CashbookScreen(
+                                                  cashbookName: cashbookName,
+                                                ),
                                               ),
-                                            ),
-                                          );
-                                        }
-                                      },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color(0xFF4143D5),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(24),
+                                            );
+                                          }
+                                        },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: const Color(0xFF4143D5),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(24),
+                                    ),
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 40,
+                                    ),
+                                    elevation: 2,
                                   ),
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 40,
-                                  ),
-                                  elevation: 2,
+                                  child: isCreating
+                                      ? const SizedBox(
+                                          height: 24,
+                                          width: 24,
+                                          child: CircularProgressIndicator(
+                                            color: Colors.white,
+                                            strokeWidth: 2,
+                                          ),
+                                        )
+                                      : Text(
+                                          "CREATE",
+                                          style: GoogleFonts.inter(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 16,
+                                            letterSpacing: 0.5,
+                                          ),
+                                        ),
                                 ),
-                                child: isCreating
-                                    ? const SizedBox(
-                                        height: 24,
-                                        width: 24,
-                                        child: CircularProgressIndicator(
-                                          color: Colors.white,
-                                          strokeWidth: 2,
-                                        ),
-                                      )
-                                    : Text(
-                                        "CREATE",
-                                        style: GoogleFonts.inter(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 16,
-                                          letterSpacing: 0.5,
-                                        ),
-                                      ),
                               ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             );

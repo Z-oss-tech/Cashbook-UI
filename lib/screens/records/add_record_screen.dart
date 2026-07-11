@@ -435,374 +435,372 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
         (isDark ? Colors.white : const Color(0xFF0B1C30));
     final textMuted = isDark ? Colors.white60 : const Color(0xFF464555);
 
-    return Scaffold(
-      backgroundColor: bgColor,
-      extendBodyBehindAppBar: true,
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(64),
-        child: ClipRRect(
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 30, sigmaY: 30),
-            child: Container(
-              height: MediaQuery.of(context).padding.top + 64,
-              padding: EdgeInsets.only(
-                top: MediaQuery.of(context).padding.top,
-                left: 8,
-                right: 8,
-              ),
-              decoration: BoxDecoration(
-                color: surfaceColor.withValues(alpha: 0.7),
-                border: Border(bottom: BorderSide(color: glassBorder)),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  IconButton(
-                    icon: Icon(
-                      Icons.close_rounded,
-                      color: const Color(0xFF4143D5),
+    return ThemeBackgroundWrapper(
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        extendBodyBehindAppBar: true,
+        appBar: PreferredSize(
+          preferredSize: const Size.fromHeight(64),
+          child: ClipRRect(
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 30, sigmaY: 30),
+              child: Container(
+                height: MediaQuery.of(context).padding.top + 64,
+                padding: EdgeInsets.only(
+                  top: MediaQuery.of(context).padding.top,
+                  left: 8,
+                  right: 8,
+                ),
+                decoration: BoxDecoration(
+                  color: surfaceColor.withValues(alpha: 0.7),
+                  border: Border(bottom: BorderSide(color: glassBorder)),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    IconButton(
+                      icon: Icon(
+                        Icons.close_rounded,
+                        color: const Color(0xFF4143D5),
+                      ),
+                      onPressed: () => Navigator.pop(context),
                     ),
-                    onPressed: () => Navigator.pop(context),
-                  ),
-                  Text(
-                    AppLocalizations.of(context)!.addRecord,
-                    style: GoogleFonts.hankenGrotesk(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                      color: const Color(0xFF4143D5),
+                    Text(
+                      AppLocalizations.of(context)!.addRecord,
+                      style: GoogleFonts.hankenGrotesk(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                        color: const Color(0xFF4143D5),
+                      ),
                     ),
-                  ),
-                  IconButton(
-                    icon: Icon(
-                      Icons.calculate_outlined,
-                      color: const Color(0xFF4143D5),
+                    IconButton(
+                      icon: Icon(
+                        Icons.calculate_outlined,
+                        color: const Color(0xFF4143D5),
+                      ),
+                      onPressed: () {
+                        showDialog(
+                          context: context,
+                          builder: (context) => CalculatorDialog(
+                            onResult: (result) {
+                              if (result.isNotEmpty && result != '0') {
+                                setState(() {
+                                  amountController.text = result;
+                                });
+                              }
+                            },
+                          ),
+                        );
+                      },
                     ),
-                    onPressed: () {
-                      showDialog(
-                        context: context,
-                        builder: (context) => CalculatorDialog(
-                          onResult: (result) {
-                            if (result.isNotEmpty && result != '0') {
-                              setState(() {
-                                amountController.text = result;
-                              });
-                            }
-                          },
-                        ),
-                      );
-                    },
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
         ),
-      ),
-      body: ThemeBackgroundWrapper(
-        child: Stack(
-          children: [
-            SafeArea(
-              bottom: false,
-              child: ListView(
-                padding: const EdgeInsets.fromLTRB(24, 24, 24, 120),
-                children: [
-                  // Amount Hero Section
-                  GlassCard(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 24,
-                      vertical: 32,
-                    ),
-                    borderRadius: 32,
-                    backgroundColor:
-                        (isGiven
-                                ? const Color(0xFFFF6B6B)
-                                : const Color(0xFF34D399))
-                            .withValues(alpha: isDark ? 0.1 : 0.05),
-                    child: Column(
-                      children: [
-                        Text(
-                          "Total Amount",
-                          style: GoogleFonts.hankenGrotesk(
-                            color: textMuted,
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                            letterSpacing: 1.5,
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.baseline,
-                          textBaseline: TextBaseline.alphabetic,
-                          children: [
-                            Text(
-                              "₹",
-                              style: GoogleFonts.manrope(
-                                color: isGiven
-                                    ? const Color(0xFFE53935)
-                                    : const Color(0xFF008339),
-                                fontSize: 32,
-                                fontWeight: FontWeight.w800,
-                              ),
+        body: ThemeBackgroundWrapper(
+          child: Stack(
+            children: [
+              SafeArea(
+                bottom: false,
+                child: ListView(
+                  padding: const EdgeInsets.fromLTRB(24, 24, 24, 120),
+                  children: [
+                    // Amount Hero Section
+                    GlassCard(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 24,
+                        vertical: 32,
+                      ),
+                      borderRadius: 32,
+                      backgroundColor:
+                          (isGiven
+                                  ? const Color(0xFFFF6B6B)
+                                  : const Color(0xFF34D399))
+                              .withValues(alpha: isDark ? 0.1 : 0.05),
+                      child: Column(
+                        children: [
+                          Text(
+                            "Total Amount",
+                            style: GoogleFonts.hankenGrotesk(
+                              color: textMuted,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              letterSpacing: 1.5,
                             ),
-                            const SizedBox(width: 8),
-                            IntrinsicWidth(
-                              child: TextField(
-                                controller: amountController,
-                                focusNode: _amountFocusNode,
-                                keyboardType:
-                                    const TextInputType.numberWithOptions(
-                                      decimal: true,
-                                    ),
-                                inputFormatters: [
-                                  FilteringTextInputFormatter.allow(
-                                    RegExp(r'^\d*\.?\d*'),
-                                  ),
-                                ],
-                                textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: 16),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.baseline,
+                            textBaseline: TextBaseline.alphabetic,
+                            children: [
+                              Text(
+                                "₹",
                                 style: GoogleFonts.manrope(
-                                  color: textColor,
-                                  fontSize: 48,
+                                  color: isGiven
+                                      ? const Color(0xFFE53935)
+                                      : const Color(0xFF008339),
+                                  fontSize: 32,
                                   fontWeight: FontWeight.w800,
-                                  letterSpacing: -1,
                                 ),
-                                decoration: InputDecoration(
-                                  border: InputBorder.none,
-                                  isDense: true,
-                                  contentPadding: EdgeInsets.zero,
-                                  hintText: "0",
-                                  hintStyle: GoogleFonts.manrope(
-                                    color: textMuted.withValues(alpha: 0.3),
+                              ),
+                              const SizedBox(width: 8),
+                              IntrinsicWidth(
+                                child: TextField(
+                                  controller: amountController,
+                                  focusNode: _amountFocusNode,
+                                  keyboardType:
+                                      const TextInputType.numberWithOptions(
+                                        decimal: true,
+                                      ),
+                                  inputFormatters: [
+                                    FilteringTextInputFormatter.allow(
+                                      RegExp(r'^\d*\.?\d*'),
+                                    ),
+                                  ],
+                                  textAlign: TextAlign.center,
+                                  style: GoogleFonts.manrope(
+                                    color: textColor,
                                     fontSize: 48,
                                     fontWeight: FontWeight.w800,
+                                    letterSpacing: -1,
+                                  ),
+                                  decoration: InputDecoration(
+                                    border: InputBorder.none,
+                                    isDense: true,
+                                    contentPadding: EdgeInsets.zero,
+                                    hintText: "0",
+                                    hintStyle: GoogleFonts.manrope(
+                                      color: textMuted.withValues(alpha: 0.3),
+                                      fontSize: 48,
+                                      fontWeight: FontWeight.w800,
+                                    ),
                                   ),
                                 ),
                               ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 16),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 6,
+                            ],
                           ),
-                          decoration: BoxDecoration(
-                            color:
-                                (isGiven
-                                        ? const Color(0xFFFF6B6B)
-                                        : const Color(0xFF34D399))
-                                    .withValues(alpha: 0.15),
-                            borderRadius: BorderRadius.circular(20),
-                            border: Border.all(
+                          const SizedBox(height: 16),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 6,
+                            ),
+                            decoration: BoxDecoration(
                               color:
                                   (isGiven
                                           ? const Color(0xFFFF6B6B)
                                           : const Color(0xFF34D399))
-                                      .withValues(alpha: 0.3),
-                            ),
-                          ),
-                          child: Text(
-                            isGiven ? "Expense Mode" : "Income Mode",
-                            style: GoogleFonts.hankenGrotesk(
-                              color: isGiven
-                                  ? const Color(0xFFE53935)
-                                  : const Color(0xFF008339),
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  const SizedBox(height: 24),
-
-                  // Segmented Control (Neumorphic)
-                  Container(
-                    height: 52,
-                    padding: const EdgeInsets.all(6),
-                    decoration: BoxDecoration(
-                      color: isDark
-                          ? const Color(0xFF1E1E26)
-                          : const Color(0xFFE9E6F3),
-                      borderRadius: BorderRadius.circular(26),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(
-                            alpha: isDark ? 0.3 : 0.05,
-                          ),
-                          blurRadius: 5,
-                          offset: const Offset(2, 2),
-                        ),
-                        BoxShadow(
-                          color: isDark
-                              ? Colors.white.withValues(alpha: 0.02)
-                              : Colors.white.withValues(alpha: 0.8),
-                          blurRadius: 5,
-                          offset: const Offset(-2, -2),
-                        ),
-                      ],
-                    ),
-                    child: Stack(
-                      children: [
-                        AnimatedPositioned(
-                          duration: const Duration(milliseconds: 300),
-                          curve: Curves.easeOutCubic,
-                          left: isGiven
-                              ? 0
-                              : (MediaQuery.of(context).size.width - 48 - 12) /
-                                    2,
-                          width:
-                              (MediaQuery.of(context).size.width - 48 - 12) / 2,
-                          top: 0,
-                          bottom: 0,
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: isDark
-                                  ? const Color(0xFF2D2D3A)
-                                  : Colors.white,
+                                      .withValues(alpha: 0.15),
                               borderRadius: BorderRadius.circular(20),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withValues(alpha: 0.08),
-                                  blurRadius: 4,
-                                  offset: const Offset(0, 2),
-                                ),
-                              ],
+                              border: Border.all(
+                                color:
+                                    (isGiven
+                                            ? const Color(0xFFFF6B6B)
+                                            : const Color(0xFF34D399))
+                                        .withValues(alpha: 0.3),
+                              ),
+                            ),
+                            child: Text(
+                              isGiven ? "Expense Mode" : "Income Mode",
+                              style: GoogleFonts.hankenGrotesk(
+                                color: isGiven
+                                    ? const Color(0xFFE53935)
+                                    : const Color(0xFF008339),
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                              ),
                             ),
                           ),
-                        ),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: GestureDetector(
-                                behavior: HitTestBehavior.opaque,
-                                onTap: () {
-                                  HapticFeedback.selectionClick();
-                                  if (!isGiven) {
-                                    setState(() {
-                                      isGiven = true;
-                                      selectedReason = null;
-                                    });
-                                  }
-                                },
-                                child: Center(
-                                  child: AnimatedOpacity(
-                                    duration: const Duration(milliseconds: 200),
-                                    opacity: isGiven ? 1.0 : 0.6,
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        const Text("💸"),
-                                        const SizedBox(width: 8),
-                                        Text(
-                                          "You Gave",
-                                          style: GoogleFonts.hankenGrotesk(
-                                            fontWeight: FontWeight.w600,
-                                            fontSize: 14,
-                                            color: textColor,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            Expanded(
-                              child: GestureDetector(
-                                behavior: HitTestBehavior.opaque,
-                                onTap: () {
-                                  HapticFeedback.selectionClick();
-                                  if (isGiven) {
-                                    setState(() {
-                                      isGiven = false;
-                                      selectedReason = null;
-                                    });
-                                  }
-                                },
-                                child: Center(
-                                  child: AnimatedOpacity(
-                                    duration: const Duration(milliseconds: 200),
-                                    opacity: !isGiven ? 1.0 : 0.6,
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        const Text("💰"),
-                                        const SizedBox(width: 8),
-                                        Text(
-                                          "You Received",
-                                          style: GoogleFonts.hankenGrotesk(
-                                            fontWeight: FontWeight.w600,
-                                            fontSize: 14,
-                                            color: textColor,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
 
-                  const SizedBox(height: 24),
+                    const SizedBox(height: 24),
 
-                  // Form Fields
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Quick Categories
-                      SizedBox(
-                        height: 40,
-                        child: ListView(
-                          scrollDirection: Axis.horizontal,
-                          children: (isGiven ? givenReasons : receivedReasons)
-                              .take(5)
-                              .map((category) {
-                                final isSelected = selectedReason == category;
-                                return GestureDetector(
+                    // Segmented Control (Neumorphic)
+                    Container(
+                      height: 52,
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        color: isDark
+                            ? const Color(0xFF1E1E26)
+                            : const Color(0xFFE9E6F3),
+                        borderRadius: BorderRadius.circular(26),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(
+                              alpha: isDark ? 0.3 : 0.05,
+                            ),
+                            blurRadius: 5,
+                            offset: const Offset(2, 2),
+                          ),
+                          BoxShadow(
+                            color: isDark
+                                ? Colors.white.withValues(alpha: 0.02)
+                                : Colors.white.withValues(alpha: 0.8),
+                            blurRadius: 5,
+                            offset: const Offset(-2, -2),
+                          ),
+                        ],
+                      ),
+                      child: Stack(
+                        children: [
+                          AnimatedPositioned(
+                            duration: const Duration(milliseconds: 300),
+                            curve: Curves.easeOutCubic,
+                            left: isGiven
+                                ? 0
+                                : (MediaQuery.of(context).size.width -
+                                          48 -
+                                          12) /
+                                      2,
+                            width:
+                                (MediaQuery.of(context).size.width - 48 - 12) /
+                                2,
+                            top: 0,
+                            bottom: 0,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: isDark
+                                    ? const Color(0xFF2D2D3A)
+                                    : Colors.white,
+                                borderRadius: BorderRadius.circular(20),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withValues(alpha: 0.08),
+                                    blurRadius: 4,
+                                    offset: const Offset(0, 2),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: GestureDetector(
+                                  behavior: HitTestBehavior.opaque,
                                   onTap: () {
                                     HapticFeedback.selectionClick();
-                                    setState(() {
-                                      selectedReason = category;
-                                    });
+                                    if (!isGiven) {
+                                      setState(() {
+                                        isGiven = true;
+                                        selectedReason = null;
+                                      });
+                                    }
                                   },
-                                  child: Container(
-                                    margin: const EdgeInsets.only(right: 8),
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 16,
-                                      vertical: 8,
+                                  child: Center(
+                                    child: AnimatedOpacity(
+                                      duration: const Duration(
+                                        milliseconds: 200,
+                                      ),
+                                      opacity: isGiven ? 1.0 : 0.6,
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          const Text("💸"),
+                                          const SizedBox(width: 8),
+                                          Text(
+                                            "You Gave",
+                                            style: GoogleFonts.hankenGrotesk(
+                                              fontWeight: FontWeight.w600,
+                                              fontSize: 14,
+                                              color: textColor,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
                                     ),
-                                    decoration: BoxDecoration(
-                                      color: isSelected
-                                          ? const Color(0xFF4143D5)
-                                          : (isDark
-                                                ? Colors.white10
-                                                : const Color(0xFFE4E1ED)),
-                                      borderRadius: BorderRadius.circular(20),
+                                  ),
+                                ),
+                              ),
+                              Expanded(
+                                child: GestureDetector(
+                                  behavior: HitTestBehavior.opaque,
+                                  onTap: () {
+                                    HapticFeedback.selectionClick();
+                                    if (isGiven) {
+                                      setState(() {
+                                        isGiven = false;
+                                        selectedReason = null;
+                                      });
+                                    }
+                                  },
+                                  child: Center(
+                                    child: AnimatedOpacity(
+                                      duration: const Duration(
+                                        milliseconds: 200,
+                                      ),
+                                      opacity: !isGiven ? 1.0 : 0.6,
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          const Text("💰"),
+                                          const SizedBox(width: 8),
+                                          Text(
+                                            "You Received",
+                                            style: GoogleFonts.hankenGrotesk(
+                                              fontWeight: FontWeight.w600,
+                                              fontSize: 14,
+                                              color: textColor,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
                                     ),
-                                    child: Row(
-                                      children: [
-                                        Icon(
-                                          _getCategoryIcon(category),
-                                          size: 16,
-                                          color: isSelected
-                                              ? Colors.white
-                                              : (isDark
-                                                    ? Colors.white70
-                                                    : const Color(0xFF464555)),
-                                        ),
-                                        const SizedBox(width: 6),
-                                        Text(
-                                          category.split(' ')[0], // Short name
-                                          style: GoogleFonts.hankenGrotesk(
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    const SizedBox(height: 24),
+
+                    // Form Fields
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Quick Categories
+                        SizedBox(
+                          height: 40,
+                          child: ListView(
+                            scrollDirection: Axis.horizontal,
+                            children: (isGiven ? givenReasons : receivedReasons)
+                                .take(5)
+                                .map((category) {
+                                  final isSelected = selectedReason == category;
+                                  return GestureDetector(
+                                    onTap: () {
+                                      HapticFeedback.selectionClick();
+                                      setState(() {
+                                        selectedReason = category;
+                                      });
+                                    },
+                                    child: Container(
+                                      margin: const EdgeInsets.only(right: 8),
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 16,
+                                        vertical: 8,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: isSelected
+                                            ? const Color(0xFF4143D5)
+                                            : (isDark
+                                                  ? Colors.white10
+                                                  : const Color(0xFFE4E1ED)),
+                                        borderRadius: BorderRadius.circular(20),
+                                      ),
+                                      child: Row(
+                                        children: [
+                                          Icon(
+                                            _getCategoryIcon(category),
+                                            size: 16,
                                             color: isSelected
                                                 ? Colors.white
                                                 : (isDark
@@ -810,435 +808,461 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
                                                       : const Color(
                                                           0xFF464555,
                                                         )),
-                                            fontWeight: isSelected
-                                                ? FontWeight.w600
-                                                : FontWeight.w500,
-                                            fontSize: 14,
                                           ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                );
-                              })
-                              .toList(),
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      // Category Picker
-                      GestureDetector(
-                        onTap: _showCategoryPicker,
-                        child: Container(
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: glassColor,
-                            borderRadius: BorderRadius.circular(16),
-                            border: Border.all(color: glassBorder),
-                          ),
-                          child: Row(
-                            children: [
-                              Container(
-                                width: 48,
-                                height: 48,
-                                decoration: BoxDecoration(
-                                  color: isDark
-                                      ? const Color(0xFF2D2D3A)
-                                      : const Color(0xFFE4E1ED),
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: Icon(
-                                  selectedReason != null
-                                      ? _getCategoryIcon(selectedReason!)
-                                      : Icons.category_rounded,
-                                  color: const Color(0xFF5B5FEF),
-                                ),
-                              ),
-                              const SizedBox(width: 16),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      "Category",
-                                      style: GoogleFonts.hankenGrotesk(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w500,
-                                        color: textMuted,
+                                          const SizedBox(width: 6),
+                                          Text(
+                                            category.split(
+                                              ' ',
+                                            )[0], // Short name
+                                            style: GoogleFonts.hankenGrotesk(
+                                              color: isSelected
+                                                  ? Colors.white
+                                                  : (isDark
+                                                        ? Colors.white70
+                                                        : const Color(
+                                                            0xFF464555,
+                                                          )),
+                                              fontWeight: isSelected
+                                                  ? FontWeight.w600
+                                                  : FontWeight.w500,
+                                              fontSize: 14,
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                     ),
-                                    Text(
-                                      selectedReason ?? "Select Category",
-                                      style: GoogleFonts.manrope(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w600,
-                                        color: textColor,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              Icon(
-                                Icons.expand_more_rounded,
-                                color: const Color(0xFF767586),
-                              ),
-                            ],
+                                  );
+                                })
+                                .toList(),
                           ),
                         ),
-                      ),
-                      const SizedBox(height: 16),
-
-                      // Payment Mode Picker
-                      GestureDetector(
-                        onTap: _showPaymentModePicker,
-                        child: Container(
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: glassColor,
-                            borderRadius: BorderRadius.circular(16),
-                            border: Border.all(color: glassBorder),
-                          ),
-                          child: Row(
-                            children: [
-                              Container(
-                                width: 48,
-                                height: 48,
-                                decoration: BoxDecoration(
-                                  color: isDark
-                                      ? const Color(0xFF2D2D3A)
-                                      : const Color(0xFFE4E1ED),
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: const Icon(
-                                  Icons.account_balance_wallet_rounded,
-                                  color: Color(0xFF008339),
-                                ),
-                              ),
-                              const SizedBox(width: 16),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      "Payment Method",
-                                      style: GoogleFonts.hankenGrotesk(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w500,
-                                        color: textMuted,
-                                      ),
-                                    ),
-                                    Text(
-                                      selectedPaymentMode,
-                                      style: GoogleFonts.manrope(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w600,
-                                        color: textColor,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              Icon(
-                                Icons.expand_more_rounded,
-                                color: const Color(0xFF767586),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-
-                      // Notes Input
-                      Container(
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: glassColor,
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: glassBorder),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        const SizedBox(height: 16),
+                        // Category Picker
+                        GestureDetector(
+                          onTap: _showCategoryPicker,
+                          child: Container(
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: glassColor,
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(color: glassBorder),
+                            ),
+                            child: Row(
                               children: [
-                                Text(
-                                  "Notes",
-                                  style: GoogleFonts.hankenGrotesk(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w500,
-                                    color: textMuted,
+                                Container(
+                                  width: 48,
+                                  height: 48,
+                                  decoration: BoxDecoration(
+                                    color: isDark
+                                        ? const Color(0xFF2D2D3A)
+                                        : const Color(0xFFE4E1ED),
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Icon(
+                                    selectedReason != null
+                                        ? _getCategoryIcon(selectedReason!)
+                                        : Icons.category_rounded,
+                                    color: const Color(0xFF5B5FEF),
                                   ),
                                 ),
-                                GestureDetector(
-                                  onTap: _listen,
-                                  child: Container(
-                                    width: 32,
-                                    height: 32,
-                                    decoration: BoxDecoration(
-                                      color: isDark
-                                          ? const Color(0xFF2D2D3A)
-                                          : const Color(0xFFF5F2FE),
-                                      shape: BoxShape.circle,
-                                    ),
-                                    child: Icon(
-                                      _isListening
-                                          ? Icons.mic_off_rounded
-                                          : Icons.mic_rounded,
-                                      color: _isListening
-                                          ? Colors.red
-                                          : const Color(0xFF4143D5),
-                                      size: 18,
-                                    ),
+                                const SizedBox(width: 16),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        "Category",
+                                        style: GoogleFonts.hankenGrotesk(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w500,
+                                          color: textMuted,
+                                        ),
+                                      ),
+                                      Text(
+                                        selectedReason ?? "Select Category",
+                                        style: GoogleFonts.manrope(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w600,
+                                          color: textColor,
+                                        ),
+                                      ),
+                                    ],
                                   ),
+                                ),
+                                Icon(
+                                  Icons.expand_more_rounded,
+                                  color: const Color(0xFF767586),
                                 ),
                               ],
                             ),
-                            const SizedBox(height: 8),
-                            TextField(
-                              controller: noteController,
-                              style: GoogleFonts.manrope(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                                color: textColor,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+
+                        // Payment Mode Picker
+                        GestureDetector(
+                          onTap: _showPaymentModePicker,
+                          child: Container(
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: glassColor,
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(color: glassBorder),
+                            ),
+                            child: Row(
+                              children: [
+                                Container(
+                                  width: 48,
+                                  height: 48,
+                                  decoration: BoxDecoration(
+                                    color: isDark
+                                        ? const Color(0xFF2D2D3A)
+                                        : const Color(0xFFE4E1ED),
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: const Icon(
+                                    Icons.account_balance_wallet_rounded,
+                                    color: Color(0xFF008339),
+                                  ),
+                                ),
+                                const SizedBox(width: 16),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        "Payment Method",
+                                        style: GoogleFonts.hankenGrotesk(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w500,
+                                          color: textMuted,
+                                        ),
+                                      ),
+                                      Text(
+                                        selectedPaymentMode,
+                                        style: GoogleFonts.manrope(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w600,
+                                          color: textColor,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Icon(
+                                  Icons.expand_more_rounded,
+                                  color: const Color(0xFF767586),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+
+                        // Notes Input
+                        Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: glassColor,
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(color: glassBorder),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    "Notes",
+                                    style: GoogleFonts.hankenGrotesk(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w500,
+                                      color: textMuted,
+                                    ),
+                                  ),
+                                  GestureDetector(
+                                    onTap: _listen,
+                                    child: Container(
+                                      width: 32,
+                                      height: 32,
+                                      decoration: BoxDecoration(
+                                        color: isDark
+                                            ? const Color(0xFF2D2D3A)
+                                            : const Color(0xFFF5F2FE),
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: Icon(
+                                        _isListening
+                                            ? Icons.mic_off_rounded
+                                            : Icons.mic_rounded,
+                                        color: _isListening
+                                            ? Colors.red
+                                            : const Color(0xFF4143D5),
+                                        size: 18,
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
-                              maxLines: 2,
-                              minLines: 1,
-                              decoration: InputDecoration(
-                                border: InputBorder.none,
-                                isDense: true,
-                                contentPadding: EdgeInsets.zero,
-                                hintText: "Add a note...",
-                                hintStyle: GoogleFonts.manrope(
+                              const SizedBox(height: 8),
+                              TextField(
+                                controller: noteController,
+                                style: GoogleFonts.manrope(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w600,
-                                  color: const Color(
-                                    0xFF767586,
-                                  ).withValues(alpha: 0.6),
+                                  color: textColor,
+                                ),
+                                maxLines: 2,
+                                minLines: 1,
+                                decoration: InputDecoration(
+                                  border: InputBorder.none,
+                                  isDense: true,
+                                  contentPadding: EdgeInsets.zero,
+                                  hintText: "Add a note...",
+                                  hintStyle: GoogleFonts.manrope(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                    color: const Color(
+                                      0xFF767586,
+                                    ).withValues(alpha: 0.6),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+
+                        // Date & Time Picker
+                        Row(
+                          children: [
+                            Expanded(
+                              child: GestureDetector(
+                                onTap: () async {
+                                  DateTime? pickedDate = await showDatePicker(
+                                    context: context,
+                                    initialDate: selectedDate,
+                                    firstDate: DateTime(2023),
+                                    lastDate: DateTime(2030),
+                                  );
+                                  if (pickedDate != null) {
+                                    setState(() => selectedDate = pickedDate);
+                                  }
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.all(16),
+                                  decoration: BoxDecoration(
+                                    color: glassColor,
+                                    borderRadius: BorderRadius.circular(16),
+                                    border: Border.all(color: glassBorder),
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      Container(
+                                        width: 40,
+                                        height: 40,
+                                        decoration: BoxDecoration(
+                                          color: isDark
+                                              ? const Color(0xFF2D2D3A)
+                                              : const Color(0xFFE4E1ED),
+                                          borderRadius: BorderRadius.circular(
+                                            10,
+                                          ),
+                                        ),
+                                        child: const Icon(
+                                          Icons.calendar_today_rounded,
+                                          color: Color(0xFFB55700),
+                                          size: 20,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 12),
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              "Date",
+                                              style: GoogleFonts.hankenGrotesk(
+                                                fontSize: 12,
+                                                fontWeight: FontWeight.w500,
+                                                color: textMuted,
+                                              ),
+                                            ),
+                                            Text(
+                                              DateHelper.formatDate(
+                                                selectedDate,
+                                              ),
+                                              style: GoogleFonts.manrope(
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.w600,
+                                                color: textColor,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: GestureDetector(
+                                onTap: () async {
+                                  TimeOfDay? pickedTime = await showTimePicker(
+                                    context: context,
+                                    initialTime: selectedTime,
+                                  );
+                                  if (pickedTime != null) {
+                                    setState(() => selectedTime = pickedTime);
+                                  }
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.all(16),
+                                  decoration: BoxDecoration(
+                                    color: glassColor,
+                                    borderRadius: BorderRadius.circular(16),
+                                    border: Border.all(color: glassBorder),
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      Container(
+                                        width: 40,
+                                        height: 40,
+                                        decoration: BoxDecoration(
+                                          color: isDark
+                                              ? const Color(0xFF2D2D3A)
+                                              : const Color(0xFFE4E1ED),
+                                          borderRadius: BorderRadius.circular(
+                                            10,
+                                          ),
+                                        ),
+                                        child: const Icon(
+                                          Icons.access_time_rounded,
+                                          color: Color(0xFFB55700),
+                                          size: 20,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 12),
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              "Time",
+                                              style: GoogleFonts.hankenGrotesk(
+                                                fontSize: 12,
+                                                fontWeight: FontWeight.w500,
+                                                color: textMuted,
+                                              ),
+                                            ),
+                                            Text(
+                                              selectedTime.format(context),
+                                              style: GoogleFonts.manrope(
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.w600,
+                                                color: textColor,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
                             ),
                           ],
                         ),
-                      ),
-                      const SizedBox(height: 16),
+                      ],
+                    ),
 
-                      // Date & Time Picker
-                      Row(
-                        children: [
-                          Expanded(
-                            child: GestureDetector(
-                              onTap: () async {
-                                DateTime? pickedDate = await showDatePicker(
-                                  context: context,
-                                  initialDate: selectedDate,
-                                  firstDate: DateTime(2023),
-                                  lastDate: DateTime(2030),
-                                );
-                                if (pickedDate != null) {
-                                  setState(() => selectedDate = pickedDate);
-                                }
-                              },
-                              child: Container(
-                                padding: const EdgeInsets.all(16),
-                                decoration: BoxDecoration(
-                                  color: glassColor,
-                                  borderRadius: BorderRadius.circular(16),
-                                  border: Border.all(color: glassBorder),
-                                ),
-                                child: Row(
-                                  children: [
-                                    Container(
-                                      width: 40,
-                                      height: 40,
-                                      decoration: BoxDecoration(
-                                        color: isDark
-                                            ? const Color(0xFF2D2D3A)
-                                            : const Color(0xFFE4E1ED),
-                                        borderRadius: BorderRadius.circular(10),
-                                      ),
-                                      child: const Icon(
-                                        Icons.calendar_today_rounded,
-                                        color: Color(0xFFB55700),
-                                        size: 20,
-                                      ),
-                                    ),
-                                    const SizedBox(width: 12),
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            "Date",
-                                            style: GoogleFonts.hankenGrotesk(
-                                              fontSize: 12,
-                                              fontWeight: FontWeight.w500,
-                                              color: textMuted,
-                                            ),
-                                          ),
-                                          Text(
-                                            DateHelper.formatDate(selectedDate),
-                                            style: GoogleFonts.manrope(
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.w600,
-                                              color: textColor,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: GestureDetector(
-                              onTap: () async {
-                                TimeOfDay? pickedTime = await showTimePicker(
-                                  context: context,
-                                  initialTime: selectedTime,
-                                );
-                                if (pickedTime != null) {
-                                  setState(() => selectedTime = pickedTime);
-                                }
-                              },
-                              child: Container(
-                                padding: const EdgeInsets.all(16),
-                                decoration: BoxDecoration(
-                                  color: glassColor,
-                                  borderRadius: BorderRadius.circular(16),
-                                  border: Border.all(color: glassBorder),
-                                ),
-                                child: Row(
-                                  children: [
-                                    Container(
-                                      width: 40,
-                                      height: 40,
-                                      decoration: BoxDecoration(
-                                        color: isDark
-                                            ? const Color(0xFF2D2D3A)
-                                            : const Color(0xFFE4E1ED),
-                                        borderRadius: BorderRadius.circular(10),
-                                      ),
-                                      child: const Icon(
-                                        Icons.access_time_rounded,
-                                        color: Color(0xFFB55700),
-                                        size: 20,
-                                      ),
-                                    ),
-                                    const SizedBox(width: 12),
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            "Time",
-                                            style: GoogleFonts.hankenGrotesk(
-                                              fontSize: 12,
-                                              fontWeight: FontWeight.w500,
-                                              color: textMuted,
-                                            ),
-                                          ),
-                                          Text(
-                                            selectedTime.format(context),
-                                            style: GoogleFonts.manrope(
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.w600,
-                                              color: textColor,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
+                    const SizedBox(height: 40),
+                  ],
+                ),
+              ),
+
+              // Bottom Fixed Action Button
+              Positioned(
+                bottom: 0,
+                left: 0,
+                right: 0,
+                child: Container(
+                  padding: const EdgeInsets.all(24),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        bgColor.withValues(alpha: 0),
+                        bgColor.withValues(alpha: 0.8),
+                        bgColor,
+                      ],
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                    ),
+                  ),
+                  child: GestureDetector(
+                    onTap: _isLoading ? null : _saveRecord,
+                    child: Container(
+                      height: 64,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(24),
+                        gradient: const LinearGradient(
+                          colors: [Color(0xFF4143D5), Color(0xFF5B3CDD)],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: const Color(
+                              0xFF4143D5,
+                            ).withValues(alpha: 0.4),
+                            blurRadius: 24,
+                            offset: const Offset(0, 8),
                           ),
                         ],
                       ),
-                    ],
-                  ),
-
-                  const SizedBox(height: 40),
-                ],
-              ),
-            ),
-
-            // Bottom Fixed Action Button
-            Positioned(
-              bottom: 0,
-              left: 0,
-              right: 0,
-              child: Container(
-                padding: const EdgeInsets.all(24),
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      bgColor.withValues(alpha: 0),
-                      bgColor.withValues(alpha: 0.8),
-                      bgColor,
-                    ],
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                  ),
-                ),
-                child: GestureDetector(
-                  onTap: _isLoading ? null : _saveRecord,
-                  child: Container(
-                    height: 64,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(24),
-                      gradient: const LinearGradient(
-                        colors: [Color(0xFF4143D5), Color(0xFF5B3CDD)],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: const Color(0xFF4143D5).withValues(alpha: 0.4),
-                          blurRadius: 24,
-                          offset: const Offset(0, 8),
-                        ),
-                      ],
-                    ),
-                    child: Center(
-                      child: _isLoading
-                          ? const SizedBox(
-                              width: 28,
-                              height: 28,
-                              child: CircularProgressIndicator(
-                                color: Colors.white,
-                                strokeWidth: 3,
-                              ),
-                            )
-                          : Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                const Icon(
-                                  Icons.check_circle_outline_rounded,
+                      child: Center(
+                        child: _isLoading
+                            ? const SizedBox(
+                                width: 28,
+                                height: 28,
+                                child: CircularProgressIndicator(
                                   color: Colors.white,
+                                  strokeWidth: 3,
                                 ),
-                                const SizedBox(width: 12),
-                                Text(
-                                  "Save Transaction",
-                                  style: GoogleFonts.manrope(
+                              )
+                            : Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const Icon(
+                                    Icons.check_circle_outline_rounded,
                                     color: Colors.white,
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.w700,
                                   ),
-                                ),
-                              ],
-                            ),
+                                  const SizedBox(width: 12),
+                                  Text(
+                                    "Save Transaction",
+                                    style: GoogleFonts.manrope(
+                                      color: Colors.white,
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
