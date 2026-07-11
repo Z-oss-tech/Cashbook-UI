@@ -12,83 +12,31 @@ import '../settings/settings_screen.dart';
 import '../settings/help_support_screen.dart';
 import '../settings/backup_restore_screen.dart';
 import '../auth/login_screen.dart';
+import '../../core/widgets/theme_background_wrapper.dart';
+import '../../core/theme/premium_themes.dart';
 
 class AppDrawer extends StatelessWidget {
   const AppDrawer({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final settings = Provider.of<SettingsProvider>(context);
+    final premiumTheme = PremiumThemes.getTheme(settings.appTheme);
+    final isDefault = settings.appTheme == 'Default';
+    final isDark = isDefault
+        ? Theme.of(context).brightness == Brightness.dark
+        : premiumTheme.themeData.brightness == Brightness.dark;
 
     return Drawer(
-      backgroundColor: Colors.transparent, // To show backdrop filter
+      backgroundColor: Colors.transparent,
       elevation: 0,
-      child: Stack(
-        children: [
-          // Drawer Background
-          Positioned.fill(
-            child: Container(
-              decoration: BoxDecoration(
-                color: isDark
-                    ? AppColors.black.withValues(alpha: 0.98)
-                    : Colors.white.withValues(alpha: 0.98),
-                borderRadius: const BorderRadius.only(
-                  topRight: Radius.circular(24),
-                  bottomRight: Radius.circular(24),
-                ),
-              ),
-            ),
-          ),
-
-          // Theme gradient glow
-          Positioned(
-            bottom: 0,
-            right: 0,
-            left: 0,
-            height: MediaQuery.of(context).size.height * 0.5,
-            child: Container(
-              decoration: BoxDecoration(
-                gradient: RadialGradient(
-                  center: Alignment.bottomRight,
-                  radius: 1.5,
-                  colors: [
-                    AppColors.primary.withValues(alpha: isDark ? 0.15 : 0.05),
-                    Colors.transparent,
-                  ],
-                  stops: const [0.0, 0.7],
-                ),
-              ),
-            ),
-          ),
-
-          // Watermark background illustration
-          Positioned(
-            bottom: MediaQuery.of(context).size.height * 0.1,
-            right: -20,
-            width: MediaQuery.of(context).size.width * 0.6,
-            height: MediaQuery.of(context).size.height * 0.6,
-            child: Opacity(
-              opacity: isDark ? 0.1 : 0.15,
-              child: ShaderMask(
-                shaderCallback: (rect) {
-                  return const LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [Colors.transparent, Colors.black],
-                    stops: [0.0, 0.5],
-                  ).createShader(rect);
-                },
-                blendMode: BlendMode.dstIn,
-                child: Image.network(
-                  'https://lh3.googleusercontent.com/aida-public/AB6AXuCvPkNvoPKKWqX9DSQ428WeUX6ccQsgQFec3XjfbB0ChmQOvzYrPSv-1f4SYkxNH1jghXV8jv6o59zh9-q5pefn556N3pBk_IZosbFEhFsiiTtZVYOsJiXgZ6NgSRS959l1k-MoaCrn_R7Vx6ydTNEdvYfv8LNkveGYeSr_WLSFbSTTewwG15s3PexmThf5hoHTXwBYteROsm0I4wTziXD1aN1qlUmmYLZ2tXyyA5sxztKnBrxruISIabn9on8DUAFCifm4NvfVZT5f',
-                  fit: BoxFit.contain,
-                  alignment: Alignment.bottomRight,
-                ),
-              ),
-            ),
-          ),
-
-          SafeArea(
+      child: ClipRRect(
+        borderRadius: const BorderRadius.only(
+          topRight: Radius.circular(24),
+          bottomRight: Radius.circular(24),
+        ),
+        child: ThemeBackgroundWrapper(
+          child: SafeArea(
             child: Column(
               children: [
                 // Top Section: Profile Card
@@ -375,7 +323,7 @@ class AppDrawer extends StatelessWidget {
                                     fontWeight: FontWeight.w500,
                                     color: isDark
                                         ? Colors.white70
-                                        : Colors.grey.shade700,
+                                        : Colors.grey.shade800,
                                   ),
                                 ),
                                 const Spacer(),
@@ -449,7 +397,7 @@ class AppDrawer extends StatelessWidget {
               ],
             ),
           ),
-        ],
+        ),
       ),
     );
   }
@@ -511,8 +459,14 @@ class AppDrawer extends StatelessWidget {
     required String title,
     required VoidCallback onTap,
   }) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final textColor = isDark ? Colors.white70 : Colors.grey.shade700;
+    final settings = Provider.of<SettingsProvider>(context);
+    final premiumTheme = PremiumThemes.getTheme(settings.appTheme);
+    final isDefault = settings.appTheme == 'Default';
+    final isDark = isDefault
+        ? Theme.of(context).brightness == Brightness.dark
+        : premiumTheme.themeData.brightness == Brightness.dark;
+
+    final textColor = isDark ? Colors.white70 : Colors.grey.shade800;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
