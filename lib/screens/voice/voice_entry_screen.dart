@@ -86,98 +86,191 @@ class _VoiceEntryScreenState extends State<VoiceEntryScreen>
       });
       _speechToText.listen(
         onResult: (result) {
-          setState(() {
-            recognizedText = result.recognizedWords;
-            _parseSpeechText(recognizedText);
-          });
+          if (mounted) {
+            final cashbooks = Provider.of<RecordProvider>(
+              context,
+              listen: false,
+            ).cashbooks;
+            setState(() {
+              recognizedText = result.recognizedWords;
+              _parseSpeechText(recognizedText, cashbooks);
+            });
+          }
         },
       );
     }
   }
 
-  void _parseSpeechText(String text) {
+  void _parseSpeechText(String text, List<CashbookModel> existingCashbooks) {
     text = text.toLowerCase();
 
-    // Find numbers for amount
+    // 1. Find numbers for amount
     final amountMatch = RegExp(r'\d+').firstMatch(text);
     if (amountMatch != null) {
       parsedAmount = double.tryParse(amountMatch.group(0)!);
     }
 
-    // Find transaction type
-    if (text.contains('receive') ||
-        text.contains('got') ||
-        text.contains('liye') ||
-        text.contains('salary')) {
+    // 2. Find transaction type (Income vs Expense)
+    final incomeWords = [
+      'receive',
+      'received',
+      'got',
+      'liye',
+      'mila',
+      'aaye',
+      'income',
+      'credit',
+      'deposit',
+      'earn',
+      'earned',
+    ];
+    final expenseWords = [
+      'give',
+      'gave',
+      'paid',
+      'diye',
+      'diya',
+      'gaye',
+      'kharch',
+      'expense',
+      'debit',
+      'spend',
+      'spent',
+      'sent',
+    ];
+
+    bool foundIncome = incomeWords.any((w) => text.contains(w));
+    bool foundExpense = expenseWords.any((w) => text.contains(w));
+
+    if (foundIncome && !foundExpense) {
       parsedIsGiven = false;
-    } else if (text.contains('give') ||
-        text.contains('gave') ||
-        text.contains('diye') ||
-        text.contains('paid')) {
+    } else if (foundExpense && !foundIncome) {
       parsedIsGiven = true;
+    } else {
+      // If both or neither, stick to default (Expense/Given)
+      // or prioritize the one that appears first
+      int incomeIdx = incomeWords
+          .map((w) => text.indexOf(w))
+          .where((i) => i >= 0)
+          .fold(9999, (a, b) => a < b ? a : b);
+      int expenseIdx = expenseWords
+          .map((w) => text.indexOf(w))
+          .where((i) => i >= 0)
+          .fold(9999, (a, b) => a < b ? a : b);
+      if (incomeIdx < expenseIdx) {
+        parsedIsGiven = false;
+      } else if (expenseIdx < incomeIdx) {
+        parsedIsGiven = true;
+      } else {
+        parsedIsGiven = true;
+      }
     }
 
-    // Simple category inference
+    // 3. Simple category inference
     if (text.contains('food') ||
         text.contains('dinner') ||
         text.contains('lunch') ||
-        text.contains('restaurant')) {
+        text.contains('restaurant') ||
+        text.contains('khana')) {
       parsedCategory = "Food & Dining";
-    } else if (text.contains('rent') || text.contains('house')) {
+    } else if (text.contains('rent') ||
+        text.contains('house') ||
+        text.contains('kiraya')) {
       parsedCategory = "Housing";
-    } else if (text.contains('salary')) {
+    } else if (text.contains('salary') || text.contains('tankha')) {
       parsedCategory = "Income";
     } else if (text.contains('stock') || text.contains('investment')) {
       parsedCategory = "Investment";
     }
 
-    // Basic cashbook extraction
-    final words = text.split(' ');
-    bool foundCashbook = false;
-    for (int i = 0; i < words.length; i++) {
-      final w = words[i];
-      if (w == 'me' || w == 'in') {
-        if (i > 0) {
-          parsedCashbook = _capitalize(words[i - 1]);
-          foundCashbook = true;
-          break;
-        }
+    // 4. Extract Cashbook Name
+    parsedCashbook = null;
+
+    // First try exact match from existing cashbooks
+    for (var cb in existingCashbooks) {
+      if (text.contains(cb.name.toLowerCase())) {
+        parsedCashbook = cb.name;
+        break;
       }
     }
 
-    if (!foundCashbook && words.isNotEmpty) {
-      final stopWords = [
-        'i',
-        'we',
-        'he',
-        'she',
-        'they',
-        'received',
-        'got',
-        'gave',
-        'paid',
-        'diye',
-        'liye',
-        'ko',
-        'se',
-        'me',
-        'in',
-        'for',
-        'to',
-        'from',
-        'a',
-        'the',
-        'my',
-      ];
-      for (var w in words) {
-        if (!stopWords.contains(w) &&
-            double.tryParse(w) == null &&
-            w.length > 2) {
-          parsedCashbook = _capitalize(w);
-          break;
+    // If still not found, try fuzzy match or fallback logic
+    if (parsedCashbook == null) {
+      final words = text.split(' ');
+      bool foundCashbook = false;
+      for (int i = 0; i < words.length; i++) {
+        final w = words[i];
+        if (w == 'me' || w == 'in' || w == 'to' || w == 'from') {
+          if (i < words.length - 1 && !_isStopWord(words[i + 1])) {
+            parsedCashbook = _capitalize(words[i + 1]);
+            foundCashbook = true;
+            break;
+          } else if (i > 0 && !_isStopWord(words[i - 1])) {
+            parsedCashbook = _capitalize(words[i - 1]);
+            foundCashbook = true;
+            break;
+          }
+        }
+      }
+
+      if (!foundCashbook && words.isNotEmpty) {
+        for (var w in words) {
+          if (!_isStopWord(w) && double.tryParse(w) == null && w.length > 2) {
+            parsedCashbook = _capitalize(w);
+            break;
+          }
         }
       }
     }
+  }
+
+  bool _isStopWord(String w) {
+    final stopWords = [
+      'i',
+      'we',
+      'he',
+      'she',
+      'they',
+      'received',
+      'got',
+      'gave',
+      'paid',
+      'diye',
+      'diya',
+      'liye',
+      'mila',
+      'ko',
+      'se',
+      'me',
+      'in',
+      'for',
+      'to',
+      'from',
+      'a',
+      'the',
+      'my',
+      'and',
+      'of',
+      'on',
+      'rupees',
+      'rs',
+      'bucks',
+    ];
+    final actionWords = [
+      'receive',
+      'got',
+      'liye',
+      'salary',
+      'give',
+      'gave',
+      'diye',
+      'paid',
+      'kharch',
+      'expense',
+      'income',
+      'aaye',
+    ];
+    return stopWords.contains(w) || actionWords.contains(w);
   }
 
   String _capitalize(String s) {
