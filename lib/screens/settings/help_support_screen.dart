@@ -10,7 +10,7 @@ class HelpSupportScreen extends StatelessWidget {
   Future<void> _launchEmail(BuildContext context) async {
     final Uri emailLaunchUri = Uri(
       scheme: 'mailto',
-      path: 'support@smartkhata.com',
+      path: 'samrtkhatasupport@gmail.com',
       query: 'subject=SmartKhata Support Request', // Add subject
     );
 
@@ -274,7 +274,7 @@ class HelpSupportScreen extends StatelessWidget {
                   style: GoogleFonts.poppins(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
-                    color: isDark ? Colors.white : const Color(0xFF1F3255),
+                    color: Theme.of(context).textTheme.bodyLarge?.color ?? (isDark ? Colors.white : const Color(0xFF0B1C30)),
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -325,7 +325,7 @@ class HelpSupportScreen extends StatelessWidget {
             style: GoogleFonts.poppins(
               fontWeight: FontWeight.w600,
               fontSize: 14,
-              color: isDark ? Colors.white : const Color(0xFF1F3255),
+              color: Theme.of(context).textTheme.bodyLarge?.color ?? (isDark ? Colors.white : const Color(0xFF0B1C30)),
             ),
           ),
           children: [

@@ -66,14 +66,14 @@ class _CashbookScreenState extends State<CashbookScreen> {
                       style: GoogleFonts.inter(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
-                        color: isDark ? Colors.white : const Color(0xFF1F3255),
+                        color: Theme.of(context).textTheme.bodyLarge?.color ?? (isDark ? Colors.white : const Color(0xFF0B1C30)),
                       ),
                     ),
                     GestureDetector(
                       onTap: () => Navigator.pop(context),
                       child: Icon(
                         Icons.cancel_outlined,
-                        color: isDark ? Colors.white : const Color(0xFF1F3255),
+                        color: Theme.of(context).textTheme.bodyLarge?.color ?? (isDark ? Colors.white : const Color(0xFF0B1C30)),
                       ),
                     ),
                   ],
@@ -151,7 +151,7 @@ class _CashbookScreenState extends State<CashbookScreen> {
               ),
               child: Icon(
                 Icons.book,
-                color: isDark ? Colors.white : const Color(0xFF1F3255),
+                color: Theme.of(context).textTheme.bodyLarge?.color ?? (isDark ? Colors.white : const Color(0xFF0B1C30)),
                 size: 20,
               ),
             ),
@@ -488,8 +488,8 @@ class _CashbookScreenState extends State<CashbookScreen> {
   Widget build(BuildContext context) {
     final recordProvider = Provider.of<RecordProvider>(context);
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final bgColor = isDark ? const Color(0xFF1B1B23) : const Color(0xFFF8FAFC);
-    final textColor = isDark ? Colors.white : const Color(0xFF1B1B23);
+    final bgColor = Theme.of(context).scaffoldBackgroundColor;
+    final textColor = Theme.of(context).textTheme.bodyLarge?.color ?? (isDark ? Colors.white : const Color(0xFF0B1C30));
 
     // Filter records for the currently selected cashbook
     final allRecords = recordProvider.records;
@@ -535,7 +535,7 @@ class _CashbookScreenState extends State<CashbookScreen> {
               decoration: BoxDecoration(
                 color: isDark
                     ? Colors.black.withValues(alpha: 0.5)
-                    : Colors.white.withValues(alpha: 0.7),
+                    : Theme.of(context).cardColor.withValues(alpha: 0.9),
                 border: Border(
                   bottom: BorderSide(
                     color: isDark
@@ -1335,7 +1335,7 @@ class _CashbookScreenState extends State<CashbookScreen> {
             return Container(
               height: MediaQuery.of(context).size.height * 0.65,
               decoration: BoxDecoration(
-                color: isDark ? const Color(0xFF1B1B23) : Colors.white,
+                color: Theme.of(context).cardColor,
                 borderRadius: const BorderRadius.vertical(
                   top: Radius.circular(32),
                 ),

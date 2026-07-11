@@ -10,6 +10,7 @@ import 'providers/auth_provider.dart';
 
 import 'core/theme/light_theme.dart';
 import 'core/theme/dark_theme.dart';
+import 'core/theme/premium_themes.dart';
 import 'core/constants/app_colors.dart';
 import 'core/widgets/lock_screen_wrapper.dart';
 import 'core/services/notification_service.dart';
@@ -42,6 +43,12 @@ class SmartKhataApp extends StatelessWidget {
       child: Consumer<SettingsProvider>(
         builder: (context, settingsProvider, child) {
           final activeColor = AppColors.themeColors[settingsProvider.themeColor] ?? const Color(0xFF5B67F1);
+          
+          ThemeData? customTheme;
+          if (settingsProvider.appTheme == 'Midnight Ocean') customTheme = PremiumThemes.midnightOcean;
+          if (settingsProvider.appTheme == 'Sunset Glow') customTheme = PremiumThemes.sunsetGlow;
+          if (settingsProvider.appTheme == 'Forest Emerald') customTheme = PremiumThemes.forestEmerald;
+          if (settingsProvider.appTheme == 'Cherry Blossom') customTheme = PremiumThemes.cherryBlossom;
 
           return MaterialApp(
             debugShowCheckedModeBanner: false,
@@ -52,12 +59,12 @@ class SmartKhataApp extends StatelessWidget {
               return LockScreenWrapper(child: child!);
             },
 
-            theme: LightTheme.theme(activeColor),
-            darkTheme: DarkTheme.theme(activeColor),
+            theme: customTheme ?? LightTheme.theme(activeColor),
+            darkTheme: customTheme ?? DarkTheme.theme(activeColor),
 
-            themeMode: settingsProvider.darkMode
-                ? ThemeMode.dark
-                : ThemeMode.light,
+            themeMode: customTheme != null 
+                ? ThemeMode.light 
+                : (settingsProvider.darkMode ? ThemeMode.dark : ThemeMode.light),
 
             locale: settingsProvider.locale,
             localizationsDelegates: const [

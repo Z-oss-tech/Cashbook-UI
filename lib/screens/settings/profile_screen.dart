@@ -55,9 +55,9 @@ class _ProfileScreenState extends State<ProfileScreen>
   Widget build(BuildContext context) {
     final settings = Provider.of<SettingsProvider>(context);
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final bgColor = isDark ? const Color(0xFF191C1E) : const Color(0xFFF8F9FF);
-    final textColor = isDark ? Colors.white : const Color(0xFF0B1C30);
-    final outlineColor = isDark ? Colors.white54 : const Color(0xFF767586);
+    final bgColor = Theme.of(context).scaffoldBackgroundColor;
+    final textColor = Theme.of(context).textTheme.bodyLarge?.color ?? (isDark ? Colors.white : const Color(0xFF0B1C30));
+    final outlineColor = Theme.of(context).dividerColor;
 
     return Scaffold(
       backgroundColor: bgColor,
@@ -268,7 +268,7 @@ class _ProfileScreenState extends State<ProfileScreen>
         return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
-              backgroundColor: isDark ? const Color(0xFF2D3133) : Colors.white,
+              backgroundColor: Theme.of(context).cardColor,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(24),
               ),
@@ -285,7 +285,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                     style: GoogleFonts.inter(
                       fontWeight: FontWeight.bold,
                       fontSize: 20,
-                      color: isDark ? Colors.white : const Color(0xFF191C1E),
+                      color: Theme.of(context).textTheme.bodyLarge?.color ?? (isDark ? Colors.white : const Color(0xFF191C1E)),
                     ),
                   ),
                 ],
@@ -299,7 +299,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                     style: GoogleFonts.inter(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
-                      color: isDark ? Colors.white : const Color(0xFF191C1E),
+                      color: Theme.of(context).textTheme.bodyLarge?.color ?? (isDark ? Colors.white : const Color(0xFF191C1E)),
                     ),
                   ),
                   const SizedBox(height: 12),
@@ -307,7 +307,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                     description,
                     style: GoogleFonts.inter(
                       fontSize: 14,
-                      color: isDark ? Colors.white70 : Colors.grey.shade600,
+                      color: Theme.of(context).textTheme.bodyMedium?.color ?? (isDark ? Colors.white70 : Colors.grey.shade600),
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -372,7 +372,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                     child: Text(
                       "Later",
                       style: GoogleFonts.inter(
-                        color: isDark ? Colors.white54 : Colors.grey.shade600,
+                        color: Theme.of(context).dividerColor,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -681,8 +681,8 @@ class _ProfileScreenState extends State<ProfileScreen>
     return Container(
       decoration: BoxDecoration(
         color: isDark
-            ? Colors.white.withValues(alpha: 0.05)
-            : Colors.white.withValues(alpha: 0.7),
+            ? Theme.of(context).cardColor.withValues(alpha: 0.5)
+            : Theme.of(context).cardColor.withValues(alpha: 0.9),
         borderRadius: BorderRadius.circular(24),
         border: Border.all(
           color: isDark
@@ -713,8 +713,8 @@ class _ProfileScreenState extends State<ProfileScreen>
     required bool showBorder,
   }) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final textColor = isDark ? Colors.white : const Color(0xFF0B1C30);
-    final subtitleColor = isDark ? Colors.white54 : const Color(0xFF767586);
+    final textColor = Theme.of(context).textTheme.bodyLarge?.color ?? (isDark ? Colors.white : const Color(0xFF0B1C30));
+    final subtitleColor = Theme.of(context).textTheme.bodyMedium?.color ?? (isDark ? Colors.white54 : const Color(0xFF767586));
 
     return Container(
       decoration: BoxDecoration(
@@ -799,7 +799,7 @@ class _ProfileScreenState extends State<ProfileScreen>
     required bool showBorder,
   }) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final textColor = isDark ? Colors.white : const Color(0xFF0B1C30);
+    final textColor = Theme.of(context).textTheme.bodyLarge?.color ?? (isDark ? Colors.white : const Color(0xFF0B1C30));
     final defaultSubtitleColor = isDark
         ? Colors.white54
         : const Color(0xFF767586);
@@ -862,7 +862,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                 ),
                 Icon(
                   Icons.chevron_right_rounded,
-                  color: isDark ? Colors.white30 : const Color(0xFFC6C5D7),
+                  color: Theme.of(context).dividerColor.withOpacity(0.3),
                   size: 24,
                 ),
               ],
@@ -882,9 +882,9 @@ class _ProfileScreenState extends State<ProfileScreen>
     required String subtitle,
   }) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final bgColor = isDark ? const Color(0xFF2D3133) : Colors.white;
-    final textColor = isDark ? Colors.white : const Color(0xFF0B1C30);
-    final subtitleColor = isDark ? Colors.white54 : const Color(0xFF767586);
+    final bgColor = Theme.of(context).cardColor;
+    final textColor = Theme.of(context).textTheme.bodyLarge?.color ?? (isDark ? Colors.white : const Color(0xFF0B1C30));
+    final subtitleColor = Theme.of(context).textTheme.bodyMedium?.color ?? (isDark ? Colors.white54 : const Color(0xFF767586));
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -1045,7 +1045,7 @@ class _ProfileScreenState extends State<ProfileScreen>
               child: Text(
                 "Cancel",
                 style: GoogleFonts.inter(
-                  color: isDark ? Colors.white54 : Colors.grey,
+                  color: Theme.of(context).dividerColor,
                 ),
               ),
             ),
@@ -1150,7 +1150,7 @@ class _ProfileScreenState extends State<ProfileScreen>
         return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
-              backgroundColor: isDark ? const Color(0xFF2D3133) : Colors.white,
+              backgroundColor: Theme.of(context).cardColor,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(24),
               ),
@@ -1158,7 +1158,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                 "Change Password",
                 style: GoogleFonts.inter(
                   fontWeight: FontWeight.bold,
-                  color: isDark ? Colors.white : const Color(0xFF191C1E),
+                  color: Theme.of(context).textTheme.bodyLarge?.color ?? (isDark ? Colors.white : const Color(0xFF191C1E)),
                 ),
               ),
               content: Column(
@@ -1168,12 +1168,12 @@ class _ProfileScreenState extends State<ProfileScreen>
                     controller: currentPasswordController,
                     obscureText: isObscureCurrent,
                     style: GoogleFonts.inter(
-                      color: isDark ? Colors.white : const Color(0xFF191C1E),
+                      color: Theme.of(context).textTheme.bodyLarge?.color ?? (isDark ? Colors.white : const Color(0xFF191C1E)),
                     ),
                     decoration: InputDecoration(
                       hintText: "Current Password",
                       hintStyle: GoogleFonts.inter(
-                        color: isDark ? Colors.white54 : Colors.grey,
+                        color: Theme.of(context).dividerColor,
                       ),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
@@ -1190,7 +1190,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                           isObscureCurrent
                               ? Icons.visibility_off
                               : Icons.visibility,
-                          color: isDark ? Colors.white54 : Colors.grey,
+                          color: Theme.of(context).dividerColor,
                         ),
                         onPressed: () => setState(
                           () => isObscureCurrent = !isObscureCurrent,
@@ -1203,12 +1203,12 @@ class _ProfileScreenState extends State<ProfileScreen>
                     controller: newPasswordController,
                     obscureText: isObscureNew,
                     style: GoogleFonts.inter(
-                      color: isDark ? Colors.white : const Color(0xFF191C1E),
+                      color: Theme.of(context).textTheme.bodyLarge?.color ?? (isDark ? Colors.white : const Color(0xFF191C1E)),
                     ),
                     decoration: InputDecoration(
                       hintText: "New Password",
                       hintStyle: GoogleFonts.inter(
-                        color: isDark ? Colors.white54 : Colors.grey,
+                        color: Theme.of(context).dividerColor,
                       ),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
@@ -1225,7 +1225,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                           isObscureNew
                               ? Icons.visibility_off
                               : Icons.visibility,
-                          color: isDark ? Colors.white54 : Colors.grey,
+                          color: Theme.of(context).dividerColor,
                         ),
                         onPressed: () =>
                             setState(() => isObscureNew = !isObscureNew),
@@ -1240,7 +1240,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                   child: Text(
                     "Cancel",
                     style: GoogleFonts.inter(
-                      color: isDark ? Colors.white54 : Colors.grey,
+                      color: Theme.of(context).dividerColor,
                       fontWeight: FontWeight.w600,
                     ),
                   ),

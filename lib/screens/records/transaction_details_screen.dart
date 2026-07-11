@@ -24,11 +24,11 @@ class TransactionDetailsScreen extends StatelessWidget {
           isCredit ? "Income Details" : "Expense Details",
           style: GoogleFonts.inter(
             fontWeight: FontWeight.bold,
-            color: isDark ? Colors.white : const Color(0xFF1F3255),
+            color: Theme.of(context).textTheme.bodyLarge?.color ?? (isDark ? Colors.white : const Color(0xFF0B1C30)),
           ),
         ),
         iconTheme: IconThemeData(
-          color: isDark ? Colors.white : const Color(0xFF1F3255),
+          color: Theme.of(context).textTheme.bodyLarge?.color ?? (isDark ? Colors.white : const Color(0xFF0B1C30)),
         ),
       ),
       body: SingleChildScrollView(
@@ -41,7 +41,7 @@ class TransactionDetailsScreen extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: isDark ? const Color(0xFF2D2D35) : Colors.white,
+                color: Theme.of(context).cardColor,
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
@@ -77,7 +77,7 @@ class TransactionDetailsScreen extends StatelessWidget {
                   : "Expense successfully recorded",
               style: GoogleFonts.inter(
                 fontSize: 14,
-                color: isDark ? Colors.white54 : Colors.grey.shade600,
+                color: Theme.of(context).dividerColor,
               ),
             ),
             const SizedBox(height: 40),
@@ -86,7 +86,7 @@ class TransactionDetailsScreen extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: isDark ? const Color(0xFF2D2D35) : Colors.white,
+                color: Theme.of(context).cardColor,
                 borderRadius: BorderRadius.circular(24),
                 border: Border.all(
                   color: isDark ? Colors.white12 : const Color(0xFFE4E1ED),
@@ -102,6 +102,7 @@ class TransactionDetailsScreen extends StatelessWidget {
               child: Column(
                 children: [
                   _buildDetailRow(
+                    context,
                     "Category",
                     record.category?.isNotEmpty == true
                         ? record.category!
@@ -110,31 +111,35 @@ class TransactionDetailsScreen extends StatelessWidget {
                   ),
                   const Divider(height: 30),
                   _buildDetailRow(
+                    context,
                     "Date",
                     DateHelper.formatDate(record.date),
                     isDark,
                   ),
                   const Divider(height: 30),
                   _buildDetailRow(
+                    context,
                     "Time",
                     DateHelper.formatTime(record.date),
                     isDark,
                   ),
                   const Divider(height: 30),
                   _buildDetailRow(
+                    context,
                     "Payment Mode",
                     record.paymentMethod ?? 'Cash',
                     isDark,
                   ),
                   const Divider(height: 30),
                   _buildDetailRow(
+                    context,
                     "Cashbook",
                     record.cashbookName ?? 'General',
                     isDark,
                   ),
                   if (record.note.isNotEmpty) ...[
                     const Divider(height: 30),
-                    _buildDetailRow("Note", record.note, isDark),
+                    _buildDetailRow(context, "Note", record.note, isDark),
                   ],
                 ],
               ),
@@ -145,7 +150,7 @@ class TransactionDetailsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildDetailRow(String label, String value, bool isDark) {
+  Widget _buildDetailRow(BuildContext context, String label, String value, bool isDark) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -154,7 +159,7 @@ class TransactionDetailsScreen extends StatelessWidget {
           label,
           style: GoogleFonts.inter(
             fontSize: 14,
-            color: isDark ? Colors.white54 : Colors.grey.shade600,
+            color: Theme.of(context).dividerColor,
           ),
         ),
         const SizedBox(width: 16),
@@ -165,7 +170,7 @@ class TransactionDetailsScreen extends StatelessWidget {
             style: GoogleFonts.inter(
               fontSize: 14,
               fontWeight: FontWeight.w600,
-              color: isDark ? Colors.white : const Color(0xFF1F3255),
+              color: Theme.of(context).textTheme.bodyLarge?.color ?? (isDark ? Colors.white : const Color(0xFF0B1C30)),
             ),
           ),
         ),

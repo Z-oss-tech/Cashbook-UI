@@ -290,7 +290,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
             decoration: BoxDecoration(
               color: isDark
                   ? Colors.black.withValues(alpha: 0.7)
-                  : Colors.white.withValues(alpha: 0.7),
+                  : Theme.of(context).cardColor.withValues(alpha: 0.9),
               borderRadius: BorderRadius.circular(24),
               border: Border.all(
                 color: isDark

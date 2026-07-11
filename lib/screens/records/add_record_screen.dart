@@ -238,7 +238,7 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
         return Container(
           height: MediaQuery.of(context).size.height * 0.6,
           decoration: BoxDecoration(
-            color: isDark ? const Color(0xFF1B1B23) : Colors.white,
+            color: Theme.of(context).cardColor,
             borderRadius: const BorderRadius.only(
               topLeft: Radius.circular(24),
               topRight: Radius.circular(24),
@@ -261,7 +261,7 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
                 style: GoogleFonts.manrope(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
-                  color: isDark ? Colors.white : const Color(0xFF1B1B23),
+                  color: Theme.of(context).textTheme.bodyLarge?.color ?? (isDark ? Colors.white : const Color(0xFF0B1C30)),
                 ),
               ),
               const SizedBox(height: 16),
@@ -348,7 +348,7 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
       builder: (context) {
         return Container(
           decoration: BoxDecoration(
-            color: isDark ? const Color(0xFF1B1B23) : Colors.white,
+            color: Theme.of(context).cardColor,
             borderRadius: const BorderRadius.only(
               topLeft: Radius.circular(24),
               topRight: Radius.circular(24),
@@ -372,7 +372,7 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
                 style: GoogleFonts.manrope(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
-                  color: isDark ? Colors.white : const Color(0xFF1B1B23),
+                  color: Theme.of(context).textTheme.bodyLarge?.color ?? (isDark ? Colors.white : const Color(0xFF0B1C30)),
                 ),
               ),
               const SizedBox(height: 16),
@@ -386,7 +386,7 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
                       fontWeight: isSelected
                           ? FontWeight.w600
                           : FontWeight.w500,
-                      color: isDark ? Colors.white : const Color(0xFF1B1B23),
+                      color: Theme.of(context).textTheme.bodyLarge?.color ?? (isDark ? Colors.white : const Color(0xFF0B1C30)),
                     ),
                   ),
                   trailing: isSelected
@@ -414,15 +414,15 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final bgColor = isDark ? const Color(0xFF121212) : const Color(0xFFF8FAFC);
-    final surfaceColor = isDark ? const Color(0xFF1E1E26) : Colors.white;
+    final bgColor = Theme.of(context).scaffoldBackgroundColor;
+    final surfaceColor = Theme.of(context).cardColor;
     final glassColor = isDark
-        ? Colors.white.withValues(alpha: 0.05)
-        : Colors.white.withValues(alpha: 0.7);
+        ? Theme.of(context).cardColor.withValues(alpha: 0.5)
+        : Theme.of(context).cardColor.withValues(alpha: 0.9);
     final glassBorder = isDark
         ? Colors.white.withValues(alpha: 0.1)
         : Colors.white.withValues(alpha: 0.5);
-    final textColor = isDark ? Colors.white : const Color(0xFF1B1B23);
+    final textColor = Theme.of(context).textTheme.bodyLarge?.color ?? (isDark ? Colors.white : const Color(0xFF0B1C30));
     final textMuted = isDark ? Colors.white60 : const Color(0xFF464555);
 
     return Scaffold(

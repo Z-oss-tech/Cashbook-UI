@@ -120,7 +120,7 @@ class DashboardScreen extends StatelessWidget {
               child: Container(
                 padding: const EdgeInsets.all(0),
                 decoration: BoxDecoration(
-                  color: isDark ? const Color(0xFF1E1E26) : Colors.white,
+                  color: Theme.of(context).cardColor,
                   borderRadius: BorderRadius.circular(28),
                   boxShadow: [
                     BoxShadow(
@@ -214,7 +214,7 @@ class DashboardScreen extends StatelessWidget {
                                 ),
                                 filled: true,
                                 fillColor: isDark
-                                    ? Colors.white.withValues(alpha: 0.05)
+                                    ? Theme.of(context).cardColor.withValues(alpha: 0.5)
                                     : const Color(0xFFF8FAFC),
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(16),
@@ -257,7 +257,7 @@ class DashboardScreen extends StatelessWidget {
                                 ),
                                 filled: true,
                                 fillColor: isDark
-                                    ? Colors.white.withValues(alpha: 0.05)
+                                    ? Theme.of(context).cardColor.withValues(alpha: 0.5)
                                     : const Color(0xFFF8FAFC),
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(16),
@@ -465,7 +465,7 @@ class DashboardScreen extends StatelessWidget {
     }
 
     return Container(
-      color: isDark ? const Color(0xFF191C1E) : const Color(0xFFF7F9FB),
+      color: Theme.of(context).scaffoldBackgroundColor,
       child: SafeArea(
         child: Column(
           children: [
@@ -522,7 +522,7 @@ class DashboardScreen extends StatelessWidget {
 
   Widget _buildTopHeader(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final textColor = isDark ? Colors.white : const Color(0xFF191C1E);
+    final textColor = Theme.of(context).textTheme.bodyLarge?.color ?? (isDark ? Colors.white : const Color(0xFF0B1C30));
     final subTextColor = isDark ? Colors.white70 : const Color(0xFF464555);
 
     return Container(
@@ -687,7 +687,7 @@ class DashboardScreen extends StatelessWidget {
                             Text(
                               "Received",
                               style: GoogleFonts.inter(
-                                color: Colors.white.withValues(alpha: 0.7),
+                                color: Theme.of(context).cardColor.withValues(alpha: 0.9),
                                 fontSize: 12,
                                 fontWeight: FontWeight.w600,
                               ),
@@ -721,7 +721,7 @@ class DashboardScreen extends StatelessWidget {
                             Text(
                               "Given",
                               style: GoogleFonts.inter(
-                                color: Colors.white.withValues(alpha: 0.7),
+                                color: Theme.of(context).cardColor.withValues(alpha: 0.9),
                                 fontSize: 12,
                                 fontWeight: FontWeight.w600,
                               ),
@@ -756,11 +756,11 @@ class DashboardScreen extends StatelessWidget {
     int totalTxns,
   ) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final cardColor = isDark ? const Color(0xFF2D3133) : Colors.white;
+    final cardColor = Theme.of(context).cardColor;
     final borderColor = isDark
         ? const Color(0xFF464555)
         : const Color(0xFFE6E8EA);
-    final textColor = isDark ? Colors.white : const Color(0xFF191C1E);
+    final textColor = Theme.of(context).textTheme.bodyLarge?.color ?? (isDark ? Colors.white : const Color(0xFF0B1C30));
     final subTextColor = isDark ? Colors.white70 : const Color(0xFF464555);
 
     return SingleChildScrollView(
@@ -885,7 +885,7 @@ class DashboardScreen extends StatelessWidget {
 
   Widget _buildProductivitySection(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final textColor = isDark ? Colors.white : const Color(0xFF191C1E);
+    final textColor = Theme.of(context).textTheme.bodyLarge?.color ?? (isDark ? Colors.white : const Color(0xFF0B1C30));
     final recordProvider = Provider.of<RecordProvider>(context, listen: false);
 
     return Column(
@@ -978,11 +978,11 @@ class DashboardScreen extends StatelessWidget {
     required VoidCallback onTap,
   }) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final cardColor = isDark ? const Color(0xFF2D3133) : Colors.white;
+    final cardColor = Theme.of(context).cardColor;
     final borderColor = isDark
         ? const Color(0xFF464555)
         : const Color(0xFFE6E8EA);
-    final textColor = isDark ? Colors.white : const Color(0xFF191C1E);
+    final textColor = Theme.of(context).textTheme.bodyLarge?.color ?? (isDark ? Colors.white : const Color(0xFF0B1C30));
 
     return GestureDetector(
       onTap: () {
@@ -1032,7 +1032,7 @@ class DashboardScreen extends StatelessWidget {
 
   Widget _buildCashbookListHeader(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final textColor = isDark ? Colors.white : const Color(0xFF191C1E);
+    final textColor = Theme.of(context).textTheme.bodyLarge?.color ?? (isDark ? Colors.white : const Color(0xFF0B1C30));
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1120,11 +1120,11 @@ class DashboardScreen extends StatelessWidget {
     required bool isPositive,
   }) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final cardColor = isDark ? const Color(0xFF2D3133) : Colors.white;
+    final cardColor = Theme.of(context).cardColor;
     final borderColor = isDark
         ? const Color(0xFF464555)
         : const Color(0xFFE6E8EA);
-    final textColor = isDark ? Colors.white : const Color(0xFF191C1E);
+    final textColor = Theme.of(context).textTheme.bodyLarge?.color ?? (isDark ? Colors.white : const Color(0xFF0B1C30));
     final subTextColor = isDark ? Colors.white70 : const Color(0xFF464555);
 
     return GestureDetector(
@@ -1308,7 +1308,7 @@ class DashboardScreen extends StatelessWidget {
       builder: (context) {
         final isDark = Theme.of(context).brightness == Brightness.dark;
         return AlertDialog(
-          backgroundColor: isDark ? const Color(0xFF1E1E26) : Colors.white,
+          backgroundColor: Theme.of(context).cardColor,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),
@@ -1365,7 +1365,7 @@ class DashboardScreen extends StatelessWidget {
       builder: (context) {
         final isDark = Theme.of(context).brightness == Brightness.dark;
         return AlertDialog(
-          backgroundColor: isDark ? const Color(0xFF1E1E26) : Colors.white,
+          backgroundColor: Theme.of(context).cardColor,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),

@@ -611,7 +611,7 @@ class _VoiceEntryScreenState extends State<VoiceEntryScreen>
                             : LinearGradient(
                                 colors: [
                                   Colors.white.withValues(alpha: 0.1),
-                                  Colors.white.withValues(alpha: 0.05),
+                                  Theme.of(context).cardColor.withValues(alpha: 0.5),
                                 ],
                               ),
                         boxShadow: isReadyToSave

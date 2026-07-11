@@ -98,7 +98,7 @@ class AppDrawer extends StatelessWidget {
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
                       color: isDark
-                          ? Colors.white.withValues(alpha: 0.05)
+                          ? Theme.of(context).cardColor.withValues(alpha: 0.5)
                           : Colors.white.withValues(alpha: 0.6),
                       borderRadius: BorderRadius.circular(24),
                       border: Border.all(
@@ -588,7 +588,7 @@ class AppDrawer extends StatelessWidget {
                   description,
                   style: GoogleFonts.poppins(
                     fontSize: 12,
-                    color: isDark ? Colors.white54 : Colors.grey,
+                    color: Theme.of(context).dividerColor,
                   ),
                 ),
               ],

@@ -376,7 +376,7 @@ class ReportsScreen extends StatelessWidget {
               width: 70,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: Colors.white.withValues(alpha: 0.05),
+                color: Theme.of(context).cardColor.withValues(alpha: 0.5),
               ),
             ),
           ),

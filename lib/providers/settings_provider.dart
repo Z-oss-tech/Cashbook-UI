@@ -12,6 +12,7 @@ class SettingsProvider with ChangeNotifier {
   String _userAvatar = "S";
 
   String _themeColor = 'Ocean Blue';
+  String _appTheme = 'Default';
 
   Locale _locale = const Locale('en');
 
@@ -21,6 +22,7 @@ class SettingsProvider with ChangeNotifier {
   String get userName => _userName;
   String get userAvatar => _userAvatar;
   String get themeColor => _themeColor;
+  String get appTheme => _appTheme;
   Locale get locale => _locale;
 
   SettingsProvider() {
@@ -45,6 +47,7 @@ class SettingsProvider with ChangeNotifier {
     _locale = Locale(languageCode);
 
     _themeColor = _prefs?.getString('themeColor') ?? 'Ocean Blue';
+    _appTheme = _prefs?.getString('appTheme') ?? 'Default';
 
     notifyListeners();
   }
@@ -85,6 +88,12 @@ class SettingsProvider with ChangeNotifier {
   void setThemeColor(String colorName) {
     _themeColor = colorName;
     _prefs?.setString('themeColor', colorName);
+    notifyListeners();
+  }
+
+  void setAppTheme(String themeName) {
+    _appTheme = themeName;
+    _prefs?.setString('appTheme', themeName);
     notifyListeners();
   }
 

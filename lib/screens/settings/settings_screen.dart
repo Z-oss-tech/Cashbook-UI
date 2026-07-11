@@ -9,6 +9,7 @@ import '../../providers/settings_provider.dart';
 import '../../providers/record_provider.dart';
 import '../../core/utils/toast_helper.dart';
 import '../auth/login_screen.dart';
+import 'theme_screen.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -26,9 +27,9 @@ class _SettingsScreenState extends State<SettingsScreen>
   Widget build(BuildContext context) {
     final settings = Provider.of<SettingsProvider>(context);
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final bgColor = isDark ? const Color(0xFF191C1E) : const Color(0xFFF8F9FF);
-    final textColor = isDark ? Colors.white : const Color(0xFF0B1C30);
-    final outlineColor = isDark ? Colors.white54 : const Color(0xFF767586);
+    final bgColor = Theme.of(context).scaffoldBackgroundColor;
+    final textColor = Theme.of(context).textTheme.bodyLarge?.color ?? (isDark ? Colors.white : const Color(0xFF0B1C30));
+    final outlineColor = Theme.of(context).dividerColor;
 
     return Scaffold(
       backgroundColor: bgColor,
@@ -173,6 +174,26 @@ class _SettingsScreenState extends State<SettingsScreen>
                         children: [
                           _buildMenuTile(
                             context: context,
+                            icon: Icons.color_lens_rounded,
+                            iconBgColor: isDark
+                                ? Colors.white12
+                                : const Color(0xFFDCE9FF),
+                            iconColor: const Color(0xFF4143D5),
+                            title: "Themes & Appearance",
+                            subtitle: settings.appTheme,
+                            subtitleColor: const Color(0xFF4143D5),
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const ThemeScreen(),
+                                ),
+                              );
+                            },
+                            showBorder: true,
+                          ),
+                          _buildMenuTile(
+                            context: context,
                             icon: Icons.language_rounded,
                             iconBgColor: isDark
                                 ? Colors.white12
@@ -236,7 +257,7 @@ class _SettingsScreenState extends State<SettingsScreen>
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          backgroundColor: isDark ? const Color(0xFF2D3133) : Colors.white,
+          backgroundColor: Theme.of(context).cardColor,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(24),
           ),
@@ -253,7 +274,7 @@ class _SettingsScreenState extends State<SettingsScreen>
                 style: GoogleFonts.inter(
                   fontWeight: FontWeight.bold,
                   fontSize: 20,
-                  color: isDark ? Colors.white : const Color(0xFF191C1E),
+                  color: Theme.of(context).textTheme.bodyLarge?.color ?? (isDark ? Colors.white : const Color(0xFF191C1E)),
                 ),
               ),
             ],
@@ -267,7 +288,7 @@ class _SettingsScreenState extends State<SettingsScreen>
                 style: GoogleFonts.inter(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
-                  color: isDark ? Colors.white : const Color(0xFF191C1E),
+                  color: Theme.of(context).textTheme.bodyLarge?.color ?? (isDark ? Colors.white : const Color(0xFF191C1E)),
                 ),
               ),
               const SizedBox(height: 12),
@@ -275,7 +296,7 @@ class _SettingsScreenState extends State<SettingsScreen>
                 "Version 1.1.0 features new reports, voice-to-text notes, and UI enhancements.",
                 style: GoogleFonts.inter(
                   fontSize: 14,
-                  color: isDark ? Colors.white70 : Colors.grey.shade600,
+                  color: Theme.of(context).textTheme.bodyMedium?.color ?? (isDark ? Colors.white70 : Colors.grey.shade600),
                 ),
               ),
               const SizedBox(height: 16),
@@ -316,7 +337,7 @@ class _SettingsScreenState extends State<SettingsScreen>
               child: Text(
                 "Later",
                 style: GoogleFonts.inter(
-                  color: isDark ? Colors.white54 : Colors.grey.shade600,
+                  color: Theme.of(context).dividerColor,
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -534,8 +555,8 @@ class _SettingsScreenState extends State<SettingsScreen>
     return Container(
       decoration: BoxDecoration(
         color: isDark
-            ? Colors.white.withValues(alpha: 0.05)
-            : Colors.white.withValues(alpha: 0.7),
+            ? Theme.of(context).cardColor.withValues(alpha: 0.5)
+            : Theme.of(context).cardColor.withValues(alpha: 0.9),
         borderRadius: BorderRadius.circular(24),
         border: Border.all(
           color: isDark
@@ -566,8 +587,8 @@ class _SettingsScreenState extends State<SettingsScreen>
     required bool showBorder,
   }) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final textColor = isDark ? Colors.white : const Color(0xFF0B1C30);
-    final subtitleColor = isDark ? Colors.white54 : const Color(0xFF767586);
+    final textColor = Theme.of(context).textTheme.bodyLarge?.color ?? (isDark ? Colors.white : const Color(0xFF0B1C30));
+    final subtitleColor = Theme.of(context).textTheme.bodyMedium?.color ?? (isDark ? Colors.white54 : const Color(0xFF767586));
 
     return Container(
       decoration: BoxDecoration(
@@ -652,7 +673,7 @@ class _SettingsScreenState extends State<SettingsScreen>
     required bool showBorder,
   }) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final textColor = isDark ? Colors.white : const Color(0xFF0B1C30);
+    final textColor = Theme.of(context).textTheme.bodyLarge?.color ?? (isDark ? Colors.white : const Color(0xFF0B1C30));
     final defaultSubtitleColor = isDark
         ? Colors.white54
         : const Color(0xFF767586);
@@ -715,7 +736,7 @@ class _SettingsScreenState extends State<SettingsScreen>
                 ),
                 Icon(
                   Icons.chevron_right_rounded,
-                  color: isDark ? Colors.white30 : const Color(0xFFC6C5D7),
+                  color: Theme.of(context).dividerColor.withOpacity(0.3),
                   size: 24,
                 ),
               ],
@@ -735,9 +756,9 @@ class _SettingsScreenState extends State<SettingsScreen>
     required String subtitle,
   }) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final bgColor = isDark ? const Color(0xFF2D3133) : Colors.white;
-    final textColor = isDark ? Colors.white : const Color(0xFF0B1C30);
-    final subtitleColor = isDark ? Colors.white54 : const Color(0xFF767586);
+    final bgColor = Theme.of(context).cardColor;
+    final textColor = Theme.of(context).textTheme.bodyLarge?.color ?? (isDark ? Colors.white : const Color(0xFF0B1C30));
+    final subtitleColor = Theme.of(context).textTheme.bodyMedium?.color ?? (isDark ? Colors.white54 : const Color(0xFF767586));
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -898,7 +919,7 @@ class _SettingsScreenState extends State<SettingsScreen>
               child: Text(
                 "Cancel",
                 style: GoogleFonts.inter(
-                  color: isDark ? Colors.white54 : Colors.grey,
+                  color: Theme.of(context).dividerColor,
                 ),
               ),
             ),

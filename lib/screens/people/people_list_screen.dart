@@ -219,7 +219,7 @@ class _PeopleListScreenState extends State<PeopleListScreen> {
                               Text(
                                 "No cashbooks found.",
                                 style: GoogleFonts.inter(
-                                  color: isDark ? Colors.white54 : Colors.grey,
+                                  color: Theme.of(context).dividerColor,
                                   fontSize: 16,
                                 ),
                               ),
@@ -299,11 +299,11 @@ class _PeopleListScreenState extends State<PeopleListScreen> {
     required bool isPositive,
   }) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final cardColor = isDark ? const Color(0xFF2D3133) : Colors.white;
+    final cardColor = Theme.of(context).cardColor;
     final borderColor = isDark
         ? const Color(0xFF464555)
         : const Color(0xFFE6E8EA);
-    final textColor = isDark ? Colors.white : const Color(0xFF191C1E);
+    final textColor = Theme.of(context).textTheme.bodyLarge?.color ?? (isDark ? Colors.white : const Color(0xFF0B1C30));
     final subTextColor = isDark ? Colors.white70 : const Color(0xFF464555);
 
     return GestureDetector(
@@ -540,7 +540,7 @@ class _PeopleListScreenState extends State<PeopleListScreen> {
       builder: (context) {
         final isDark = Theme.of(context).brightness == Brightness.dark;
         return AlertDialog(
-          backgroundColor: isDark ? const Color(0xFF1E1E26) : Colors.white,
+          backgroundColor: Theme.of(context).cardColor,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),
@@ -597,7 +597,7 @@ class _PeopleListScreenState extends State<PeopleListScreen> {
       builder: (context) {
         final isDark = Theme.of(context).brightness == Brightness.dark;
         return AlertDialog(
-          backgroundColor: isDark ? const Color(0xFF1E1E26) : Colors.white,
+          backgroundColor: Theme.of(context).cardColor,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),
