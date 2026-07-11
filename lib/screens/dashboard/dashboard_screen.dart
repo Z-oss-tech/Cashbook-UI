@@ -14,6 +14,9 @@ import '../reports/reports_screen.dart';
 import '../../core/utils/export_helper.dart';
 import '../../core/utils/date_helper.dart';
 import 'package:flutter/services.dart';
+import '../../core/widgets/glass_card.dart';
+import '../../core/widgets/theme_background_wrapper.dart';
+import '../../core/theme/premium_themes.dart';
 
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
@@ -464,9 +467,9 @@ class DashboardScreen extends StatelessWidget {
       }
     }
 
-    return Container(
-      color: Theme.of(context).scaffoldBackgroundColor,
+    return ThemeBackgroundWrapper(
       child: SafeArea(
+        bottom: false,
         child: Column(
           children: [
             _buildTopHeader(context),
@@ -612,27 +615,47 @@ class DashboardScreen extends StatelessWidget {
     double income,
     double expense,
   ) {
+    final settings = Provider.of<SettingsProvider>(context, listen: false);
+    final premiumTheme = PremiumThemes.getTheme(settings.appTheme);
+    final gradient = settings.appTheme == 'Default'
+        ? const LinearGradient(
+            colors: [
+              Color(0xFF4143D5),
+              Color(0xFF7459F7),
+              Color(0xFF2C2CC3),
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          )
+        : premiumTheme.gradient;
+
+    final isDefault = settings.appTheme == 'Default';
+    final textColor = isDefault || premiumTheme.themeData.brightness == Brightness.dark 
+        ? Colors.white 
+        : const Color(0xFF191C1E);
+    final textMutedColor = isDefault || premiumTheme.themeData.brightness == Brightness.dark 
+        ? Colors.white.withValues(alpha: 0.8) 
+        : const Color(0xFF464555);
+    final dividerColor = isDefault || premiumTheme.themeData.brightness == Brightness.dark
+        ? Colors.white.withValues(alpha: 0.2)
+        : premiumTheme.primaryColor.withValues(alpha: 0.2);
+    final containerBgColor = isDefault || premiumTheme.themeData.brightness == Brightness.dark
+        ? Colors.white.withValues(alpha: 0.1)
+        : Colors.white.withValues(alpha: 0.5);
+
     return FadeInUp(
       duration: const Duration(milliseconds: 600),
       child: Container(
         width: double.infinity,
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.all(32),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(32),
-          gradient: const LinearGradient(
-            colors: [
-              Color(0xFF4143D5), // rgb(65, 67, 213)
-              Color(0xFF7459F7), // rgb(116, 89, 247)
-              Color(0xFF2C2CC3), // rgb(44, 44, 195)
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
+          gradient: gradient,
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFF4143D5).withValues(alpha: 0.4),
-              blurRadius: 50,
-              offset: const Offset(0, 20),
+              color: premiumTheme.primaryColor.withValues(alpha: 0.3),
+              blurRadius: 40,
+              offset: const Offset(0, 16),
             ),
           ],
         ),
@@ -644,7 +667,7 @@ class DashboardScreen extends StatelessWidget {
               child: Icon(
                 Icons.account_balance_wallet_rounded,
                 size: 100,
-                color: Colors.white.withValues(alpha: 0.1),
+                color: textColor.withValues(alpha: 0.05),
               ),
             ),
             Column(
@@ -653,7 +676,7 @@ class DashboardScreen extends StatelessWidget {
                 Text(
                   "TOTAL BALANCE",
                   style: GoogleFonts.inter(
-                    color: Colors.white.withValues(alpha: 0.8),
+                    color: textMutedColor,
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
                     letterSpacing: 2.0,
@@ -663,7 +686,7 @@ class DashboardScreen extends StatelessWidget {
                 Text(
                   formatCurrency(balance),
                   style: GoogleFonts.inter(
-                    color: Colors.white,
+                    color: textColor,
                     fontSize: 42,
                     fontWeight: FontWeight.bold,
                     letterSpacing: -1.5,
@@ -676,10 +699,10 @@ class DashboardScreen extends StatelessWidget {
                       child: Container(
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.1),
+                          color: containerBgColor,
                           borderRadius: BorderRadius.circular(16),
                           border: Border.all(
-                            color: Colors.white.withValues(alpha: 0.2),
+                            color: dividerColor,
                           ),
                         ),
                         child: Column(
@@ -687,7 +710,7 @@ class DashboardScreen extends StatelessWidget {
                             Text(
                               "Received",
                               style: GoogleFonts.inter(
-                                color: Theme.of(context).cardColor.withValues(alpha: 0.9),
+                                color: textMutedColor,
                                 fontSize: 12,
                                 fontWeight: FontWeight.w600,
                               ),
@@ -696,7 +719,7 @@ class DashboardScreen extends StatelessWidget {
                             Text(
                               formatCurrencyShort(income),
                               style: GoogleFonts.inter(
-                                color: Colors.white,
+                                color: textColor,
                                 fontSize: 20,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -710,10 +733,10 @@ class DashboardScreen extends StatelessWidget {
                       child: Container(
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.1),
+                          color: containerBgColor,
                           borderRadius: BorderRadius.circular(16),
                           border: Border.all(
-                            color: Colors.white.withValues(alpha: 0.2),
+                            color: dividerColor,
                           ),
                         ),
                         child: Column(
@@ -721,7 +744,7 @@ class DashboardScreen extends StatelessWidget {
                             Text(
                               "Given",
                               style: GoogleFonts.inter(
-                                color: Theme.of(context).cardColor.withValues(alpha: 0.9),
+                                color: textMutedColor,
                                 fontSize: 12,
                                 fontWeight: FontWeight.w600,
                               ),
@@ -730,7 +753,7 @@ class DashboardScreen extends StatelessWidget {
                             Text(
                               formatCurrencyShort(expense),
                               style: GoogleFonts.inter(
-                                color: Colors.white,
+                                color: textColor,
                                 fontSize: 20,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -832,22 +855,12 @@ class DashboardScreen extends StatelessWidget {
   }) {
     return GestureDetector(
       onTap: onTap,
-      child: Container(
+      child: SizedBox(
         width: 150,
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: cardColor,
-          borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: borderColor),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.02),
-              blurRadius: 30,
-              offset: const Offset(0, 10),
-            ),
-          ],
-        ),
-        child: Column(
+        child: GlassCard(
+          borderRadius: 24,
+          padding: const EdgeInsets.all(20),
+          child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
@@ -880,8 +893,9 @@ class DashboardScreen extends StatelessWidget {
           ],
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 
   Widget _buildProductivitySection(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -989,22 +1003,12 @@ class DashboardScreen extends StatelessWidget {
         HapticFeedback.lightImpact();
         onTap();
       },
-      child: Container(
+      child: SizedBox(
         width: 140,
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: cardColor,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: borderColor),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.02),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Column(
+        child: GlassCard(
+          borderRadius: 24,
+          padding: const EdgeInsets.all(20),
+          child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
@@ -1027,8 +1031,9 @@ class DashboardScreen extends StatelessWidget {
           ],
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 
   Widget _buildCashbookListHeader(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -1138,20 +1143,10 @@ class DashboardScreen extends StatelessWidget {
       },
       child: Container(
         margin: const EdgeInsets.only(bottom: 16),
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: cardColor,
-          borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: borderColor),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.02),
-              blurRadius: 30,
-              offset: const Offset(0, 10),
-            ),
-          ],
-        ),
-        child: Column(
+        child: GlassCard(
+          borderRadius: 24,
+          padding: const EdgeInsets.all(20),
+          child: Column(
           children: [
             Row(
               children: [
@@ -1296,8 +1291,9 @@ class DashboardScreen extends StatelessWidget {
           ],
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 
   void _showEditDialog(BuildContext context, String id, String currentName) {
     final TextEditingController nameController = TextEditingController(

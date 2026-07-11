@@ -1,5 +1,5 @@
 // ignore_for_file: unused_field
-import 'dart:ui';
+import'dart:ui';
 import 'package:cashbook/l10n/generated/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -13,6 +13,8 @@ import '../../models/transaction_model.dart';
 import '../../core/utils/animation_helper.dart';
 import '../../core/utils/toast_helper.dart';
 import '../../widgets/calculator_dialog.dart';
+import '../../core/widgets/theme_background_wrapper.dart';
+import '../../core/widgets/glass_card.dart';
 
 class AddRecordScreen extends StatefulWidget {
   final String cashbookName;
@@ -488,67 +490,34 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
           ),
         ),
       ),
-      body: Stack(
-        children: [
-          // Background accents
-          Positioned(
-            top: 100,
-            right: -50,
-            child: Container(
-              width: 200,
-              height: 200,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: const Color(
-                  0xFF4143D5,
-                ).withValues(alpha: isDark ? 0.1 : 0.05),
-              ),
-            ).animateBlur(),
-          ),
-
-          SafeArea(
-            bottom: false,
-            child: ListView(
-              padding: const EdgeInsets.fromLTRB(24, 24, 24, 120),
-              children: [
+      body: ThemeBackgroundWrapper(
+        child: Stack(
+          children: [
+            SafeArea(
+              bottom: false,
+              child: ListView(
+            padding: const EdgeInsets.fromLTRB(24, 24, 24, 120),
+            children: [
                 // Amount Hero Section
-                Container(
+                GlassCard(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 24,
-                    vertical: 24,
+                    vertical: 32,
                   ),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(24),
-                    gradient: LinearGradient(
-                      colors: isGiven
-                          ? [const Color(0xFFFF6B6B), const Color(0xFFEE5253)]
-                          : [const Color(0xFF34D399), const Color(0xFF059669)],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color:
-                            (isGiven
-                                    ? const Color(0xFFFF6B6B)
-                                    : const Color(0xFF059669))
-                                .withValues(alpha: 0.3),
-                        blurRadius: 16,
-                        offset: const Offset(0, 6),
-                      ),
-                    ],
-                  ),
+                  borderRadius: 32,
+                  backgroundColor: (isGiven ? const Color(0xFFFF6B6B) : const Color(0xFF34D399)).withValues(alpha: isDark ? 0.1 : 0.05),
                   child: Column(
                     children: [
                       Text(
                         "Total Amount",
                         style: GoogleFonts.hankenGrotesk(
-                          color: Colors.white.withValues(alpha: 0.8),
+                          color: textMuted,
                           fontSize: 14,
-                          fontWeight: FontWeight.w500,
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: 1.5,
                         ),
                       ),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: 16),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.baseline,
@@ -557,12 +526,12 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
                           Text(
                             "₹",
                             style: GoogleFonts.manrope(
-                              color: Colors.white.withValues(alpha: 0.9),
+                              color: isGiven ? const Color(0xFFE53935) : const Color(0xFF008339),
                               fontSize: 32,
                               fontWeight: FontWeight.w800,
                             ),
                           ),
-                          const SizedBox(width: 4),
+                          const SizedBox(width: 8),
                           IntrinsicWidth(
                             child: TextField(
                               controller: amountController,
@@ -578,7 +547,7 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
                               ],
                               textAlign: TextAlign.center,
                               style: GoogleFonts.manrope(
-                                color: Colors.white,
+                                color: textColor,
                                 fontSize: 48,
                                 fontWeight: FontWeight.w800,
                                 letterSpacing: -1,
@@ -589,7 +558,7 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
                                 contentPadding: EdgeInsets.zero,
                                 hintText: "0",
                                 hintStyle: GoogleFonts.manrope(
-                                  color: Colors.white.withValues(alpha: 0.5),
+                                  color: textMuted.withValues(alpha: 0.3),
                                   fontSize: 48,
                                   fontWeight: FontWeight.w800,
                                 ),
@@ -602,21 +571,21 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
                       Container(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 16,
-                          vertical: 4,
+                          vertical: 6,
                         ),
                         decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.2),
+                          color: (isGiven ? const Color(0xFFFF6B6B) : const Color(0xFF34D399)).withValues(alpha: 0.15),
                           borderRadius: BorderRadius.circular(20),
                           border: Border.all(
-                            color: Colors.white.withValues(alpha: 0.3),
+                            color: (isGiven ? const Color(0xFFFF6B6B) : const Color(0xFF34D399)).withValues(alpha: 0.3),
                           ),
                         ),
                         child: Text(
                           isGiven ? "Expense Mode" : "Income Mode",
                           style: GoogleFonts.hankenGrotesk(
-                            color: Colors.white,
+                            color: isGiven ? const Color(0xFFE53935) : const Color(0xFF008339),
                             fontSize: 14,
-                            fontWeight: FontWeight.w500,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
                       ),
@@ -1239,13 +1208,14 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
                           ),
                   ),
                 ),
-              ),
             ),
           ),
-        ],
+          ),
+        ]
       ),
-    );
-  }
+    ),
+  );
+}
 }
 
 extension BackgroundExtension on Widget {

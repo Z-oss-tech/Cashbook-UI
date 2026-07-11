@@ -1,6 +1,54 @@
 import 'package:flutter/material.dart';
 
+class ThemeInfo {
+  final ThemeData themeData;
+  final Color primaryColor;
+  final LinearGradient gradient;
+
+  ThemeInfo({
+    required this.themeData,
+    required this.primaryColor,
+    required this.gradient,
+  });
+}
+
 class PremiumThemes {
+  static ThemeInfo getTheme(String themeName) {
+    switch (themeName) {
+      case 'Midnight Ocean':
+        return ThemeInfo(
+          themeData: midnightOcean,
+          primaryColor: const Color(0xFF00D2FF),
+          gradient: const LinearGradient(colors: [Color(0xFF0A192F), Color(0xFF112240)]),
+        );
+      case 'Sunset Glow':
+        return ThemeInfo(
+          themeData: sunsetGlow,
+          primaryColor: const Color(0xFFFF512F),
+          gradient: const LinearGradient(colors: [Color(0xFF1F0D24), Color(0xFF321538)]),
+        );
+      case 'Forest Emerald':
+        return ThemeInfo(
+          themeData: forestEmerald,
+          primaryColor: const Color(0xFF10B981),
+          gradient: const LinearGradient(colors: [Color(0xFF064E3B), Color(0xFF065F46)]),
+        );
+      case 'Cherry Blossom':
+        return ThemeInfo(
+          themeData: cherryBlossom,
+          primaryColor: const Color(0xFFF43F5E),
+          gradient: const LinearGradient(colors: [Color(0xFFFFF0F3), Colors.white]),
+        );
+      default:
+        // Default theme info
+        return ThemeInfo(
+          themeData: ThemeData.light(), // Fallback
+          primaryColor: const Color(0xFF4143D5),
+          gradient: const LinearGradient(colors: [Color(0xFF4143D5), Color(0xFF7459F7)]),
+        );
+    }
+  }
+
   // 1. Midnight Ocean
   static ThemeData get midnightOcean {
     const primary = Color(0xFF00D2FF);
