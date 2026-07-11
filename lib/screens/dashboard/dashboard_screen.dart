@@ -217,7 +217,9 @@ class DashboardScreen extends StatelessWidget {
                                 ),
                                 filled: true,
                                 fillColor: isDark
-                                    ? Theme.of(context).cardColor.withValues(alpha: 0.5)
+                                    ? Theme.of(
+                                        context,
+                                      ).cardColor.withValues(alpha: 0.5)
                                     : const Color(0xFFF8FAFC),
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(16),
@@ -260,7 +262,9 @@ class DashboardScreen extends StatelessWidget {
                                 ),
                                 filled: true,
                                 fillColor: isDark
-                                    ? Theme.of(context).cardColor.withValues(alpha: 0.5)
+                                    ? Theme.of(
+                                        context,
+                                      ).cardColor.withValues(alpha: 0.5)
                                     : const Color(0xFFF8FAFC),
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(16),
@@ -525,7 +529,9 @@ class DashboardScreen extends StatelessWidget {
 
   Widget _buildTopHeader(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final textColor = Theme.of(context).textTheme.bodyLarge?.color ?? (isDark ? Colors.white : const Color(0xFF0B1C30));
+    final textColor =
+        Theme.of(context).textTheme.bodyLarge?.color ??
+        (isDark ? Colors.white : const Color(0xFF0B1C30));
     final subTextColor = isDark ? Colors.white70 : const Color(0xFF464555);
 
     return Container(
@@ -553,7 +559,10 @@ class DashboardScreen extends StatelessWidget {
                         width: 2,
                       ),
                       gradient: LinearGradient(
-                        colors: [Theme.of(context).primaryColor, AppColors.secondary],
+                        colors: [
+                          Theme.of(context).primaryColor,
+                          AppColors.secondary,
+                        ],
                       ),
                     ),
                     child: Center(
@@ -619,27 +628,27 @@ class DashboardScreen extends StatelessWidget {
     final premiumTheme = PremiumThemes.getTheme(settings.appTheme);
     final gradient = settings.appTheme == 'Default'
         ? const LinearGradient(
-            colors: [
-              Color(0xFF4143D5),
-              Color(0xFF7459F7),
-              Color(0xFF2C2CC3),
-            ],
+            colors: [Color(0xFF4143D5), Color(0xFF7459F7), Color(0xFF2C2CC3)],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           )
         : premiumTheme.gradient;
 
     final isDefault = settings.appTheme == 'Default';
-    final textColor = isDefault || premiumTheme.themeData.brightness == Brightness.dark 
-        ? Colors.white 
+    final textColor =
+        isDefault || premiumTheme.themeData.brightness == Brightness.dark
+        ? Colors.white
         : const Color(0xFF191C1E);
-    final textMutedColor = isDefault || premiumTheme.themeData.brightness == Brightness.dark 
-        ? Colors.white.withValues(alpha: 0.8) 
+    final textMutedColor =
+        isDefault || premiumTheme.themeData.brightness == Brightness.dark
+        ? Colors.white.withValues(alpha: 0.8)
         : const Color(0xFF464555);
-    final dividerColor = isDefault || premiumTheme.themeData.brightness == Brightness.dark
+    final dividerColor =
+        isDefault || premiumTheme.themeData.brightness == Brightness.dark
         ? Colors.white.withValues(alpha: 0.2)
         : premiumTheme.primaryColor.withValues(alpha: 0.2);
-    final containerBgColor = isDefault || premiumTheme.themeData.brightness == Brightness.dark
+    final containerBgColor =
+        isDefault || premiumTheme.themeData.brightness == Brightness.dark
         ? Colors.white.withValues(alpha: 0.1)
         : Colors.white.withValues(alpha: 0.5);
 
@@ -701,9 +710,7 @@ class DashboardScreen extends StatelessWidget {
                         decoration: BoxDecoration(
                           color: containerBgColor,
                           borderRadius: BorderRadius.circular(16),
-                          border: Border.all(
-                            color: dividerColor,
-                          ),
+                          border: Border.all(color: dividerColor),
                         ),
                         child: Column(
                           children: [
@@ -735,9 +742,7 @@ class DashboardScreen extends StatelessWidget {
                         decoration: BoxDecoration(
                           color: containerBgColor,
                           borderRadius: BorderRadius.circular(16),
-                          border: Border.all(
-                            color: dividerColor,
-                          ),
+                          border: Border.all(color: dividerColor),
                         ),
                         child: Column(
                           children: [
@@ -783,8 +788,22 @@ class DashboardScreen extends StatelessWidget {
     final borderColor = isDark
         ? const Color(0xFF464555)
         : const Color(0xFFE6E8EA);
-    final textColor = Theme.of(context).textTheme.bodyLarge?.color ?? (isDark ? Colors.white : const Color(0xFF0B1C30));
+    final textColor =
+        Theme.of(context).textTheme.bodyLarge?.color ??
+        (isDark ? Colors.white : const Color(0xFF0B1C30));
     final subTextColor = isDark ? Colors.white70 : const Color(0xFF464555);
+
+    final settings = Provider.of<SettingsProvider>(context);
+    final premiumTheme = PremiumThemes.getTheme(settings.appTheme);
+    final isDefault = settings.appTheme == 'Default';
+
+    final c1 = isDefault ? const Color(0xFF4143D5) : premiumTheme.primaryColor;
+    final c2 = isDefault
+        ? const Color(0xFF5B3CDD)
+        : premiumTheme.gradient.colors.last;
+    final c3 = isDefault
+        ? const Color(0xFF008339)
+        : premiumTheme.gradient.colors.first;
 
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
@@ -797,7 +816,7 @@ class DashboardScreen extends StatelessWidget {
             title: "Weekly Summary",
             value: formatCurrencyShort(thisWeekAmount),
             icon: Icons.insights_rounded,
-            color: const Color(0xFF4143D5),
+            color: c1,
             cardColor: cardColor,
             borderColor: borderColor,
             textColor: textColor,
@@ -809,7 +828,7 @@ class DashboardScreen extends StatelessWidget {
             title: "Active Cashbooks",
             value: "$booksCount",
             icon: Icons.book_rounded,
-            color: const Color(0xFF5B3CDD),
+            color: c2,
             cardColor: cardColor,
             borderColor: borderColor,
             textColor: textColor,
@@ -830,7 +849,7 @@ class DashboardScreen extends StatelessWidget {
             title: "Total Transactions",
             value: "$totalTxns",
             icon: Icons.swap_horiz_rounded,
-            color: const Color(0xFF008339),
+            color: c3,
             cardColor: cardColor,
             borderColor: borderColor,
             textColor: textColor,
@@ -861,46 +880,63 @@ class DashboardScreen extends StatelessWidget {
           borderRadius: 24,
           padding: const EdgeInsets.all(20),
           child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.1),
-                shape: BoxShape.circle,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(icon, color: color, size: 20),
               ),
-              child: Icon(icon, color: color, size: 20),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              title,
-              style: GoogleFonts.inter(
-                color: subTextColor,
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
+              const SizedBox(height: 16),
+              Text(
+                title,
+                style: GoogleFonts.inter(
+                  color: subTextColor,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              value,
-              style: GoogleFonts.inter(
-                color: textColor,
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
+              const SizedBox(height: 4),
+              Text(
+                value,
+                style: GoogleFonts.inter(
+                  color: textColor,
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
-    ),
-  );
-}
+    );
+  }
 
   Widget _buildProductivitySection(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final textColor = Theme.of(context).textTheme.bodyLarge?.color ?? (isDark ? Colors.white : const Color(0xFF0B1C30));
+    final textColor =
+        Theme.of(context).textTheme.bodyLarge?.color ??
+        (isDark ? Colors.white : const Color(0xFF0B1C30));
     final recordProvider = Provider.of<RecordProvider>(context, listen: false);
+
+    final settings = Provider.of<SettingsProvider>(context);
+    final premiumTheme = PremiumThemes.getTheme(settings.appTheme);
+    final isDefault = settings.appTheme == 'Default';
+
+    final c1 = isDefault ? const Color(0xFF4143D5) : premiumTheme.primaryColor;
+    final c2 = isDefault
+        ? const Color(0xFF008339)
+        : premiumTheme.gradient.colors.last;
+    final c3 = isDefault
+        ? const Color(0xFFE53935)
+        : premiumTheme.gradient.colors.first;
+    final c4 = isDefault
+        ? const Color(0xFF5B3CDD)
+        : premiumTheme.primaryColor.withValues(alpha: 0.8);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -924,7 +960,7 @@ class DashboardScreen extends StatelessWidget {
                 context,
                 title: "Continue Last Book",
                 icon: Icons.play_arrow_rounded,
-                color: const Color(0xFF4143D5),
+                color: c1,
                 onTap: () {
                   if (recordProvider.cashbooks.isNotEmpty) {
                     Navigator.push(
@@ -945,7 +981,7 @@ class DashboardScreen extends StatelessWidget {
                 context,
                 title: "Smart Insights",
                 icon: Icons.auto_awesome_rounded,
-                color: const Color(0xFF008339),
+                color: c2,
                 onTap: () {
                   Navigator.push(
                     context,
@@ -958,7 +994,7 @@ class DashboardScreen extends StatelessWidget {
                 context,
                 title: "Export",
                 icon: Icons.picture_as_pdf_rounded,
-                color: const Color(0xFFE53935),
+                color: c3,
                 onTap: () {
                   HapticFeedback.lightImpact();
                   ExportHelper.showExportOptions(context);
@@ -969,7 +1005,7 @@ class DashboardScreen extends StatelessWidget {
                 context,
                 title: "Pending Sync",
                 icon: Icons.cloud_upload_rounded,
-                color: const Color(0xFF5B3CDD),
+                color: c4,
                 onTap: () {
                   recordProvider.syncOfflineQueue();
                   ScaffoldMessenger.of(context).showSnackBar(
@@ -996,7 +1032,9 @@ class DashboardScreen extends StatelessWidget {
     final borderColor = isDark
         ? const Color(0xFF464555)
         : const Color(0xFFE6E8EA);
-    final textColor = Theme.of(context).textTheme.bodyLarge?.color ?? (isDark ? Colors.white : const Color(0xFF0B1C30));
+    final textColor =
+        Theme.of(context).textTheme.bodyLarge?.color ??
+        (isDark ? Colors.white : const Color(0xFF0B1C30));
 
     return GestureDetector(
       onTap: () {
@@ -1009,35 +1047,37 @@ class DashboardScreen extends StatelessWidget {
           borderRadius: 24,
           padding: const EdgeInsets.all(20),
           child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(12),
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(icon, color: color, size: 20),
               ),
-              child: Icon(icon, color: color, size: 20),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              title,
-              style: GoogleFonts.inter(
-                color: textColor,
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
+              const SizedBox(height: 16),
+              Text(
+                title,
+                style: GoogleFonts.inter(
+                  color: textColor,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
-    ),
-  );
-}
+    );
+  }
 
   Widget _buildCashbookListHeader(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final textColor = Theme.of(context).textTheme.bodyLarge?.color ?? (isDark ? Colors.white : const Color(0xFF0B1C30));
+    final textColor =
+        Theme.of(context).textTheme.bodyLarge?.color ??
+        (isDark ? Colors.white : const Color(0xFF0B1C30));
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1129,8 +1169,17 @@ class DashboardScreen extends StatelessWidget {
     final borderColor = isDark
         ? const Color(0xFF464555)
         : const Color(0xFFE6E8EA);
-    final textColor = Theme.of(context).textTheme.bodyLarge?.color ?? (isDark ? Colors.white : const Color(0xFF0B1C30));
+    final textColor =
+        Theme.of(context).textTheme.bodyLarge?.color ??
+        (isDark ? Colors.white : const Color(0xFF0B1C30));
     final subTextColor = isDark ? Colors.white70 : const Color(0xFF464555);
+
+    final settings = Provider.of<SettingsProvider>(context);
+    final premiumTheme = PremiumThemes.getTheme(settings.appTheme);
+    final isDefault = settings.appTheme == 'Default';
+    final primaryColor = isDefault
+        ? const Color(0xFF5B5FEF)
+        : premiumTheme.primaryColor;
 
     return GestureDetector(
       onTap: () {
@@ -1147,153 +1196,159 @@ class DashboardScreen extends StatelessWidget {
           borderRadius: 24,
           padding: const EdgeInsets.all(20),
           child: Column(
-          children: [
-            Row(
-              children: [
-                Container(
-                  width: 48,
-                  height: 48,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFECEEF0),
-                    borderRadius: BorderRadius.circular(16),
+            children: [
+              Row(
+                children: [
+                  Container(
+                    width: 48,
+                    height: 48,
+                    decoration: BoxDecoration(
+                      color: isDefault
+                          ? const Color(0xFFECEEF0)
+                          : primaryColor.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Icon(
+                      Icons.menu_book_rounded,
+                      color: primaryColor,
+                      size: 24,
+                    ),
                   ),
-                  child: const Icon(
-                    Icons.menu_book_rounded,
-                    color: Color(0xFF5B5FEF),
-                    size: 24,
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          cashbook.name,
+                          style: GoogleFonts.inter(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                            color: textColor,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          "Created on $date",
+                          style: GoogleFonts.inter(
+                            color: subTextColor,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
+                  PopupMenuButton<String>(
+                    icon: Icon(Icons.more_vert_rounded, color: subTextColor),
+                    onSelected: (value) {
+                      if (value == 'edit') {
+                        _showEditDialog(context, cashbook.id, cashbook.name);
+                      } else if (value == 'delete') {
+                        _showDeleteDialog(context, cashbook.id, cashbook.name);
+                      }
+                    },
+                    itemBuilder: (BuildContext context) => [
+                      PopupMenuItem(
+                        value: 'edit',
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.edit_rounded,
+                              size: 18,
+                              color: textColor,
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              'Edit',
+                              style: GoogleFonts.inter(color: textColor),
+                            ),
+                          ],
+                        ),
+                      ),
+                      PopupMenuItem(
+                        value: 'delete',
+                        child: Row(
+                          children: [
+                            const Icon(
+                              Icons.delete_rounded,
+                              color: Colors.red,
+                              size: 18,
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              'Delete',
+                              style: GoogleFonts.inter(color: Colors.red),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              Divider(color: borderColor, height: 1),
+              const SizedBox(height: 16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        cashbook.name,
-                        style: GoogleFonts.inter(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                          color: textColor,
-                        ),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        "Created on $date",
+                        "Net Balance",
                         style: GoogleFonts.inter(
                           color: subTextColor,
                           fontSize: 12,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
+                      const SizedBox(height: 2),
+                      Text(
+                        amount,
+                        style: GoogleFonts.inter(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                          color: isPositive
+                              ? (isDark
+                                    ? const Color(0xFF86EFAC)
+                                    : const Color(0xFF008339))
+                              : (isDark
+                                    ? const Color(0xFFFCA5A5)
+                                    : const Color(0xFFE53935)),
+                        ),
+                      ),
                     ],
                   ),
-                ),
-                PopupMenuButton<String>(
-                  icon: Icon(Icons.more_vert_rounded, color: subTextColor),
-                  onSelected: (value) {
-                    if (value == 'edit') {
-                      _showEditDialog(context, cashbook.id, cashbook.name);
-                    } else if (value == 'delete') {
-                      _showDeleteDialog(context, cashbook.id, cashbook.name);
-                    }
-                  },
-                  itemBuilder: (BuildContext context) => [
-                    PopupMenuItem(
-                      value: 'edit',
-                      child: Row(
-                        children: [
-                          Icon(Icons.edit_rounded, size: 18, color: textColor),
-                          const SizedBox(width: 8),
-                          Text(
-                            'Edit',
-                            style: GoogleFonts.inter(color: textColor),
-                          ),
-                        ],
-                      ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
                     ),
-                    PopupMenuItem(
-                      value: 'delete',
-                      child: Row(
-                        children: [
-                          const Icon(
-                            Icons.delete_rounded,
-                            color: Colors.red,
-                            size: 18,
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            'Delete',
-                            style: GoogleFonts.inter(color: Colors.red),
-                          ),
-                        ],
-                      ),
+                    decoration: BoxDecoration(
+                      color: isDark
+                          ? Colors.white.withValues(alpha: 0.1)
+                          : const Color(0xFFF2F4F6),
+                      borderRadius: BorderRadius.circular(30),
                     ),
-                  ],
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            Divider(color: borderColor, height: 1),
-            const SizedBox(height: 16),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "Net Balance",
+                    child: Text(
+                      "Details",
                       style: GoogleFonts.inter(
-                        color: subTextColor,
+                        color: isDark ? Colors.white : subTextColor,
                         fontSize: 12,
-                        fontWeight: FontWeight.w500,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
-                    const SizedBox(height: 2),
-                    Text(
-                      amount,
-                      style: GoogleFonts.inter(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 18,
-                        color: isPositive
-                            ? (isDark
-                                  ? const Color(0xFF86EFAC)
-                                  : const Color(0xFF008339))
-                            : (isDark
-                                  ? const Color(0xFFFCA5A5)
-                                  : const Color(0xFFE53935)),
-                      ),
-                    ),
-                  ],
-                ),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 8,
                   ),
-                  decoration: BoxDecoration(
-                    color: isDark
-                        ? Colors.white.withValues(alpha: 0.1)
-                        : const Color(0xFFF2F4F6),
-                    borderRadius: BorderRadius.circular(30),
-                  ),
-                  child: Text(
-                    "Details",
-                    style: GoogleFonts.inter(
-                      color: isDark ? Colors.white : subTextColor,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ],
+                ],
+              ),
+            ],
+          ),
         ),
       ),
-    ),
-  );
-}
+    );
+  }
 
   void _showEditDialog(BuildContext context, String id, String currentName) {
     final TextEditingController nameController = TextEditingController(

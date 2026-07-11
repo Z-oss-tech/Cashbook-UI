@@ -193,7 +193,9 @@ class HelpSupportScreen extends StatelessWidget {
                     style: GoogleFonts.poppins(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
-                      color: isDark ? Colors.white : Theme.of(context).primaryColor,
+                      color: isDark
+                          ? Colors.white
+                          : Theme.of(context).primaryColor,
                     ),
                   ),
                   const SizedBox(height: 8),
@@ -274,7 +276,9 @@ class HelpSupportScreen extends StatelessWidget {
                   style: GoogleFonts.poppins(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
-                    color: Theme.of(context).textTheme.bodyLarge?.color ?? (isDark ? Colors.white : const Color(0xFF0B1C30)),
+                    color:
+                        Theme.of(context).textTheme.bodyLarge?.color ??
+                        (isDark ? Colors.white : const Color(0xFF0B1C30)),
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -325,7 +329,9 @@ class HelpSupportScreen extends StatelessWidget {
             style: GoogleFonts.poppins(
               fontWeight: FontWeight.w600,
               fontSize: 14,
-              color: Theme.of(context).textTheme.bodyLarge?.color ?? (isDark ? Colors.white : const Color(0xFF0B1C30)),
+              color:
+                  Theme.of(context).textTheme.bodyLarge?.color ??
+                  (isDark ? Colors.white : const Color(0xFF0B1C30)),
             ),
           ),
           children: [

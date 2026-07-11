@@ -1,5 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../providers/settings_provider.dart';
 
 class GlassCard extends StatelessWidget {
   final Widget child;
@@ -20,12 +22,33 @@ class GlassCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    
-    // Default translucent colors based on brightness
-    final defaultBg = isDark 
-        ? Colors.white.withValues(alpha: 0.05) 
+    final settings = Provider.of<SettingsProvider>(context);
+    final isDefault = settings.appTheme == 'Default';
+
+    if (isDefault) {
+      // Legacy Mode: Standard solid card
+      return Container(
+        padding: padding,
+        decoration: BoxDecoration(
+          color: backgroundColor ?? Theme.of(context).cardColor,
+          borderRadius: BorderRadius.circular(borderRadius),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.05),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: child,
+      );
+    }
+
+    // Premium Themes: Glassmorphism effect
+    final defaultBg = isDark
+        ? Colors.white.withValues(alpha: 0.05)
         : Colors.white.withValues(alpha: 0.85);
-        
+
     final borderColor = isDark
         ? Colors.white.withValues(alpha: 0.1)
         : Theme.of(context).primaryColor.withValues(alpha: 0.15);
@@ -39,16 +62,16 @@ class GlassCard extends StatelessWidget {
           decoration: BoxDecoration(
             color: backgroundColor ?? defaultBg,
             borderRadius: BorderRadius.circular(borderRadius),
-            border: showBorder 
+            border: showBorder
                 ? Border.all(color: borderColor, width: 1.0)
                 : null,
             boxShadow: [
-              if (!isDark) 
+              if (!isDark)
                 BoxShadow(
                   color: Colors.black.withValues(alpha: 0.03),
                   blurRadius: 10,
                   offset: const Offset(0, 4),
-                )
+                ),
             ],
           ),
           child: child,

@@ -115,7 +115,10 @@ class _AddPeopleScreenState extends State<AddPeopleScreen> {
               hint: "Enter person name",
               icon: Icons.person_outline,
               suffixIcon: IconButton(
-                icon: Icon(Icons.contacts, color: Theme.of(context).primaryColor),
+                icon: Icon(
+                  Icons.contacts,
+                  color: Theme.of(context).primaryColor,
+                ),
                 onPressed: _pickContact,
               ),
             ),

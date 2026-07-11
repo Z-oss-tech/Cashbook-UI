@@ -1,28 +1,22 @@
-import 'package:cashbook/l10n/generated/app_localizations.dart';
-import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-
-import '../../core/constants/app_colors.dart';
-
+import 'package:fl_chart/fl_chart.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter/services.dart';
+
 import '../../providers/record_provider.dart';
+import '../../providers/settings_provider.dart';
 import '../../models/transaction_model.dart';
 import '../../core/utils/export_helper.dart';
-import 'package:flutter/services.dart';
+import '../../core/theme/premium_themes.dart';
+import '../../core/widgets/theme_background_wrapper.dart';
+import '../../core/widgets/glass_card.dart';
+import 'package:intl/intl.dart';
 
 class ReportsScreen extends StatelessWidget {
   final String? cashbookName;
 
   const ReportsScreen({super.key, this.cashbookName});
-
-  // Helper to format currency
-  String formatCurrencyShort(double amount) {
-    if (amount >= 1000) {
-      return '₹ ${(amount / 1000).toStringAsFixed(1)}K';
-    }
-    return '₹ ${amount.toStringAsFixed(0)}';
-  }
 
   String formatCurrency(double amount) {
     final String sign = amount < 0 ? '-' : '';
@@ -45,9 +39,20 @@ class ReportsScreen extends StatelessWidget {
     return '$sign₹ $beforeDecimal.$afterDecimal';
   }
 
+  String formatCurrencyShort(double amount) {
+    if (amount >= 1000) {
+      return '₹ ${(amount / 1000).toStringAsFixed(1)}K';
+    }
+    return '₹ ${amount.toStringAsFixed(0)}';
+  }
+
   @override
   Widget build(BuildContext context) {
     final recordProvider = Provider.of<RecordProvider>(context);
+    final settings = Provider.of<SettingsProvider>(context);
+    final premiumTheme = PremiumThemes.getTheme(settings.appTheme);
+    final isDefault = settings.appTheme == 'Default';
+
     final allRecords = recordProvider.records;
     final records = cashbookName != null
         ? allRecords.where((r) => r.cashbookName == cashbookName).toList()
@@ -61,394 +66,422 @@ class ReportsScreen extends StatelessWidget {
         .fold(0, (s, r) => s + r.amount);
     final double balance = totalReceived - totalGiven;
 
-    // 1. Weekly Analytics (Mon=1 to Sun=7)
+    // Weekly Analytics (Mon=0 to Sun=6)
     final List<double> weeklyData = List.filled(7, 0.0);
     final now = DateTime.now();
     for (var r in records) {
-      // only consider records from the last 7 days to show in the week chart
       if (now.difference(r.date).inDays <= 7) {
         weeklyData[r.date.weekday - 1] += r.amount;
       }
     }
 
-    // 2. Highest Insights
-    RecordModel? highestReceived;
-    RecordModel? highestGiven;
-    for (var r in records) {
-      if (!r.isGiven) {
-        if (highestReceived == null || r.amount > highestReceived.amount)
-          highestReceived = r;
-      } else {
-        if (highestGiven == null || r.amount > highestGiven.amount)
-          highestGiven = r;
-      }
-    }
+    final monthName = DateFormat('MMMM yyyy').format(now);
 
-    // 3. Stats Data
-    final double thisWeekAmount = records
-        .where((r) => now.difference(r.date).inDays <= 7)
-        .fold(0.0, (s, r) => s + r.amount);
-
-    final double avgTransaction = records.isNotEmpty
-        ? (totalGiven + totalReceived) / records.length
-        : 0.0;
+    // Sort for recent events
+    final sortedRecords = List<RecordModel>.from(records)
+      ..sort((a, b) => b.date.compareTo(a.date));
+    final recentEvents = sortedRecords.take(3).toList();
 
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-
         title: Text(
-          cashbookName != null ? "$cashbookName Reports" : "Reports & Insights",
-          style: GoogleFonts.poppins(fontWeight: FontWeight.bold),
+          cashbookName != null ? "$cashbookName Reports" : "Smart Analytics",
+          style: GoogleFonts.poppins(fontWeight: FontWeight.bold, fontSize: 18),
         ),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.file_download_rounded),
-            onPressed: () {
-              HapticFeedback.lightImpact();
-              ExportHelper.showExportOptions(context);
-            },
-          ),
-        ],
-      ),
-
-      body: SingleChildScrollView(
-        physics: const BouncingScrollPhysics(),
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildMainBalanceCard(
-                context,
-                balance,
-                totalReceived,
-                totalGiven,
-              ),
-
-              const SizedBox(height: 30),
-
-              Text(
-                "Weekly Volume",
-                style: GoogleFonts.poppins(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
+          Container(
+            margin: const EdgeInsets.only(right: 16, top: 8, bottom: 8),
+            decoration: BoxDecoration(
+              gradient: isDefault
+                  ? const LinearGradient(
+                      colors: [Color(0xFF4143D5), Color(0xFF7459F7)],
+                    )
+                  : premiumTheme.gradient,
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: [
+                BoxShadow(
+                  color:
+                      (isDefault
+                              ? const Color(0xFF4143D5)
+                              : premiumTheme.primaryColor)
+                          .withValues(alpha: 0.3),
+                  blurRadius: 8,
+                  offset: const Offset(0, 4),
                 ),
-              ),
-              const SizedBox(height: 20),
-              Container(
-                height: 260,
-                padding: const EdgeInsets.all(18),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).cardColor,
-                  borderRadius: BorderRadius.circular(28),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.04),
-                      blurRadius: 10,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: BarChart(
-                  BarChartData(
-                    alignment: BarChartAlignment.spaceAround,
-                    borderData: FlBorderData(show: false),
-                    gridData: FlGridData(show: false),
-                    titlesData: FlTitlesData(
-                      topTitles: AxisTitles(
-                        sideTitles: SideTitles(showTitles: false),
+              ],
+            ),
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                borderRadius: BorderRadius.circular(20),
+                onTap: () {
+                  HapticFeedback.lightImpact();
+                  ExportHelper.showExportOptions(context);
+                },
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(
+                        Icons.download_rounded,
+                        size: 16,
+                        color: Colors.white,
                       ),
-                      rightTitles: AxisTitles(
-                        sideTitles: SideTitles(showTitles: false),
-                      ),
-                      leftTitles: AxisTitles(
-                        sideTitles: SideTitles(showTitles: false),
-                      ),
-                      bottomTitles: AxisTitles(
-                        sideTitles: SideTitles(
-                          showTitles: true,
-                          getTitlesWidget: (value, meta) {
-                            const days = ["M", "T", "W", "T", "F", "S", "S"];
-                            if (value >= 0 && value < 7) {
-                              return Padding(
-                                padding: const EdgeInsets.only(top: 10),
-                                child: Text(
-                                  days[value.toInt()],
-                                  style: GoogleFonts.poppins(fontSize: 12),
-                                ),
-                              );
-                            }
-                            return const SizedBox();
-                          },
+                      const SizedBox(width: 6),
+                      Text(
+                        "Export",
+                        style: GoogleFonts.poppins(
+                          color: Colors.white,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
-                    ),
-                    barGroups: [
-                      for (int i = 0; i < 7; i++) _buildBar(i, weeklyData[i]),
                     ],
                   ),
                 ),
               ),
-
-              const SizedBox(height: 30),
-
-              Text(
-                "Smart Insights",
-                style: GoogleFonts.poppins(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
+      ),
+      body: ThemeBackgroundWrapper(
+        child: SafeArea(
+          bottom: false,
+          child: SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Header Titles
+                Text(
+                  "Financial Bloom",
+                  style: GoogleFonts.poppins(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 2,
+                    color: isDefault
+                        ? Colors.blueGrey
+                        : premiumTheme.gradient.colors.last,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 18),
-
-              if (highestReceived != null)
-                _buildInsightCard(
-                  context: context,
-                  icon: Icons.trending_up,
-                  title: "Highest Received",
-                  subtitle:
-                      "You received ₹${highestReceived.amount.toStringAsFixed(0)} for '${highestReceived.personName}'.",
-                  color: Colors.green,
+                const SizedBox(height: 4),
+                Text(
+                  "Monthly Analytics",
+                  style: GoogleFonts.poppins(
+                    fontSize: 28,
+                    fontWeight: FontWeight.bold,
+                    color: isDefault
+                        ? Colors.black87
+                        : (premiumTheme.themeData.brightness == Brightness.dark
+                              ? Colors.white
+                              : premiumTheme.primaryColor),
+                  ),
                 ),
+                const SizedBox(height: 16),
 
-              if (highestGiven != null)
-                _buildInsightCard(
-                  context: context,
-                  icon: Icons.warning_rounded,
-                  title: "Highest Expense",
-                  subtitle:
-                      "You spent ₹${highestGiven.amount.toStringAsFixed(0)} for '${highestGiven.personName}'.",
-                  color: Colors.orange,
-                ),
-
-              if (records.isNotEmpty)
-                _buildInsightCard(
-                  context: context,
-                  icon: Icons.auto_awesome,
-                  title: "Net Position",
-                  subtitle: balance >= 0
-                      ? "Great job! You are positive by ₹${balance.toStringAsFixed(0)}."
-                      : "Careful! You have spent ₹${balance.abs().toStringAsFixed(0)} more than you received.",
-                  color: Colors.purple,
-                ),
-
-              if (records.isEmpty)
-                Center(
+                // Month Pill
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
+                  decoration: BoxDecoration(
+                    color: (isDefault ? Colors.grey : premiumTheme.primaryColor)
+                        .withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color:
+                          (isDefault ? Colors.grey : premiumTheme.primaryColor)
+                              .withValues(alpha: 0.2),
+                    ),
+                  ),
                   child: Text(
-                    "No data available for insights yet.",
-                    style: GoogleFonts.poppins(color: Colors.grey),
+                    monthName,
+                    style: GoogleFonts.poppins(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: isDefault
+                          ? Colors.black54
+                          : (premiumTheme.themeData.brightness ==
+                                    Brightness.dark
+                                ? Colors.white70
+                                : premiumTheme.gradient.colors.last),
+                    ),
                   ),
                 ),
+                const SizedBox(height: 24),
 
-              const SizedBox(height: 30),
+                // 1. Summary Card
+                _buildSummaryCard(
+                  context,
+                  balance,
+                  totalReceived,
+                  totalGiven,
+                  premiumTheme,
+                  isDefault,
+                ),
 
-              Row(
-                children: [
-                  Expanded(
-                    child: _buildStatsCard(
-                      context: context,
-                      title: "Total Records",
-                      value: "${records.length}",
-                      color: Colors.blue,
+                const SizedBox(height: 20),
+
+                // 2. Spending Tendency (Bar Chart)
+                _buildSpendingTendency(
+                  context,
+                  weeklyData,
+                  premiumTheme,
+                  isDefault,
+                ),
+
+                const SizedBox(height: 20),
+
+                // 3. Category Mix (Donut Chart)
+                _buildCategoryMix(
+                  context,
+                  totalReceived,
+                  totalGiven,
+                  premiumTheme,
+                  isDefault,
+                ),
+
+                const SizedBox(height: 20),
+
+                // 4. AI Insight Card
+                _buildInsightCard(
+                  context,
+                  totalReceived,
+                  totalGiven,
+                  balance,
+                  premiumTheme,
+                  isDefault,
+                ),
+
+                const SizedBox(height: 32),
+
+                // 5. Key Events
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      "Key Events",
+                      style: GoogleFonts.poppins(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: isDefault
+                            ? Colors.black87
+                            : (premiumTheme.themeData.brightness ==
+                                      Brightness.dark
+                                  ? Colors.white
+                                  : premiumTheme.primaryColor),
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: _buildStatsCard(
-                      context: context,
-                      title: "Avg Entry",
-                      value: formatCurrencyShort(avgTransaction),
-                      color: Colors.green,
+                    Text(
+                      "View All",
+                      style: GoogleFonts.poppins(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: isDefault
+                            ? Colors.blue
+                            : premiumTheme.gradient.colors.last,
+                      ),
                     ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              Row(
-                children: [
-                  Expanded(
-                    child: _buildStatsCard(
-                      context: context,
-                      title: AppLocalizations.of(context)!.thisWeek,
-                      value: formatCurrencyShort(thisWeekAmount),
-                      color: Colors.orange,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: _buildStatsCard(
-                      context: context,
-                      title: "Net Balance",
-                      value: formatCurrencyShort(balance),
-                      color: balance >= 0 ? Colors.purple : Colors.red,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 40),
-            ],
+                  ],
+                ),
+                const SizedBox(height: 16),
+                ...recentEvents.map(
+                  (r) => _buildEventTile(context, r, premiumTheme, isDefault),
+                ),
+
+                const SizedBox(height: 100), // Bottom padding for Nav Bar
+              ],
+            ),
           ),
         ),
       ),
     );
   }
 
-  Widget _buildMainBalanceCard(
+  Widget _buildSummaryCard(
     BuildContext context,
     double balance,
     double income,
     double expense,
+    ThemeInfo premiumTheme,
+    bool isDefault,
   ) {
-    return Container(
-      width: double.infinity,
+    final secondaryTextColor = isDefault
+        ? Colors.black54
+        : (premiumTheme.themeData.brightness == Brightness.dark
+              ? Colors.white70
+              : Colors.black54);
+    final primaryColor = isDefault
+        ? const Color(0xFF4143D5)
+        : premiumTheme.primaryColor;
+    final secondaryColor = isDefault
+        ? const Color(0xFF7459F7)
+        : premiumTheme.gradient.colors.last;
+
+    final double total = income + expense;
+    final double incomePercentage = total == 0 ? 0 : (income / total);
+
+    return GlassCard(
       padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(32),
-        gradient: const LinearGradient(
-          colors: [
-            Color(0xFF3B82F6), // Vibrant premium blue
-            Color(0xFF1D4ED8), // Deep blue
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFF2563EB).withValues(alpha: 0.35),
-            blurRadius: 24,
-            offset: const Offset(0, 12),
-          ),
-        ],
-        border: Border.all(
-          color: Colors.white.withValues(alpha: 0.2),
-          width: 1.2,
-        ),
-      ),
+      borderRadius: 28,
       child: Stack(
+        clipBehavior: Clip.none,
         children: [
-          // Abstract geometric shapes for a modern look
           Positioned(
-            right: -20,
-            top: -20,
+            right: -40,
+            top: -40,
             child: Container(
-              height: 120,
-              width: 120,
+              width: 150,
+              height: 150,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                gradient: LinearGradient(
-                  colors: [
-                    Colors.white.withValues(alpha: 0.2),
-                    Colors.white.withValues(alpha: 0.0),
-                  ],
-                  begin: Alignment.topRight,
-                  end: Alignment.bottomLeft,
-                ),
-              ),
-            ),
-          ),
-          Positioned(
-            left: -40,
-            bottom: -40,
-            child: Container(
-              height: 140,
-              width: 140,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                gradient: LinearGradient(
-                  colors: [
-                    Colors.white.withValues(alpha: 0.0),
-                    Colors.white.withValues(alpha: 0.15),
-                  ],
-                  begin: Alignment.topRight,
-                  end: Alignment.bottomLeft,
-                ),
-              ),
-            ),
-          ),
-          Positioned(
-            right: 40,
-            bottom: -10,
-            child: Container(
-              height: 70,
-              width: 70,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: Theme.of(context).cardColor.withValues(alpha: 0.5),
+                color: primaryColor.withValues(alpha: 0.05),
               ),
             ),
           ),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: primaryColor.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Icon(
+                      Icons.account_balance_wallet_rounded,
+                      color: primaryColor,
+                      size: 24,
+                    ),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 6,
+                    ),
+                    decoration: BoxDecoration(
+                      color: primaryColor.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Text(
+                      "Net Balance",
+                      style: GoogleFonts.poppins(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: primaryColor,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
               Text(
-                AppLocalizations.of(context)!.totalBalance,
+                "Total Savings Growth",
                 style: GoogleFonts.poppins(
-                  color: Colors.white.withValues(alpha: 0.85),
                   fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                  letterSpacing: 0.5,
+                  color: secondaryTextColor,
                 ),
               ),
               const SizedBox(height: 4),
-              Text(
-                formatCurrency(balance),
-                style: GoogleFonts.poppins(
-                  color: Colors.white,
-                  fontSize: 38,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: -1,
-                ),
-              ),
-              const SizedBox(height: 28),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 16,
-                ),
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(
-                    color: Colors.white.withValues(alpha: 0.15),
-                    width: 1,
+              FittedBox(
+                child: Text(
+                  formatCurrency(balance),
+                  style: GoogleFonts.poppins(
+                    fontSize: 36,
+                    fontWeight: FontWeight.bold,
+                    color: primaryColor,
+                    letterSpacing: -1,
                   ),
                 ),
+              ),
+              const SizedBox(height: 32),
+
+              // Progress Bar Section
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    "Income",
+                    style: GoogleFonts.poppins(
+                      fontSize: 12,
+                      color: secondaryTextColor,
+                    ),
+                  ),
+                  Text(
+                    formatCurrencyShort(income),
+                    style: GoogleFonts.poppins(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      color: primaryColor,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Container(
+                height: 8,
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  color: secondaryColor.withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(4),
+                ),
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Expanded(
-                      child: _buildBalanceItem(
-                        context: context,
-                        title: AppLocalizations.of(context)!.totalReceived,
-                        amount: formatCurrencyShort(income),
-                        icon: Icons.south_west_rounded,
-                        isIncome: true,
-                        iconColor: const Color(0xFF68D391), // Soft Green
-                      ),
-                    ),
-                    Container(
-                      height: 40,
-                      width: 1,
-                      color: Colors.white.withValues(alpha: 0.2),
-                    ),
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.only(left: 16.0),
-                        child: _buildBalanceItem(
-                          context: context,
-                          title: AppLocalizations.of(context)!.totalGiven,
-                          amount: formatCurrencyShort(expense),
-                          icon: Icons.north_east_rounded,
-                          isIncome: false,
-                          iconColor: const Color(0xFFFC8181), // Soft Red
+                      flex: (incomePercentage * 100).toInt(),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: primaryColor,
+                          borderRadius: BorderRadius.circular(4),
+                          boxShadow: [
+                            BoxShadow(
+                              color: primaryColor.withValues(alpha: 0.4),
+                              blurRadius: 8,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
                         ),
                       ),
                     ),
+                    Expanded(
+                      flex: ((1 - incomePercentage) * 100).toInt(),
+                      child: const SizedBox(),
+                    ),
                   ],
                 ),
+              ),
+              const SizedBox(height: 8),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    "Expenses",
+                    style: GoogleFonts.poppins(
+                      fontSize: 12,
+                      color: secondaryTextColor,
+                    ),
+                  ),
+                  Text(
+                    formatCurrencyShort(expense),
+                    style: GoogleFonts.poppins(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      color: secondaryColor,
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
@@ -457,92 +490,325 @@ class ReportsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildBalanceItem({
-    required BuildContext context,
-    required String title,
-    required String amount,
-    required IconData icon,
-    required bool isIncome,
-    required Color iconColor,
-  }) {
-    return Row(
-      children: [
-        Container(
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: iconColor.withValues(alpha: 0.2),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Icon(icon, color: iconColor, size: 16),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+  Widget _buildSpendingTendency(
+    BuildContext context,
+    List<double> weeklyData,
+    ThemeInfo premiumTheme,
+    bool isDefault,
+  ) {
+    final primaryColor = isDefault
+        ? const Color(0xFF4143D5)
+        : premiumTheme.primaryColor;
+
+    return GlassCard(
+      padding: const EdgeInsets.all(24),
+      borderRadius: 28,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              FittedBox(
-                fit: BoxFit.scaleDown,
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  title,
-                  style: GoogleFonts.poppins(
-                    color: Colors.white.withValues(alpha: 0.85),
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
-                  ),
+              Text(
+                "Spending Tendency",
+                style: GoogleFonts.poppins(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: primaryColor,
                 ),
               ),
-              const SizedBox(height: 2),
-              FittedBox(
-                fit: BoxFit.scaleDown,
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  amount,
-                  style: GoogleFonts.poppins(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 14,
+              Row(
+                children: [
+                  Container(
+                    width: 8,
+                    height: 8,
+                    decoration: BoxDecoration(
+                      color: primaryColor,
+                      shape: BoxShape.circle,
+                    ),
                   ),
-                ),
+                  const SizedBox(width: 4),
+                  Text(
+                    "Amount",
+                    style: GoogleFonts.poppins(
+                      fontSize: 10,
+                      color: Colors.grey,
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
+          const SizedBox(height: 24),
+          SizedBox(
+            height: 180,
+            child: BarChart(
+              BarChartData(
+                alignment: BarChartAlignment.spaceAround,
+                borderData: FlBorderData(show: false),
+                gridData: const FlGridData(show: false),
+                titlesData: FlTitlesData(
+                  topTitles: const AxisTitles(
+                    sideTitles: SideTitles(showTitles: false),
+                  ),
+                  rightTitles: const AxisTitles(
+                    sideTitles: SideTitles(showTitles: false),
+                  ),
+                  leftTitles: const AxisTitles(
+                    sideTitles: SideTitles(showTitles: false),
+                  ),
+                  bottomTitles: AxisTitles(
+                    sideTitles: SideTitles(
+                      showTitles: true,
+                      getTitlesWidget: (value, meta) {
+                        const days = [
+                          "Mon",
+                          "Tue",
+                          "Wed",
+                          "Thu",
+                          "Fri",
+                          "Sat",
+                          "Sun",
+                        ];
+                        if (value >= 0 && value < 7) {
+                          return Padding(
+                            padding: const EdgeInsets.only(top: 8),
+                            child: Text(
+                              days[value.toInt()],
+                              style: GoogleFonts.poppins(
+                                fontSize: 10,
+                                color: Colors.grey,
+                              ),
+                            ),
+                          );
+                        }
+                        return const SizedBox();
+                      },
+                    ),
+                  ),
+                ),
+                barGroups: [
+                  for (int i = 0; i < 7; i++)
+                    BarChartGroupData(
+                      x: i,
+                      barRods: [
+                        BarChartRodData(
+                          toY: weeklyData[i] == 0 ? 0.05 : weeklyData[i],
+                          width: 14,
+                          borderRadius: BorderRadius.circular(6),
+                          gradient: LinearGradient(
+                            colors: [
+                              primaryColor.withValues(alpha: 0.5),
+                              primaryColor,
+                            ],
+                            begin: Alignment.bottomCenter,
+                            end: Alignment.topCenter,
+                          ),
+                          backDrawRodData: BackgroundBarChartRodData(
+                            show: true,
+                            toY:
+                                weeklyData.reduce((a, b) => a > b ? a : b) *
+                                    1.2 +
+                                0.1,
+                            color: primaryColor.withValues(alpha: 0.1),
+                          ),
+                        ),
+                      ],
+                    ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCategoryMix(
+    BuildContext context,
+    double income,
+    double expense,
+    ThemeInfo premiumTheme,
+    bool isDefault,
+  ) {
+    final primaryColor = isDefault
+        ? const Color(0xFF4143D5)
+        : premiumTheme.primaryColor;
+    final secondaryColor = isDefault
+        ? const Color(0xFF7459F7)
+        : premiumTheme.gradient.colors.last;
+
+    final double total = income + expense;
+    final double incPct = total == 0 ? 50 : (income / total) * 100;
+    final double expPct = total == 0 ? 50 : (expense / total) * 100;
+
+    return GlassCard(
+      padding: const EdgeInsets.all(24),
+      borderRadius: 28,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Text(
+            "CASHFLOW MIX",
+            style: GoogleFonts.poppins(
+              fontSize: 12,
+              fontWeight: FontWeight.bold,
+              letterSpacing: 2,
+              color: Colors.grey,
+            ),
+          ),
+          const SizedBox(height: 24),
+          SizedBox(
+            height: 180,
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                PieChart(
+                  PieChartData(
+                    sectionsSpace: 4,
+                    centerSpaceRadius: 60,
+                    startDegreeOffset: -90,
+                    sections: [
+                      PieChartSectionData(
+                        color: primaryColor,
+                        value: incPct,
+                        title: '',
+                        radius: 12,
+                      ),
+                      PieChartSectionData(
+                        color: secondaryColor,
+                        value: expPct,
+                        title: '',
+                        radius: 12,
+                      ),
+                    ],
+                  ),
+                ),
+                Container(
+                  width: 80,
+                  height: 80,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.05),
+                        blurRadius: 10,
+                        spreadRadius: 2,
+                      ),
+                    ],
+                  ),
+                  child: Center(
+                    child: Icon(
+                      Icons.sync_alt_rounded,
+                      color: primaryColor,
+                      size: 32,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 24),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              _buildLegendItem(
+                "Income",
+                formatCurrencyShort(income),
+                primaryColor,
+              ),
+              _buildLegendItem(
+                "Expense",
+                formatCurrencyShort(expense),
+                secondaryColor,
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLegendItem(String title, String amount, Color color) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Row(
+          children: [
+            Container(
+              width: 8,
+              height: 8,
+              decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+            ),
+            const SizedBox(width: 6),
+            Text(
+              title,
+              style: GoogleFonts.poppins(fontSize: 12, color: Colors.grey),
+            ),
+          ],
+        ),
+        const SizedBox(height: 4),
+        Text(
+          amount,
+          style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.bold),
         ),
       ],
     );
   }
 
-  Widget _buildInsightCard({
-    required BuildContext context,
-    required IconData icon,
-    required String title,
-    required String subtitle,
-    required Color color,
-  }) {
+  Widget _buildInsightCard(
+    BuildContext context,
+    double income,
+    double expense,
+    double balance,
+    ThemeInfo premiumTheme,
+    bool isDefault,
+  ) {
+    final primaryColor = isDefault
+        ? const Color(0xFF4143D5)
+        : premiumTheme.primaryColor;
+
+    String insightText = "";
+    if (balance > 0) {
+      insightText =
+          "You have a positive cashflow! You saved ${formatCurrencyShort(balance)} overall. Keeping this pace will help you reach your goals.";
+    } else if (balance < 0) {
+      insightText =
+          "Your expenses are higher than income by ${formatCurrencyShort(balance.abs())}. Consider reviewing your recent expenditures to improve your savings.";
+    } else {
+      insightText =
+          "Your income and expenses are perfectly balanced. Track your entries daily to maintain a healthy ledger.";
+    }
+
     return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.all(18),
+      padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
-            blurRadius: 8,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        color: primaryColor.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(28),
+        border: Border.all(color: primaryColor.withValues(alpha: 0.2)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(16),
+            padding: const EdgeInsets.all(16),
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.all(Radius.circular(20)),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black12,
+                  blurRadius: 10,
+                  offset: Offset(0, 4),
+                ),
+              ],
             ),
-            child: Icon(icon, color: color),
+            child: Icon(
+              Icons.auto_awesome_rounded,
+              color: primaryColor,
+              size: 28,
+            ),
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -550,20 +816,56 @@ class ReportsScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  title,
+                  "SmartKhata Insight",
                   style: GoogleFonts.poppins(
+                    fontSize: 16,
                     fontWeight: FontWeight.bold,
-                    fontSize: 15,
+                    color: primaryColor,
                   ),
                 ),
-                const SizedBox(height: 6),
+                const SizedBox(height: 8),
                 Text(
-                  subtitle,
+                  insightText,
                   style: GoogleFonts.poppins(
-                    color: Colors.grey.shade600,
-                    height: 1.5,
                     fontSize: 13,
+                    color: primaryColor.withValues(alpha: 0.8),
+                    height: 1.5,
                   ),
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    ElevatedButton(
+                      onPressed: () {},
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: primaryColor,
+                        foregroundColor: Colors.white,
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 8,
+                        ),
+                      ),
+                      child: Text(
+                        "View Details",
+                        style: GoogleFonts.poppins(fontSize: 12),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    TextButton(
+                      onPressed: () {},
+                      style: TextButton.styleFrom(
+                        foregroundColor: primaryColor,
+                      ),
+                      child: Text(
+                        "Dismiss",
+                        style: GoogleFonts.poppins(fontSize: 12),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -573,82 +875,97 @@ class ReportsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildStatsCard({
-    required BuildContext context,
-    required String title,
-    required String value,
-    required Color color,
-  }) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
-            blurRadius: 8,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            height: 12,
-            width: 12,
-            decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-          ),
-          const SizedBox(height: 12),
-          FittedBox(
-            fit: BoxFit.scaleDown,
-            alignment: Alignment.centerLeft,
-            child: Text(
-              value,
-              style: GoogleFonts.poppins(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
+  Widget _buildEventTile(
+    BuildContext context,
+    RecordModel record,
+    ThemeInfo premiumTheme,
+    bool isDefault,
+  ) {
+    final isExpense = record.isGiven;
+    final amountColor = isExpense ? Colors.redAccent : Colors.green;
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: GlassCard(
+        padding: const EdgeInsets.all(16),
+        borderRadius: 20,
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: (isExpense ? Colors.redAccent : Colors.green).withValues(
+                  alpha: 0.1,
+                ),
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Icon(
+                isExpense ? Icons.shopping_bag_rounded : Icons.payments_rounded,
+                color: amountColor,
+                size: 20,
               ),
             ),
-          ),
-          const SizedBox(height: 4),
-          FittedBox(
-            fit: BoxFit.scaleDown,
-            alignment: Alignment.centerLeft,
-            child: Text(
-              title,
-              style: GoogleFonts.poppins(
-                color: Colors.grey.shade600,
-                fontSize: 12,
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    record.personName,
+                    style: GoogleFonts.poppins(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    DateFormat('MMM dd').format(record.date) +
+                        " • " +
+                        (isExpense ? "Expense" : "Income"),
+                    style: GoogleFonts.poppins(
+                      fontSize: 11,
+                      color: Colors.grey,
+                    ),
+                  ),
+                ],
               ),
             ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  BarChartGroupData _buildBar(int x, double y) {
-    // Ensure bar height is visible even if small, but proportional
-    // For very small relative values, fl_chart handles scale.
-    // If y is 0, give it a tiny height so it renders a flat line.
-    final displayY = y == 0 ? 0.05 : y;
-
-    return BarChartGroupData(
-      x: x,
-      barRods: [
-        BarChartRodData(
-          toY: displayY,
-          width: 18,
-          borderRadius: BorderRadius.circular(12),
-          gradient: const LinearGradient(
-            colors: [AppColors.primary, AppColors.secondary],
-            begin: Alignment.bottomCenter,
-            end: Alignment.topCenter,
-          ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text(
+                  (isExpense ? "- " : "+ ") +
+                      formatCurrencyShort(record.amount),
+                  style: GoogleFonts.poppins(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                    color: amountColor,
+                  ),
+                ),
+                if (record.note.isNotEmpty) ...[
+                  const SizedBox(height: 2),
+                  SizedBox(
+                    width: 80,
+                    child: Text(
+                      record.note,
+                      style: GoogleFonts.poppins(
+                        fontSize: 11,
+                        color: Colors.grey,
+                        fontStyle: FontStyle.italic,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      textAlign: TextAlign.end,
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ],
         ),
-      ],
+      ),
     );
   }
 }

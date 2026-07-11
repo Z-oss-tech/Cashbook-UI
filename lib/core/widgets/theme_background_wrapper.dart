@@ -6,7 +6,7 @@ import '../theme/premium_themes.dart';
 
 class ThemeBackgroundWrapper extends StatelessWidget {
   final Widget child;
-  
+
   const ThemeBackgroundWrapper({super.key, required this.child});
 
   @override
@@ -15,14 +15,23 @@ class ThemeBackgroundWrapper extends StatelessWidget {
       builder: (context, settings, _) {
         final themeName = settings.appTheme;
         final premiumTheme = PremiumThemes.getTheme(themeName);
-        
+
         return Stack(
           children: [
             // Base background
             Container(color: Theme.of(context).scaffoldBackgroundColor),
-            
+
             // Custom Theme Background Accents
             if (themeName == 'Cherry Blossom') ...[
+              Positioned.fill(
+                child: Opacity(
+                  opacity: 0.2,
+                  child: Image.network(
+                    'https://lh3.googleusercontent.com/aida-public/AB6AXuCdfXLR2tCS9YpT8JQ0AdQEbU1Mis3pObtMYAs_qHXplGsSUIkBTeR7cA0zHiH8ICt3Qb00582xEbg1-FSc41m3B9XGiy85RUCzDEwvBWcoKvd2t45EvEFJOMOtxm_Kn-REdNzTwNjXsIdlHGCvAs4s4Cpfn9jk7UaVhpOxlagV4ynoVX1pv5dnElZfMwJh2HygLQF_vVWO63WJ6HA-3Me5iJWj9HAsRVGRaKepMZli11DXXjzIBJ5t',
+                    fit: BoxFit.cover,
+                  ),
+                ),
+              ),
               Positioned(
                 top: -50,
                 right: -50,
@@ -54,8 +63,8 @@ class ThemeBackgroundWrapper extends StatelessWidget {
                 ),
               ),
             ] else if (themeName != 'Default') ...[
-               // Generic glowing orbs based on primary color
-               Positioned(
+              // Generic glowing orbs based on primary color
+              Positioned(
                 top: -100,
                 right: -50,
                 child: ImageFiltered(
@@ -71,7 +80,7 @@ class ThemeBackgroundWrapper extends StatelessWidget {
                 ),
               ),
             ],
-            
+
             // The actual content
             child,
           ],

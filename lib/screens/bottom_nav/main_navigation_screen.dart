@@ -3,6 +3,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'dart:ui';
 
 import '../../providers/record_provider.dart';
+import '../../providers/settings_provider.dart';
+import '../../core/theme/premium_themes.dart';
 import 'package:provider/provider.dart';
 
 import '../dashboard/dashboard_screen.dart';
@@ -346,8 +348,19 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
     final bool isSelected = currentIndex == index;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    final activeColor = const Color(0xFFFFFFFF); // on-secondary-container
-    final activeBg = const Color(0xFF7459F7); // secondary-container
+    final settings = Provider.of<SettingsProvider>(context, listen: false);
+    final premiumTheme = PremiumThemes.getTheme(settings.appTheme);
+    final isDefault = settings.appTheme == 'Default';
+
+    final activeColor =
+        (isDefault || premiumTheme.themeData.brightness == Brightness.dark)
+        ? const Color(0xFFFFFFFF)
+        : const Color(0xFF191C1E);
+
+    final activeBg = isDefault
+        ? const Color(0xFF7459F7)
+        : premiumTheme.primaryColor;
+
     final inactiveColor = isDark ? Colors.white70 : const Color(0xFF464555);
 
     return GestureDetector(
@@ -385,6 +398,27 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
   }
 
   Widget _buildFab(BuildContext context) {
+    final settings = Provider.of<SettingsProvider>(context, listen: false);
+    final premiumTheme = PremiumThemes.getTheme(settings.appTheme);
+    final isDefault = settings.appTheme == 'Default';
+
+    final gradient = isDefault
+        ? const LinearGradient(
+            colors: [Color(0xFF4143D5), Color(0xFF7459F7)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          )
+        : premiumTheme.gradient;
+
+    final shadowColor = isDefault
+        ? const Color(0xFF4143D5).withValues(alpha: 0.4)
+        : premiumTheme.primaryColor.withValues(alpha: 0.4);
+
+    final iconColor =
+        (isDefault || premiumTheme.themeData.brightness == Brightness.dark)
+        ? Colors.white
+        : const Color(0xFF191C1E);
+
     return GestureDetector(
       onTap: () => _showCreateCashbookDialog(context),
       child: AnimatedBuilder(
@@ -400,21 +434,17 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
           height: 56,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            gradient: const LinearGradient(
-              colors: [Color(0xFF4143D5), Color(0xFF7459F7)],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
+            gradient: gradient,
             boxShadow: [
               BoxShadow(
-                color: const Color(0xFF4143D5).withValues(alpha: 0.4),
+                color: shadowColor,
                 blurRadius: 20,
                 spreadRadius: 2,
                 offset: const Offset(0, 8),
               ),
             ],
           ),
-          child: const Icon(Icons.add_rounded, color: Colors.white, size: 32),
+          child: Icon(Icons.add_rounded, color: iconColor, size: 32),
         ),
       ),
     );

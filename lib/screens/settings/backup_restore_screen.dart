@@ -453,7 +453,10 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen>
                 ),
               ),
               IconButton(
-                icon: Icon(Icons.restore, color: Theme.of(context).primaryColor),
+                icon: Icon(
+                  Icons.restore,
+                  color: Theme.of(context).primaryColor,
+                ),
                 onPressed: () async {
                   setState(() => _isLoading = true);
                   final provider = Provider.of<RecordProvider>(
@@ -768,7 +771,9 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen>
               onPressed: () => Navigator.pop(dialogContext, false),
               child: Text(
                 "CANCEL",
-                style: GoogleFonts.poppins(color: Theme.of(context).primaryColor),
+                style: GoogleFonts.poppins(
+                  color: Theme.of(context).primaryColor,
+                ),
               ),
             ),
             ElevatedButton(

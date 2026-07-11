@@ -35,7 +35,8 @@ class NotificationService {
     await _notificationsPlugin.initialize(settings: initSettings);
     await _notificationsPlugin
         .resolvePlatformSpecificImplementation<
-            AndroidFlutterLocalNotificationsPlugin>()
+          AndroidFlutterLocalNotificationsPlugin
+        >()
         ?.requestNotificationsPermission();
     _isInitialized = true;
   }
@@ -157,7 +158,14 @@ class NotificationService {
 
     // Schedule for 8:00 PM today, or tomorrow if it's already past 8:00 PM
     final now = tz.TZDateTime.now(tz.local);
-    var scheduledDate = tz.TZDateTime(tz.local, now.year, now.month, now.day, 20, 0); // 8:00 PM
+    var scheduledDate = tz.TZDateTime(
+      tz.local,
+      now.year,
+      now.month,
+      now.day,
+      20,
+      0,
+    ); // 8:00 PM
     if (scheduledDate.isBefore(now)) {
       scheduledDate = scheduledDate.add(const Duration(days: 1));
     }
@@ -175,7 +183,7 @@ class NotificationService {
 
   Future<void> showMilestoneNotification(int totalRecords) async {
     if (!await _areNotificationsEnabled()) return;
-    
+
     // Only trigger on exact milestones
     if (![10, 50, 100, 500].contains(totalRecords)) return;
 
@@ -196,7 +204,8 @@ class NotificationService {
     await _notificationsPlugin.show(
       id: 666 + totalRecords, // Unique ID for each milestone
       title: 'Congratulations! 🎉',
-      body: 'You have logged $totalRecords transactions! Great job managing your finances!',
+      body:
+          'You have logged $totalRecords transactions! Great job managing your finances!',
       notificationDetails: details,
     );
   }

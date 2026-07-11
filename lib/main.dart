@@ -42,13 +42,19 @@ class SmartKhataApp extends StatelessWidget {
 
       child: Consumer<SettingsProvider>(
         builder: (context, settingsProvider, child) {
-          final activeColor = AppColors.themeColors[settingsProvider.themeColor] ?? const Color(0xFF5B67F1);
-          
+          final activeColor =
+              AppColors.themeColors[settingsProvider.themeColor] ??
+              const Color(0xFF5B67F1);
+
           ThemeData? customTheme;
-          if (settingsProvider.appTheme == 'Midnight Ocean') customTheme = PremiumThemes.midnightOcean;
-          if (settingsProvider.appTheme == 'Sunset Glow') customTheme = PremiumThemes.sunsetGlow;
-          if (settingsProvider.appTheme == 'Forest Emerald') customTheme = PremiumThemes.forestEmerald;
-          if (settingsProvider.appTheme == 'Cherry Blossom') customTheme = PremiumThemes.cherryBlossom;
+          if (settingsProvider.appTheme == 'Midnight Ocean')
+            customTheme = PremiumThemes.midnightOcean;
+          if (settingsProvider.appTheme == 'Sunset Glow')
+            customTheme = PremiumThemes.sunsetGlow;
+          if (settingsProvider.appTheme == 'Forest Emerald')
+            customTheme = PremiumThemes.forestEmerald;
+          if (settingsProvider.appTheme == 'Cherry Blossom')
+            customTheme = PremiumThemes.cherryBlossom;
 
           return MaterialApp(
             debugShowCheckedModeBanner: false,
@@ -62,9 +68,11 @@ class SmartKhataApp extends StatelessWidget {
             theme: customTheme ?? LightTheme.theme(activeColor),
             darkTheme: customTheme ?? DarkTheme.theme(activeColor),
 
-            themeMode: customTheme != null 
-                ? ThemeMode.light 
-                : (settingsProvider.darkMode ? ThemeMode.dark : ThemeMode.light),
+            themeMode: customTheme != null
+                ? ThemeMode.light
+                : (settingsProvider.darkMode
+                      ? ThemeMode.dark
+                      : ThemeMode.light),
 
             locale: settingsProvider.locale,
             localizationsDelegates: const [

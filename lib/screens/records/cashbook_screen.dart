@@ -14,6 +14,10 @@ import '../../core/utils/date_helper.dart';
 import 'package:flutter/services.dart';
 import '../../core/utils/export_helper.dart';
 import 'package:table_calendar/table_calendar.dart';
+import '../../core/widgets/glass_card.dart';
+import '../../core/widgets/theme_background_wrapper.dart';
+import '../../core/theme/premium_themes.dart';
+import '../../providers/settings_provider.dart';
 
 class CashbookScreen extends StatefulWidget {
   final String cashbookName;
@@ -66,14 +70,18 @@ class _CashbookScreenState extends State<CashbookScreen> {
                       style: GoogleFonts.inter(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
-                        color: Theme.of(context).textTheme.bodyLarge?.color ?? (isDark ? Colors.white : const Color(0xFF0B1C30)),
+                        color:
+                            Theme.of(context).textTheme.bodyLarge?.color ??
+                            (isDark ? Colors.white : const Color(0xFF0B1C30)),
                       ),
                     ),
                     GestureDetector(
                       onTap: () => Navigator.pop(context),
                       child: Icon(
                         Icons.cancel_outlined,
-                        color: Theme.of(context).textTheme.bodyLarge?.color ?? (isDark ? Colors.white : const Color(0xFF0B1C30)),
+                        color:
+                            Theme.of(context).textTheme.bodyLarge?.color ??
+                            (isDark ? Colors.white : const Color(0xFF0B1C30)),
                       ),
                     ),
                   ],
@@ -151,7 +159,9 @@ class _CashbookScreenState extends State<CashbookScreen> {
               ),
               child: Icon(
                 Icons.book,
-                color: Theme.of(context).textTheme.bodyLarge?.color ?? (isDark ? Colors.white : const Color(0xFF0B1C30)),
+                color:
+                    Theme.of(context).textTheme.bodyLarge?.color ??
+                    (isDark ? Colors.white : const Color(0xFF0B1C30)),
                 size: 20,
               ),
             ),
@@ -214,9 +224,16 @@ class _CashbookScreenState extends State<CashbookScreen> {
                   value: 'delete',
                   child: Row(
                     children: [
-                      const Icon(Icons.delete_rounded, color: Colors.red, size: 18),
+                      const Icon(
+                        Icons.delete_rounded,
+                        color: Colors.red,
+                        size: 18,
+                      ),
                       const SizedBox(width: 8),
-                      Text('Delete', style: GoogleFonts.inter(color: Colors.red)),
+                      Text(
+                        'Delete',
+                        style: GoogleFonts.inter(color: Colors.red),
+                      ),
                     ],
                   ),
                 ),
@@ -229,30 +246,45 @@ class _CashbookScreenState extends State<CashbookScreen> {
   }
 
   void _showEditCashbookDialog(BuildContext context, CashbookModel cashbook) {
-    final TextEditingController nameController = TextEditingController(text: cashbook.name);
+    final TextEditingController nameController = TextEditingController(
+      text: cashbook.name,
+    );
     showDialog(
       context: context,
       builder: (dialogContext) {
         return AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          title: Text("Edit Cashbook", style: GoogleFonts.inter(fontWeight: FontWeight.bold)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          title: Text(
+            "Edit Cashbook",
+            style: GoogleFonts.inter(fontWeight: FontWeight.bold),
+          ),
           content: TextField(
             controller: nameController,
             decoration: InputDecoration(
               labelText: 'Cashbook Name',
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
             ),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(dialogContext),
-              child: Text("Cancel", style: GoogleFonts.inter(color: Colors.grey)),
+              child: Text(
+                "Cancel",
+                style: GoogleFonts.inter(color: Colors.grey),
+              ),
             ),
             ElevatedButton(
               onPressed: () async {
                 final newName = nameController.text.trim();
                 if (newName.isNotEmpty) {
-                  final provider = Provider.of<RecordProvider>(context, listen: false);
+                  final provider = Provider.of<RecordProvider>(
+                    context,
+                    listen: false,
+                  );
                   await provider.updateCashbook(cashbook.id, newName);
                   if (mounted) {
                     setState(() {
@@ -267,9 +299,14 @@ class _CashbookScreenState extends State<CashbookScreen> {
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF5B7FFF),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
               ),
-              child: Text("Save", style: GoogleFonts.inter(color: Colors.white)),
+              child: Text(
+                "Save",
+                style: GoogleFonts.inter(color: Colors.white),
+              ),
             ),
           ],
         );
@@ -282,22 +319,41 @@ class _CashbookScreenState extends State<CashbookScreen> {
       context: context,
       builder: (dialogContext) {
         return AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          title: Text("Delete Cashbook", style: GoogleFonts.inter(fontWeight: FontWeight.bold, color: Colors.red)),
-          content: Text("Are you sure you want to delete '${cashbook.name}'? This will delete all associated transactions.", style: GoogleFonts.inter()),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          title: Text(
+            "Delete Cashbook",
+            style: GoogleFonts.inter(
+              fontWeight: FontWeight.bold,
+              color: Colors.red,
+            ),
+          ),
+          content: Text(
+            "Are you sure you want to delete '${cashbook.name}'? This will delete all associated transactions.",
+            style: GoogleFonts.inter(),
+          ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(dialogContext),
-              child: Text("Cancel", style: GoogleFonts.inter(color: Colors.grey)),
+              child: Text(
+                "Cancel",
+                style: GoogleFonts.inter(color: Colors.grey),
+              ),
             ),
             ElevatedButton(
               onPressed: () async {
-                final provider = Provider.of<RecordProvider>(context, listen: false);
+                final provider = Provider.of<RecordProvider>(
+                  context,
+                  listen: false,
+                );
                 await provider.deleteCashbook(cashbook.id);
                 if (mounted) {
                   setState(() {
                     if (selectedCashbook == cashbook.name) {
-                      selectedCashbook = provider.cashbooks.isNotEmpty ? provider.cashbooks.first.name : '';
+                      selectedCashbook = provider.cashbooks.isNotEmpty
+                          ? provider.cashbooks.first.name
+                          : '';
                     }
                   });
                   Navigator.pop(dialogContext);
@@ -306,9 +362,14 @@ class _CashbookScreenState extends State<CashbookScreen> {
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.red,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
               ),
-              child: Text("Delete", style: GoogleFonts.inter(color: Colors.white)),
+              child: Text(
+                "Delete",
+                style: GoogleFonts.inter(color: Colors.white),
+              ),
             ),
           ],
         );
@@ -489,7 +550,20 @@ class _CashbookScreenState extends State<CashbookScreen> {
     final recordProvider = Provider.of<RecordProvider>(context);
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final bgColor = Theme.of(context).scaffoldBackgroundColor;
-    final textColor = Theme.of(context).textTheme.bodyLarge?.color ?? (isDark ? Colors.white : const Color(0xFF0B1C30));
+    final textColor =
+        Theme.of(context).textTheme.bodyLarge?.color ??
+        (isDark ? Colors.white : const Color(0xFF0B1C30));
+
+    final settings = Provider.of<SettingsProvider>(context);
+    final premiumTheme = PremiumThemes.getTheme(settings.appTheme);
+    final isDefault = settings.appTheme == 'Default';
+    final primaryGradient = isDefault
+        ? const LinearGradient(
+            colors: [Color(0xFF4143D5), Color(0xFF7459F7)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          )
+        : premiumTheme.gradient;
 
     // Filter records for the currently selected cashbook
     final allRecords = recordProvider.records;
@@ -517,747 +591,791 @@ class _CashbookScreenState extends State<CashbookScreen> {
         .fold(0, (s, r) => s + r.amount);
     double balance = totalReceived - totalGiven;
 
-    return Scaffold(
-      backgroundColor: bgColor,
-      extendBodyBehindAppBar: true,
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(64),
-        child: ClipRRect(
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-            child: Container(
-              height: MediaQuery.of(context).padding.top + 64,
-              padding: EdgeInsets.only(
-                top: MediaQuery.of(context).padding.top,
-                left: 16,
-                right: 16,
-              ),
-              decoration: BoxDecoration(
-                color: isDark
-                    ? Colors.black.withValues(alpha: 0.5)
-                    : Theme.of(context).cardColor.withValues(alpha: 0.9),
-                border: Border(
-                  bottom: BorderSide(
-                    color: isDark
-                        ? Colors.white.withValues(alpha: 0.1)
-                        : Colors.white.withValues(alpha: 0.3),
+    return ThemeBackgroundWrapper(
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        extendBodyBehindAppBar: true,
+        appBar: PreferredSize(
+          preferredSize: const Size.fromHeight(64),
+          child: ClipRRect(
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+              child: Container(
+                height: MediaQuery.of(context).padding.top + 64,
+                padding: EdgeInsets.only(
+                  top: MediaQuery.of(context).padding.top,
+                  left: 16,
+                  right: 16,
+                ),
+                decoration: BoxDecoration(
+                  color: isDark
+                      ? Colors.black.withValues(alpha: 0.5)
+                      : Theme.of(context).cardColor.withValues(alpha: 0.9),
+                  border: Border(
+                    bottom: BorderSide(
+                      color: isDark
+                          ? Colors.white.withValues(alpha: 0.1)
+                          : Colors.white.withValues(alpha: 0.3),
+                    ),
                   ),
                 ),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(
-                    child: Row(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Row(
+                        children: [
+                          IconButton(
+                            icon: Icon(
+                              Icons.arrow_back_rounded,
+                              color: textColor,
+                            ),
+                            onPressed: () {
+                              if (Navigator.canPop(context)) {
+                                Navigator.pop(context);
+                              }
+                            },
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: GestureDetector(
+                              onTap: () => _showCashbooksBottomSheet(context),
+                              child: Row(
+                                children: [
+                                  Flexible(
+                                    child: Text(
+                                      selectedCashbook,
+                                      style: GoogleFonts.inter(
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.w600,
+                                        color: textColor,
+                                      ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                  Icon(
+                                    Icons.expand_more_rounded,
+                                    color: isDark
+                                        ? Colors.white54
+                                        : const Color(0xFF767586),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Row(
                       children: [
                         IconButton(
+                          icon: Icon(Icons.share_rounded, color: textColor),
+                          onPressed: () => ExportHelper.showExportOptions(
+                            context,
+                            cashbookName: selectedCashbook,
+                          ),
+                        ),
+                        IconButton(
+                          icon: Icon(Icons.analytics_rounded, color: textColor),
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => ReportsScreen(
+                                  cashbookName: selectedCashbook,
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                        IconButton(
                           icon: Icon(
-                            Icons.arrow_back_rounded,
+                            _filterDate == null
+                                ? Icons.calendar_today_rounded
+                                : Icons.event_busy_rounded,
                             color: textColor,
                           ),
                           onPressed: () {
-                            if (Navigator.canPop(context)) {
-                              Navigator.pop(context);
+                            if (_filterDate != null) {
+                              setState(() => _filterDate = null);
+                              return;
                             }
+                            final rawRecords = recordProvider.records
+                                .where(
+                                  (r) => r.cashbookName == selectedCashbook,
+                                )
+                                .toList();
+                            _showCustomCalendarPicker(context, rawRecords);
                           },
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: GestureDetector(
-                            onTap: () => _showCashbooksBottomSheet(context),
-                            child: Row(
-                              children: [
-                                Flexible(
-                                  child: Text(
-                                    selectedCashbook,
-                                    style: GoogleFonts.inter(
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.w600,
-                                      color: textColor,
-                                    ),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ),
-                                Icon(
-                                  Icons.expand_more_rounded,
-                                  color: isDark
-                                      ? Colors.white54
-                                      : const Color(0xFF767586),
-                                ),
-                              ],
-                            ),
-                          ),
                         ),
                       ],
                     ),
-                  ),
-                  Row(
-                    children: [
-                      IconButton(
-                        icon: Icon(Icons.share_rounded, color: textColor),
-                        onPressed: () => ExportHelper.showExportOptions(
-                          context,
-                          cashbookName: selectedCashbook,
-                        ),
-                      ),
-                      IconButton(
-                        icon: Icon(Icons.analytics_rounded, color: textColor),
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) =>
-                                  ReportsScreen(cashbookName: selectedCashbook),
-                            ),
-                          );
-                        },
-                      ),
-                      IconButton(
-                        icon: Icon(
-                          _filterDate == null
-                              ? Icons.calendar_today_rounded
-                              : Icons.event_busy_rounded,
-                          color: textColor,
-                        ),
-                        onPressed: () {
-                          if (_filterDate != null) {
-                            setState(() => _filterDate = null);
-                            return;
-                          }
-                          final rawRecords = recordProvider.records
-                              .where((r) => r.cashbookName == selectedCashbook)
-                              .toList();
-                          _showCustomCalendarPicker(context, rawRecords);
-                        },
-                      ),
-                    ],
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
         ),
-      ),
-      body: SafeArea(
-        top: true,
-        bottom: false,
-        child: RefreshIndicator(
-          color: const Color(0xFF4143D5),
-          onRefresh: () async {
-            HapticFeedback.lightImpact();
-            await Future.delayed(const Duration(milliseconds: 800));
-            // Trigger rebuild
-            setState(() {});
-          },
-          child: ListView(
-            padding: const EdgeInsets.fromLTRB(16, 24, 16, 120),
-            physics: const AlwaysScrollableScrollPhysics(
-              parent: BouncingScrollPhysics(),
-            ),
-            children: [
-              // Overview Card
-              Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(28),
-                  gradient: const LinearGradient(
-                    colors: [Color(0xFF4143D5), Color(0xFF7459F7)],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.05),
-                      blurRadius: 25,
-                      offset: const Offset(0, 20),
-                    ),
-                  ],
-                ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(28),
-                  child: Column(
-                    children: [
-                      IntrinsicHeight(
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: _buildOverviewTile(
-                                title: "Total IN",
-                                amount: "₹${totalReceived.toStringAsFixed(2)}",
-                                amountColor: const Color(
-                                  0xFF86EFAC,
-                                ), // green-300
-                                borderRight: true,
-                                borderBottom: true,
-                              ),
-                            ),
-                            Expanded(
-                              child: _buildOverviewTile(
-                                title: "Total Out",
-                                amount: "₹${totalGiven.toStringAsFixed(2)}",
-                                amountColor: const Color(0xFFFCA5A5), // red-300
-                                alignRight: true,
-                                borderBottom: true,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      IntrinsicHeight(
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: _buildOverviewTile(
-                                title: "Balance",
-                                amount: "₹${balance.toStringAsFixed(2)}",
-                                amountColor: const Color(
-                                  0xFFBFDBFE,
-                                ), // blue-200
-                                borderRight: true,
-                              ),
-                            ),
-                            Expanded(
-                              child: _buildOverviewTile(
-                                title: "Total Entry",
-                                amount: cashbookRecords.length.toString(),
-                                amountColor: Colors.white,
-                                alignRight: true,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+        body: SafeArea(
+          top: true,
+          bottom: false,
+          child: RefreshIndicator(
+            color: isDefault
+                ? const Color(0xFF4143D5)
+                : premiumTheme.primaryColor,
+            onRefresh: () async {
+              HapticFeedback.lightImpact();
+              await Future.delayed(const Duration(milliseconds: 800));
+              // Trigger rebuild
+              setState(() {});
+            },
+            child: ListView(
+              padding: const EdgeInsets.fromLTRB(16, 24, 16, 120),
+              physics: const AlwaysScrollableScrollPhysics(
+                parent: BouncingScrollPhysics(),
               ),
-              const SizedBox(height: 32),
+              children: [
+                // Overview Card
+                Builder(
+                  builder: (context) {
+                    final settings = Provider.of<SettingsProvider>(context);
+                    final premiumTheme = PremiumThemes.getTheme(
+                      settings.appTheme,
+                    );
+                    final isDefault = settings.appTheme == 'Default';
+                    final gradient = isDefault
+                        ? const LinearGradient(
+                            colors: [Color(0xFF4143D5), Color(0xFF7459F7)],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          )
+                        : premiumTheme.gradient;
 
-              // Transactions List
-              if (cashbookRecords.isNotEmpty)
-                ListView.builder(
-                  physics: const NeverScrollableScrollPhysics(),
-                  shrinkWrap: true,
-                  itemCount: cashbookRecords.length,
-                  itemBuilder: (context, index) {
-                    final record =
-                        cashbookRecords[cashbookRecords.length -
-                            1 -
-                            index]; // reversed
-                    final isCredit = !record.isGiven;
-
-                    return FadeInRight(
-                      delay: Duration(milliseconds: 50 * index),
-                      duration: const Duration(milliseconds: 400),
-                      child: Dismissible(
-                        key: Key(record.id),
-                        direction: DismissDirection.endToStart,
-                        background: Container(
-                          alignment: Alignment.centerRight,
-                          padding: const EdgeInsets.symmetric(horizontal: 20),
-                          margin: const EdgeInsets.only(bottom: 16),
-                          decoration: BoxDecoration(
-                            color: Colors.red,
-                            borderRadius: BorderRadius.circular(20),
+                    return Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(28),
+                        gradient: gradient,
+                        boxShadow: [
+                          BoxShadow(
+                            color: isDefault
+                                ? Colors.black.withValues(alpha: 0.05)
+                                : premiumTheme.primaryColor.withValues(
+                                    alpha: 0.3,
+                                  ),
+                            blurRadius: 25,
+                            offset: const Offset(0, 20),
                           ),
-                          child: const Icon(Icons.delete, color: Colors.white),
-                        ),
-                        confirmDismiss: (direction) async {
-                          HapticFeedback.heavyImpact();
-                          bool confirm = false;
-                          await showDialog(
-                            context: context,
-                            builder: (dialogContext) => AlertDialog(
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(16),
-                              ),
-                              title: Text(
-                                "Delete Record",
-                                style: GoogleFonts.inter(
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.red,
-                                ),
-                              ),
-                              content: Text(
-                                "Are you sure you want to delete this transaction?",
-                                style: GoogleFonts.inter(),
-                              ),
-                              actions: [
-                                TextButton(
-                                  onPressed: () {
-                                    Navigator.pop(dialogContext);
-                                  },
-                                  child: Text(
-                                    "Cancel",
-                                    style: GoogleFonts.inter(
-                                      color: Colors.grey,
+                        ],
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(28),
+                        child: Column(
+                          children: [
+                            IntrinsicHeight(
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: _buildOverviewTile(
+                                      title: "Total IN",
+                                      amount:
+                                          "₹${totalReceived.toStringAsFixed(2)}",
+                                      amountColor: const Color(
+                                        0xFF86EFAC,
+                                      ), // green-300
+                                      borderRight: true,
+                                      borderBottom: true,
                                     ),
                                   ),
-                                ),
-                                ElevatedButton(
-                                  onPressed: () {
-                                    confirm = true;
-                                    Navigator.pop(dialogContext);
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.red,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(8),
+                                  Expanded(
+                                    child: _buildOverviewTile(
+                                      title: "Total Out",
+                                      amount:
+                                          "₹${totalGiven.toStringAsFixed(2)}",
+                                      amountColor: const Color(
+                                        0xFFFCA5A5,
+                                      ), // red-300
+                                      alignRight: true,
+                                      borderBottom: true,
                                     ),
                                   ),
-                                  child: Text(
-                                    "Delete",
-                                    style: GoogleFonts.inter(
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
-                          );
-                          return confirm;
-                        },
-                        onDismissed: (direction) async {
-                          final recordProvider = Provider.of<RecordProvider>(
-                            context,
-                            listen: false,
-                          );
-                          await recordProvider.deleteRecord(record.id);
-
-                          if (mounted) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: const Text("Transaction deleted"),
-                                action: SnackBarAction(
-                                  label: "UNDO",
-                                  textColor: Colors.blue,
-                                  onPressed: () {
-                                    // Simple undo logic
-                                    recordProvider.addRecord(record);
-                                  },
-                                ),
-                                behavior: SnackBarBehavior.floating,
+                            IntrinsicHeight(
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: _buildOverviewTile(
+                                      title: "Balance",
+                                      amount: "₹${balance.toStringAsFixed(2)}",
+                                      amountColor: const Color(
+                                        0xFFBFDBFE,
+                                      ), // blue-200
+                                      borderRight: true,
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: _buildOverviewTile(
+                                      title: "Total Entry",
+                                      amount: cashbookRecords.length.toString(),
+                                      amountColor: Colors.white,
+                                      alignRight: true,
+                                    ),
+                                  ),
+                                ],
                               ),
-                            );
-                          }
-                        },
-                        child: Container(
-                          margin: const EdgeInsets.only(bottom: 16),
-                          decoration: BoxDecoration(
-                            color: isDark
-                                ? const Color(0xFF2D2D35)
-                                : Colors.white,
-                            borderRadius: BorderRadius.circular(20),
-                            border: Border.all(
-                              color: isDark
-                                  ? Colors.white12
-                                  : const Color(0xFFE4E1ED),
                             ),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.03),
-                                blurRadius: 10,
-                                offset: const Offset(0, 4),
-                              ),
-                            ],
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              // Top row: Category Tag & Date & More options
-                              Padding(
-                                padding: const EdgeInsets.fromLTRB(
-                                  16,
-                                  16,
-                                  16,
-                                  8,
-                                ),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Expanded(
-                                      child: Row(
-                                        children: [
-                                          Flexible(
-                                            child: Container(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                    horizontal: 10,
-                                                    vertical: 4,
-                                                  ),
-                                              decoration: BoxDecoration(
-                                                color: isDark
-                                                    ? Colors.blue.withValues(
-                                                        alpha: 0.2,
-                                                      )
-                                                    : Colors.blue.shade50,
-                                                borderRadius:
-                                                    BorderRadius.circular(12),
-                                                border: Border.all(
-                                                  color: isDark
-                                                      ? Colors.blue.withValues(
-                                                          alpha: 0.5,
-                                                        )
-                                                      : Colors.blue.shade200,
-                                                ),
-                                              ),
-                                              child: Text(
-                                                (record.category != null &&
-                                                        record
-                                                            .category!
-                                                            .isNotEmpty)
-                                                    ? record.category!
-                                                    : 'General',
-                                                style: GoogleFonts.inter(
-                                                  fontSize: 10,
-                                                  fontWeight: FontWeight.bold,
-                                                  color: isDark
-                                                      ? Colors.blueAccent
-                                                      : Colors.blue.shade700,
-                                                ),
-                                                overflow: TextOverflow.ellipsis,
-                                                maxLines: 1,
-                                              ),
-                                            ),
-                                          ),
-                                          const SizedBox(width: 12),
-                                          Text(
-                                            DateHelper.formatDateTime(
-                                              record.date,
-                                            ),
-                                            style: GoogleFonts.inter(
-                                              fontSize: 12,
-                                              color: isDark
-                                                  ? Colors.white54
-                                                  : Colors.grey.shade600,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    SizedBox(
-                                      height: 24,
-                                      width: 24,
-                                      child: PopupMenuButton<String>(
-                                        icon: Icon(
-                                          Icons.more_vert_rounded,
-                                          color: isDark
-                                              ? Colors.white54
-                                              : const Color(0xFF464555),
-                                          size: 20,
-                                        ),
-                                        padding: EdgeInsets.zero,
-                                        onSelected: (value) {
-                                          if (value == 'edit') {
-                                            _showEditRecordDialog(
-                                              context,
-                                              record,
-                                            );
-                                          } else if (value == 'delete') {
-                                            _showDeleteRecordDialog(
-                                              context,
-                                              record,
-                                            );
-                                          }
-                                        },
-                                        itemBuilder: (BuildContext context) => [
-                                          PopupMenuItem(
-                                            value: 'edit',
-                                            child: Row(
-                                              children: [
-                                                const Icon(
-                                                  Icons.edit_rounded,
-                                                  size: 18,
-                                                ),
-                                                const SizedBox(width: 8),
-                                                Text(
-                                                  'Edit',
-                                                  style: GoogleFonts.inter(),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                          PopupMenuItem(
-                                            value: 'delete',
-                                            child: Row(
-                                              children: [
-                                                const Icon(
-                                                  Icons.delete_rounded,
-                                                  color: Colors.red,
-                                                  size: 18,
-                                                ),
-                                                const SizedBox(width: 8),
-                                                Text(
-                                                  'Delete',
-                                                  style: GoogleFonts.inter(
-                                                    color: Colors.red,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-
-                              // Type & Amount
-                              Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                ),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            record.title,
-                                            style: GoogleFonts.inter(
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.bold,
-                                              color: textColor,
-                                            ),
-                                            maxLines: 1,
-                                            overflow: TextOverflow.ellipsis,
-                                          ),
-                                          const SizedBox(height: 4),
-                                          Text(
-                                            isCredit ? 'Income' : 'Expense',
-                                            style: GoogleFonts.inter(
-                                              fontSize: 12,
-                                              fontWeight: FontWeight.w500,
-                                              color: isCredit
-                                                  ? Colors.green
-                                                  : Colors.red,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    const SizedBox(width: 8),
-                                    Text(
-                                      "${isCredit ? '+' : '-'}₹${record.amount.toStringAsFixed(2)}",
-                                      style: GoogleFonts.inter(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 20,
-                                        color: isCredit
-                                            ? (isDark
-                                                  ? const Color(0xFF86EFAC)
-                                                  : const Color(0xFF008339))
-                                            : (isDark
-                                                  ? const Color(0xFFFCA5A5)
-                                                  : const Color(0xFFE53935)),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-
-                              // Details lines
-                              Padding(
-                                padding: const EdgeInsets.fromLTRB(
-                                  16,
-                                  12,
-                                  16,
-                                  12,
-                                ),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    if (record.note.isNotEmpty) ...[
-                                      Text(
-                                        "Note: ${record.note}",
-                                        style: GoogleFonts.inter(
-                                          fontSize: 12,
-                                          color: isDark
-                                              ? Colors.white70
-                                              : Colors.grey.shade700,
-                                        ),
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                      const SizedBox(height: 4),
-                                    ],
-                                    Text(
-                                      "Payment: ${record.paymentMethod ?? 'Cash'}",
-                                      style: GoogleFonts.inter(
-                                        fontSize: 12,
-                                        color: isDark
-                                            ? Colors.white70
-                                            : Colors.grey.shade700,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-
-                              Divider(
-                                height: 1,
-                                color: isDark
-                                    ? Colors.white12
-                                    : const Color(0xFFE4E1ED),
-                              ),
-
-                              // Details Button
-                              InkWell(
-                                onTap: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (_) => TransactionDetailsScreen(
-                                        record: record,
-                                      ),
-                                    ),
-                                  );
-                                },
-                                borderRadius: const BorderRadius.only(
-                                  bottomLeft: Radius.circular(20),
-                                  bottomRight: Radius.circular(20),
-                                ),
-                                child: Container(
-                                  width: double.infinity,
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 12,
-                                  ),
-                                  alignment: Alignment.center,
-                                  child: Text(
-                                    "View Details",
-                                    style: GoogleFonts.inter(
-                                      fontWeight: FontWeight.w600,
-                                      color: const Color(0xFF4143D5),
-                                      fontSize: 14,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
+                          ],
                         ),
                       ),
                     );
                   },
                 ),
+                const SizedBox(height: 32),
 
-              // Empty State
-              if (cashbookRecords.isEmpty)
-                Padding(
-                  padding: const EdgeInsets.only(top: 40),
-                  child: Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Stack(
-                          alignment: Alignment.center,
-                          children: [
-                            Icon(
-                              Icons.military_tech,
-                              size: 120,
-                              color: const Color(
-                                0xFF5B7FFF,
-                              ).withValues(alpha: 0.2),
+                // Transactions List
+                if (cashbookRecords.isNotEmpty)
+                  ListView.builder(
+                    physics: const NeverScrollableScrollPhysics(),
+                    shrinkWrap: true,
+                    itemCount: cashbookRecords.length,
+                    itemBuilder: (context, index) {
+                      final record =
+                          cashbookRecords[cashbookRecords.length -
+                              1 -
+                              index]; // reversed
+                      final isCredit = !record.isGiven;
+
+                      return FadeInRight(
+                        delay: Duration(milliseconds: 50 * index),
+                        duration: const Duration(milliseconds: 400),
+                        child: Dismissible(
+                          key: Key(record.id),
+                          direction: DismissDirection.endToStart,
+                          background: Container(
+                            alignment: Alignment.centerRight,
+                            padding: const EdgeInsets.symmetric(horizontal: 20),
+                            margin: const EdgeInsets.only(bottom: 16),
+                            decoration: BoxDecoration(
+                              color: Colors.red,
+                              borderRadius: BorderRadius.circular(20),
                             ),
-                            Icon(
-                              Icons.military_tech,
-                              size: 100,
-                              color: const Color(0xFFE57373),
+                            child: const Icon(
+                              Icons.delete,
+                              color: Colors.white,
                             ),
-                            Container(
-                              padding: const EdgeInsets.all(12),
-                              decoration: BoxDecoration(
-                                color: const Color(0xFF1F3255),
-                                shape: BoxShape.circle,
-                                border: Border.all(
-                                  color: const Color(0xFF4DB6AC),
-                                  width: 4,
+                          ),
+                          confirmDismiss: (direction) async {
+                            HapticFeedback.heavyImpact();
+                            bool confirm = false;
+                            await showDialog(
+                              context: context,
+                              builder: (dialogContext) => AlertDialog(
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                                title: Text(
+                                  "Delete Record",
+                                  style: GoogleFonts.inter(
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.red,
+                                  ),
+                                ),
+                                content: Text(
+                                  "Are you sure you want to delete this transaction?",
+                                  style: GoogleFonts.inter(),
+                                ),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.pop(dialogContext);
+                                    },
+                                    child: Text(
+                                      "Cancel",
+                                      style: GoogleFonts.inter(
+                                        color: Colors.grey,
+                                      ),
+                                    ),
+                                  ),
+                                  ElevatedButton(
+                                    onPressed: () {
+                                      confirm = true;
+                                      Navigator.pop(dialogContext);
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.red,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                    ),
+                                    child: Text(
+                                      "Delete",
+                                      style: GoogleFonts.inter(
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                            return confirm;
+                          },
+                          onDismissed: (direction) async {
+                            final recordProvider = Provider.of<RecordProvider>(
+                              context,
+                              listen: false,
+                            );
+                            await recordProvider.deleteRecord(record.id);
+
+                            if (mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: const Text("Transaction deleted"),
+                                  action: SnackBarAction(
+                                    label: "UNDO",
+                                    textColor: Colors.blue,
+                                    onPressed: () {
+                                      // Simple undo logic
+                                      recordProvider.addRecord(record);
+                                    },
+                                  ),
+                                  behavior: SnackBarBehavior.floating,
+                                ),
+                              );
+                            }
+                          },
+                          child: Padding(
+                            padding: const EdgeInsets.only(bottom: 16),
+                            child: GlassCard(
+                              padding: EdgeInsets.zero,
+                              borderRadius: 20,
+                              backgroundColor: isDefault
+                                  ? (isDark
+                                        ? const Color(0xFF2D2D35)
+                                        : Colors.white)
+                                  : null,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  // Top row: Category Tag & Date & More options
+                                  Padding(
+                                    padding: const EdgeInsets.fromLTRB(
+                                      16,
+                                      16,
+                                      16,
+                                      8,
+                                    ),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Expanded(
+                                          child: Row(
+                                            children: [
+                                              Flexible(
+                                                child: Container(
+                                                  padding:
+                                                      const EdgeInsets.symmetric(
+                                                        horizontal: 10,
+                                                        vertical: 4,
+                                                      ),
+                                                  decoration: BoxDecoration(
+                                                    color: isDark
+                                                        ? Colors.blue
+                                                              .withValues(
+                                                                alpha: 0.2,
+                                                              )
+                                                        : Colors.blue.shade50,
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                          12,
+                                                        ),
+                                                    border: Border.all(
+                                                      color: isDark
+                                                          ? Colors.blue
+                                                                .withValues(
+                                                                  alpha: 0.5,
+                                                                )
+                                                          : Colors
+                                                                .blue
+                                                                .shade200,
+                                                    ),
+                                                  ),
+                                                  child: Text(
+                                                    (record.category != null &&
+                                                            record
+                                                                .category!
+                                                                .isNotEmpty)
+                                                        ? record.category!
+                                                        : 'General',
+                                                    style: GoogleFonts.inter(
+                                                      fontSize: 10,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      color: isDark
+                                                          ? Colors.blueAccent
+                                                          : Colors
+                                                                .blue
+                                                                .shade700,
+                                                    ),
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                    maxLines: 1,
+                                                  ),
+                                                ),
+                                              ),
+                                              const SizedBox(width: 12),
+                                              Text(
+                                                DateHelper.formatDateTime(
+                                                  record.date,
+                                                ),
+                                                style: GoogleFonts.inter(
+                                                  fontSize: 12,
+                                                  color: isDark
+                                                      ? Colors.white54
+                                                      : Colors.grey.shade600,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        SizedBox(
+                                          height: 24,
+                                          width: 24,
+                                          child: PopupMenuButton<String>(
+                                            icon: Icon(
+                                              Icons.more_vert_rounded,
+                                              color: isDark
+                                                  ? Colors.white54
+                                                  : const Color(0xFF464555),
+                                              size: 20,
+                                            ),
+                                            padding: EdgeInsets.zero,
+                                            onSelected: (value) {
+                                              if (value == 'edit') {
+                                                _showEditRecordDialog(
+                                                  context,
+                                                  record,
+                                                );
+                                              } else if (value == 'delete') {
+                                                _showDeleteRecordDialog(
+                                                  context,
+                                                  record,
+                                                );
+                                              }
+                                            },
+                                            itemBuilder:
+                                                (BuildContext context) => [
+                                                  PopupMenuItem(
+                                                    value: 'edit',
+                                                    child: Row(
+                                                      children: [
+                                                        const Icon(
+                                                          Icons.edit_rounded,
+                                                          size: 18,
+                                                        ),
+                                                        const SizedBox(
+                                                          width: 8,
+                                                        ),
+                                                        Text(
+                                                          'Edit',
+                                                          style:
+                                                              GoogleFonts.inter(),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                  PopupMenuItem(
+                                                    value: 'delete',
+                                                    child: Row(
+                                                      children: [
+                                                        const Icon(
+                                                          Icons.delete_rounded,
+                                                          color: Colors.red,
+                                                          size: 18,
+                                                        ),
+                                                        const SizedBox(
+                                                          width: 8,
+                                                        ),
+                                                        Text(
+                                                          'Delete',
+                                                          style:
+                                                              GoogleFonts.inter(
+                                                                color:
+                                                                    Colors.red,
+                                                              ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+
+                                  // Type & Amount
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 16,
+                                    ),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                record.title,
+                                                style: GoogleFonts.inter(
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: textColor,
+                                                ),
+                                                maxLines: 1,
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
+                                              const SizedBox(height: 4),
+                                              Text(
+                                                isCredit ? 'Income' : 'Expense',
+                                                style: GoogleFonts.inter(
+                                                  fontSize: 12,
+                                                  fontWeight: FontWeight.w500,
+                                                  color: isCredit
+                                                      ? Colors.green
+                                                      : Colors.red,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        const SizedBox(width: 8),
+                                        Text(
+                                          "${isCredit ? '+' : '-'}₹${record.amount.toStringAsFixed(2)}",
+                                          style: GoogleFonts.inter(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 20,
+                                            color: isCredit
+                                                ? (isDark
+                                                      ? const Color(0xFF86EFAC)
+                                                      : const Color(0xFF008339))
+                                                : (isDark
+                                                      ? const Color(0xFFFCA5A5)
+                                                      : const Color(
+                                                          0xFFE53935,
+                                                        )),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+
+                                  // Details lines
+                                  Padding(
+                                    padding: const EdgeInsets.fromLTRB(
+                                      16,
+                                      12,
+                                      16,
+                                      12,
+                                    ),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        if (record.note.isNotEmpty) ...[
+                                          Text(
+                                            "Note: ${record.note}",
+                                            style: GoogleFonts.inter(
+                                              fontSize: 12,
+                                              color: isDark
+                                                  ? Colors.white70
+                                                  : Colors.grey.shade700,
+                                            ),
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                          const SizedBox(height: 4),
+                                        ],
+                                        Text(
+                                          "Payment: ${record.paymentMethod ?? 'Cash'}",
+                                          style: GoogleFonts.inter(
+                                            fontSize: 12,
+                                            color: isDark
+                                                ? Colors.white70
+                                                : Colors.grey.shade700,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+
+                                  Divider(
+                                    height: 1,
+                                    color: isDark
+                                        ? Colors.white12
+                                        : const Color(0xFFE4E1ED),
+                                  ),
+
+                                  // Details Button
+                                  InkWell(
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (_) =>
+                                              TransactionDetailsScreen(
+                                                record: record,
+                                              ),
+                                        ),
+                                      );
+                                    },
+                                    borderRadius: const BorderRadius.only(
+                                      bottomLeft: Radius.circular(20),
+                                      bottomRight: Radius.circular(20),
+                                    ),
+                                    child: Container(
+                                      width: double.infinity,
+                                      padding: const EdgeInsets.symmetric(
+                                        vertical: 12,
+                                      ),
+                                      alignment: Alignment.center,
+                                      child: Text(
+                                        "View Details",
+                                        style: GoogleFonts.inter(
+                                          fontWeight: FontWeight.w600,
+                                          color: isDefault
+                                              ? const Color(0xFF4143D5)
+                                              : premiumTheme.primaryColor,
+                                          fontSize: 14,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+
+                // Empty State
+                if (cashbookRecords.isEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 40),
+                    child: Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Stack(
+                            alignment: Alignment.center,
+                            children: [
+                              Icon(
+                                Icons.military_tech,
+                                size: 120,
+                                color: const Color(
+                                  0xFF5B7FFF,
+                                ).withValues(alpha: 0.2),
+                              ),
+                              Icon(
+                                Icons.military_tech,
+                                size: 100,
+                                color: const Color(0xFFE57373),
+                              ),
+                              Container(
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFF1F3255),
+                                  shape: BoxShape.circle,
+                                  border: Border.all(
+                                    color: const Color(0xFF4DB6AC),
+                                    width: 4,
+                                  ),
+                                ),
+                                child: const Icon(
+                                  Icons.attach_money,
+                                  color: Color(0xFF4DB6AC),
+                                  size: 30,
                                 ),
                               ),
-                              child: const Icon(
-                                Icons.attach_money,
-                                color: Color(0xFF4DB6AC),
-                                size: 30,
-                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            "No Data Found",
+                            style: GoogleFonts.poppins(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: isDark
+                                  ? Colors.white
+                                  : const Color(0xFF1F3255),
                             ),
-                          ],
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          "No Data Found",
-                          style: GoogleFonts.poppins(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: isDark
-                                ? Colors.white
-                                : const Color(0xFF1F3255),
                           ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          "Enter Your First Transaction",
-                          style: GoogleFonts.poppins(
-                            fontSize: 14,
-                            color: isDark
-                                ? Colors.grey.shade400
-                                : Colors.grey.shade500,
+                          const SizedBox(height: 8),
+                          Text(
+                            "Enter Your First Transaction",
+                            style: GoogleFonts.poppins(
+                              fontSize: 14,
+                              color: isDark
+                                  ? Colors.grey.shade400
+                                  : Colors.grey.shade500,
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
-                ),
-            ],
+              ],
+            ),
           ),
         ),
-      ),
-      floatingActionButton: GestureDetector(
-        onTap: () {
-          HapticFeedback.lightImpact();
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => AddRecordScreen(cashbookName: selectedCashbook),
-            ),
-          );
-        },
-        child: Container(
-          height: 56,
-          padding: const EdgeInsets.only(left: 20, right: 24),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(28),
-            gradient: const LinearGradient(
-              colors: [Color(0xFF4143D5), Color(0xFF7459F7)],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.05),
-                blurRadius: 25,
-                offset: const Offset(0, 10),
+        floatingActionButton: GestureDetector(
+          onTap: () {
+            HapticFeedback.lightImpact();
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => AddRecordScreen(cashbookName: selectedCashbook),
               ),
-            ],
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Icon(Icons.add_rounded, color: Colors.white, size: 28),
-              const SizedBox(width: 12),
-              Text(
-                "Add Transaction",
-                style: GoogleFonts.inter(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w600,
-                  fontSize: 16,
+            );
+          },
+          child: Container(
+            height: 56,
+            padding: const EdgeInsets.only(left: 20, right: 24),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(28),
+              gradient: primaryGradient,
+              boxShadow: [
+                BoxShadow(
+                  color: isDefault
+                      ? Colors.black.withValues(alpha: 0.05)
+                      : premiumTheme.primaryColor.withValues(alpha: 0.4),
+                  blurRadius: 25,
+                  offset: const Offset(0, 10),
                 ),
-              ),
-            ],
+              ],
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.add_rounded, color: Colors.white, size: 28),
+                const SizedBox(width: 12),
+                Text(
+                  "Add Transaction",
+                  style: GoogleFonts.inter(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 16,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

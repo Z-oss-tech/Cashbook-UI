@@ -188,14 +188,19 @@ class _SplashScreenState extends State<SplashScreen>
                         borderRadius: BorderRadius.circular(30),
 
                         gradient: LinearGradient(
-                          colors: [Theme.of(context).primaryColor, AppColors.secondary],
+                          colors: [
+                            Theme.of(context).primaryColor,
+                            AppColors.secondary,
+                          ],
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                         ),
 
                         boxShadow: [
                           BoxShadow(
-                            color: Theme.of(context).primaryColor.withValues(alpha: 0.4),
+                            color: Theme.of(
+                              context,
+                            ).primaryColor.withValues(alpha: 0.4),
                             blurRadius: 25,
                             offset: const Offset(0, 12),
                           ),

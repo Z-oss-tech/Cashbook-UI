@@ -24,11 +24,15 @@ class TransactionDetailsScreen extends StatelessWidget {
           isCredit ? "Income Details" : "Expense Details",
           style: GoogleFonts.inter(
             fontWeight: FontWeight.bold,
-            color: Theme.of(context).textTheme.bodyLarge?.color ?? (isDark ? Colors.white : const Color(0xFF0B1C30)),
+            color:
+                Theme.of(context).textTheme.bodyLarge?.color ??
+                (isDark ? Colors.white : const Color(0xFF0B1C30)),
           ),
         ),
         iconTheme: IconThemeData(
-          color: Theme.of(context).textTheme.bodyLarge?.color ?? (isDark ? Colors.white : const Color(0xFF0B1C30)),
+          color:
+              Theme.of(context).textTheme.bodyLarge?.color ??
+              (isDark ? Colors.white : const Color(0xFF0B1C30)),
         ),
       ),
       body: SingleChildScrollView(
@@ -150,7 +154,12 @@ class TransactionDetailsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildDetailRow(BuildContext context, String label, String value, bool isDark) {
+  Widget _buildDetailRow(
+    BuildContext context,
+    String label,
+    String value,
+    bool isDark,
+  ) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -170,7 +179,9 @@ class TransactionDetailsScreen extends StatelessWidget {
             style: GoogleFonts.inter(
               fontSize: 14,
               fontWeight: FontWeight.w600,
-              color: Theme.of(context).textTheme.bodyLarge?.color ?? (isDark ? Colors.white : const Color(0xFF0B1C30)),
+              color:
+                  Theme.of(context).textTheme.bodyLarge?.color ??
+                  (isDark ? Colors.white : const Color(0xFF0B1C30)),
             ),
           ),
         ),

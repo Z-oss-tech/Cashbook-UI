@@ -161,9 +161,9 @@ class _LoginScreenState extends State<LoginScreen> {
                               ),
                               boxShadow: [
                                 BoxShadow(
-                                  color: Theme.of(context).primaryColor.withValues(
-                                    alpha: 0.25,
-                                  ),
+                                  color: Theme.of(
+                                    context,
+                                  ).primaryColor.withValues(alpha: 0.25),
                                   blurRadius: 25,
                                   offset: const Offset(0, 12),
                                 ),
@@ -274,7 +274,9 @@ class _LoginScreenState extends State<LoginScreen> {
                               height: 58,
                               child: ElevatedButton(
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: Theme.of(context).primaryColor,
+                                  backgroundColor: Theme.of(
+                                    context,
+                                  ).primaryColor,
                                   elevation: 0,
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(18),

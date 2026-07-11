@@ -303,7 +303,9 @@ class _PeopleListScreenState extends State<PeopleListScreen> {
     final borderColor = isDark
         ? const Color(0xFF464555)
         : const Color(0xFFE6E8EA);
-    final textColor = Theme.of(context).textTheme.bodyLarge?.color ?? (isDark ? Colors.white : const Color(0xFF0B1C30));
+    final textColor =
+        Theme.of(context).textTheme.bodyLarge?.color ??
+        (isDark ? Colors.white : const Color(0xFF0B1C30));
     final subTextColor = isDark ? Colors.white70 : const Color(0xFF464555);
 
     return GestureDetector(

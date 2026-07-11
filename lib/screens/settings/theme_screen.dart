@@ -11,7 +11,9 @@ class ThemeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final bgColor = Theme.of(context).scaffoldBackgroundColor;
-    final textColor = Theme.of(context).textTheme.bodyLarge?.color ?? (isDark ? Colors.white : const Color(0xFF0B1C30));
+    final textColor =
+        Theme.of(context).textTheme.bodyLarge?.color ??
+        (isDark ? Colors.white : const Color(0xFF0B1C30));
 
     final settings = Provider.of<SettingsProvider>(context);
 
@@ -24,7 +26,10 @@ class ThemeScreen extends StatelessWidget {
             Expanded(
               child: ListView(
                 physics: const BouncingScrollPhysics(),
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 16,
+                ),
                 children: [
                   Text(
                     "Choose Your Vibe",
@@ -39,15 +44,18 @@ class ThemeScreen extends StatelessWidget {
                     "Select a theme to instantly change the entire look of your app.",
                     style: GoogleFonts.inter(
                       fontSize: 14,
-                      color: Theme.of(context).textTheme.bodyMedium?.color ?? (isDark ? Colors.white70 : const Color(0xFF767586)),
+                      color:
+                          Theme.of(context).textTheme.bodyMedium?.color ??
+                          (isDark ? Colors.white70 : const Color(0xFF767586)),
                     ),
                   ),
                   const SizedBox(height: 24),
-                  
+
                   _buildThemeCard(
                     context: context,
                     title: "Default Mode",
-                    description: "Follows your system Dark/Light mode preference.",
+                    description:
+                        "Follows your system Dark/Light mode preference.",
                     themeName: "Default",
                     isSelected: settings.appTheme == "Default",
                     primaryColor: const Color(0xFF5B67F1),
@@ -61,7 +69,8 @@ class ThemeScreen extends StatelessWidget {
                   _buildThemeCard(
                     context: context,
                     title: "Midnight Ocean",
-                    description: "Deep oceanic blues with vibrant cyan accents.",
+                    description:
+                        "Deep oceanic blues with vibrant cyan accents.",
                     themeName: "Midnight Ocean",
                     isSelected: settings.appTheme == "Midnight Ocean",
                     primaryColor: const Color(0xFF00D2FF),
@@ -75,7 +84,8 @@ class ThemeScreen extends StatelessWidget {
                   _buildThemeCard(
                     context: context,
                     title: "Sunset Glow",
-                    description: "Dark purples mixed with vibrant orange sunsets.",
+                    description:
+                        "Dark purples mixed with vibrant orange sunsets.",
                     themeName: "Sunset Glow",
                     isSelected: settings.appTheme == "Sunset Glow",
                     primaryColor: const Color(0xFFFF512F),
@@ -181,14 +191,14 @@ class ThemeScreen extends StatelessWidget {
                     color: primaryColor.withValues(alpha: 0.3),
                     blurRadius: 16,
                     offset: const Offset(0, 8),
-                  )
+                  ),
                 ]
               : [
                   BoxShadow(
                     color: Colors.black.withValues(alpha: 0.1),
                     blurRadius: 8,
                     offset: const Offset(0, 4),
-                  )
+                  ),
                 ],
         ),
         child: Row(
@@ -202,7 +212,9 @@ class ThemeScreen extends StatelessWidget {
                     style: GoogleFonts.inter(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
-                      color: isLightText ? Colors.white : const Color(0xFF1E293B),
+                      color: isLightText
+                          ? Colors.white
+                          : const Color(0xFF1E293B),
                     ),
                   ),
                   const SizedBox(height: 6),
@@ -210,7 +222,9 @@ class ThemeScreen extends StatelessWidget {
                     description,
                     style: GoogleFonts.inter(
                       fontSize: 13,
-                      color: isLightText ? Colors.white70 : const Color(0xFF475569),
+                      color: isLightText
+                          ? Colors.white70
+                          : const Color(0xFF475569),
                     ),
                   ),
                 ],
@@ -224,12 +238,18 @@ class ThemeScreen extends StatelessWidget {
                 shape: BoxShape.circle,
                 color: isSelected ? primaryColor : Colors.transparent,
                 border: Border.all(
-                  color: isSelected ? primaryColor : (isLightText ? Colors.white54 : Colors.black26),
+                  color: isSelected
+                      ? primaryColor
+                      : (isLightText ? Colors.white54 : Colors.black26),
                   width: 2,
                 ),
               ),
               child: isSelected
-                  ? const Icon(Icons.check_rounded, color: Colors.white, size: 20)
+                  ? const Icon(
+                      Icons.check_rounded,
+                      color: Colors.white,
+                      size: 20,
+                    )
                   : null,
             ),
           ],

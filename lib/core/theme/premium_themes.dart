@@ -19,32 +19,42 @@ class PremiumThemes {
         return ThemeInfo(
           themeData: midnightOcean,
           primaryColor: const Color(0xFF00D2FF),
-          gradient: const LinearGradient(colors: [Color(0xFF0A192F), Color(0xFF112240)]),
+          gradient: const LinearGradient(
+            colors: [Color(0xFF0A192F), Color(0xFF112240)],
+          ),
         );
       case 'Sunset Glow':
         return ThemeInfo(
           themeData: sunsetGlow,
           primaryColor: const Color(0xFFFF512F),
-          gradient: const LinearGradient(colors: [Color(0xFF1F0D24), Color(0xFF321538)]),
+          gradient: const LinearGradient(
+            colors: [Color(0xFF1F0D24), Color(0xFF321538)],
+          ),
         );
       case 'Forest Emerald':
         return ThemeInfo(
           themeData: forestEmerald,
           primaryColor: const Color(0xFF10B981),
-          gradient: const LinearGradient(colors: [Color(0xFF064E3B), Color(0xFF065F46)]),
+          gradient: const LinearGradient(
+            colors: [Color(0xFF064E3B), Color(0xFF065F46)],
+          ),
         );
       case 'Cherry Blossom':
         return ThemeInfo(
           themeData: cherryBlossom,
           primaryColor: const Color(0xFFF43F5E),
-          gradient: const LinearGradient(colors: [Color(0xFFFFF0F3), Colors.white]),
+          gradient: const LinearGradient(
+            colors: [Color(0xFFFFF0F3), Colors.white],
+          ),
         );
       default:
         // Default theme info
         return ThemeInfo(
           themeData: ThemeData.light(), // Fallback
           primaryColor: const Color(0xFF4143D5),
-          gradient: const LinearGradient(colors: [Color(0xFF4143D5), Color(0xFF7459F7)]),
+          gradient: const LinearGradient(
+            colors: [Color(0xFF4143D5), Color(0xFF7459F7)],
+          ),
         );
     }
   }
@@ -54,7 +64,7 @@ class PremiumThemes {
     const primary = Color(0xFF00D2FF);
     const background = Color(0xFF0A192F);
     const card = Color(0xFF112240);
-    
+
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.dark,
@@ -81,7 +91,7 @@ class PremiumThemes {
     const primary = Color(0xFFFF512F);
     const background = Color(0xFF1F0D24);
     const card = Color(0xFF321538);
-    
+
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.dark,
@@ -108,7 +118,7 @@ class PremiumThemes {
     const primary = Color(0xFF10B981);
     const background = Color(0xFF064E3B);
     const card = Color(0xFF065F46);
-    
+
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.dark,
@@ -135,7 +145,7 @@ class PremiumThemes {
     const primary = Color(0xFFF43F5E);
     const background = Color(0xFFFFF0F3);
     const card = Colors.white;
-    
+
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.light,
