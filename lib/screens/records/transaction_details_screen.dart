@@ -145,6 +145,61 @@ class TransactionDetailsScreen extends StatelessWidget {
                     const Divider(height: 30),
                     _buildDetailRow(context, "Note", record.note, isDark),
                   ],
+                  if (record.attachmentUrl != null && record.attachmentUrl!.isNotEmpty) ...[
+                    const Divider(height: 30),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Text(
+                              "Receipt / Attachment",
+                              style: GoogleFonts.inter(
+                                fontSize: 14,
+                                color: Theme.of(context).dividerColor,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(12),
+                          child: Image.network(
+                            record.attachmentUrl!,
+                            width: double.infinity,
+                            fit: BoxFit.cover,
+                            loadingBuilder: (context, child, loadingProgress) {
+                              if (loadingProgress == null) return child;
+                              return Container(
+                                height: 200,
+                                width: double.infinity,
+                                color: isDark ? Colors.white10 : Colors.black12,
+                                child: const Center(child: CircularProgressIndicator()),
+                              );
+                            },
+                            errorBuilder: (context, error, stackTrace) {
+                              return Container(
+                                height: 200,
+                                width: double.infinity,
+                                decoration: BoxDecoration(
+                                  color: isDark ? Colors.white10 : Colors.black12,
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(Icons.broken_image_rounded, size: 48, color: Theme.of(context).dividerColor),
+                                    const SizedBox(height: 8),
+                                    Text("Failed to load image", style: TextStyle(color: Theme.of(context).dividerColor)),
+                                  ],
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ],
               ),
             ),

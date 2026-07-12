@@ -107,6 +107,7 @@ class ExportHelper {
           'Type',
           'Amount',
           'Note',
+          'Attachment',
         ],
       ];
 
@@ -121,6 +122,7 @@ class ExportHelper {
           record.type == 'expense' ? 'Expense' : 'Income',
           record.amount.toStringAsFixed(2),
           record.note,
+          record.attachmentUrl ?? '',
         ]);
       }
 

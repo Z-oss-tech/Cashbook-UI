@@ -1247,6 +1247,7 @@ class PremiumPdfGenerator {
               'Category',
               'Description',
               'Notes',
+              'Attachment',
               'Type',
               'Amount',
               'Balance',
@@ -1273,6 +1274,7 @@ class PremiumPdfGenerator {
                 record.category ?? 'General',
                 record.personName,
                 record.note.isNotEmpty ? record.note : '-',
+                record.attachmentUrl != null && record.attachmentUrl!.isNotEmpty ? 'View Link' : 'No',
                 record.isGiven ? 'Expense' : 'Income',
                 _formatCurrency(record.amount),
                 _formatCurrency(runningBalance),
@@ -1285,25 +1287,27 @@ class PremiumPdfGenerator {
             for (int i = 0; i < headers.length; i++) {
               final h = headers[i];
               if (h == 'Date') {
-                columnWidths[i] = const pw.FixedColumnWidth(55);
-              } else if (h == 'Time') {
-                columnWidths[i] = const pw.FixedColumnWidth(40);
-              } else if (h == 'Book') {
-                columnWidths[i] = const pw.FlexColumnWidth(1.2);
-              } else if (h == 'Payment Mode') {
-                columnWidths[i] = const pw.FlexColumnWidth(1.0);
-              } else if (h == 'Category') {
-                columnWidths[i] = const pw.FlexColumnWidth(1.2);
-              } else if (h == 'Description') {
-                columnWidths[i] = const pw.FlexColumnWidth(1.2);
-              } else if (h == 'Notes') {
-                columnWidths[i] = const pw.FlexColumnWidth(2.0);
-              } else if (h == 'Type') {
                 columnWidths[i] = const pw.FixedColumnWidth(45);
+              } else if (h == 'Time') {
+                columnWidths[i] = const pw.FixedColumnWidth(35);
+              } else if (h == 'Book') {
+                columnWidths[i] = const pw.FlexColumnWidth(1.0);
+              } else if (h == 'Payment Mode') {
+                columnWidths[i] = const pw.FlexColumnWidth(0.8);
+              } else if (h == 'Category') {
+                columnWidths[i] = const pw.FlexColumnWidth(1.0);
+              } else if (h == 'Description') {
+                columnWidths[i] = const pw.FlexColumnWidth(1.0);
+              } else if (h == 'Notes') {
+                columnWidths[i] = const pw.FlexColumnWidth(1.5);
+              } else if (h == 'Attachment') {
+                columnWidths[i] = const pw.FixedColumnWidth(40);
+              } else if (h == 'Type') {
+                columnWidths[i] = const pw.FixedColumnWidth(35);
               } else if (h == 'Amount') {
-                columnWidths[i] = const pw.FixedColumnWidth(55);
+                columnWidths[i] = const pw.FixedColumnWidth(45);
               } else if (h == 'Balance') {
-                columnWidths[i] = const pw.FixedColumnWidth(55);
+                columnWidths[i] = const pw.FixedColumnWidth(45);
               }
             }
 
