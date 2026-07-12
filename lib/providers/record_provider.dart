@@ -348,8 +348,11 @@ class RecordProvider extends ChangeNotifier {
     await _saveLocalRecords();
 
     // Trigger Notifications
+    final cashbookId = record.cashbookId;
+    final currentBalance = _calculateCashbookBalance(cashbookId);
+    
     // Trigger Due Reminder if applicable
-    NotificationService().scheduleDueReminder(cashbook.openingBalance + _calculateCashbookBalance(cashbook.id), record.cashbookName ?? 'Unknown');
+    NotificationService().scheduleDueReminder(currentBalance, record.cashbookName ?? 'Unknown');
     // Trigger milestone check
     NotificationService().showMilestoneNotification(_records.length);
     // Reset inactivity timer since user added a transaction
@@ -681,5 +684,17 @@ class RecordProvider extends ChangeNotifier {
     _isOfflineMode = false;
     _pendingCount = 0;
     notifyListeners();
+  }
+
+  double _calculateCashbookBalance(String cashbookId) {
+    double balance = 0.0;
+    for (var r in _records.where((r) => r.cashbookId == cashbookId)) {
+      if (r.isGiven) {
+        balance -= r.amount;
+      } else {
+        balance += r.amount;
+      }
+    }
+    return balance;
   }
 }
