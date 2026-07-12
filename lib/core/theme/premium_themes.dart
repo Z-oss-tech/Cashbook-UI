@@ -44,7 +44,7 @@ class PremiumThemes {
           themeData: cherryBlossom,
           primaryColor: const Color(0xFFF43F5E),
           gradient: const LinearGradient(
-            colors: [Color(0xFFFFF0F3), Colors.white],
+            colors: [Color(0xFFF43F5E), Color(0xFFE11D48)],
           ),
         );
       default:
