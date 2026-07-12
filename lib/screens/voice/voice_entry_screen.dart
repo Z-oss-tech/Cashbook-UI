@@ -640,15 +640,15 @@ class _VoiceEntryScreenState extends State<VoiceEntryScreen>
                             physics: const BouncingScrollPhysics(),
                             children: [
                               _buildSuggestionChip(
-                                'Try: "Received salary 50000"',
+                                'Try: "Received salary 50000 in General book"',
                                 isDark,
                               ),
                               _buildSuggestionChip(
-                                'Try: "Paid Rent 15000"',
+                                'Try: "Paid 15000 for rent from personal account"',
                                 isDark,
                               ),
                               _buildSuggestionChip(
-                                'Try: "Stock investment 2000"',
+                                'Try: "Bought pizza for 500 in food khata"',
                                 isDark,
                               ),
                             ],

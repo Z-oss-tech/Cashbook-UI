@@ -14,10 +14,17 @@ import '../../core/widgets/glass_card.dart';
 import 'package:intl/intl.dart';
 import 'cherry_reports_components.dart';
 
-class ReportsScreen extends StatelessWidget {
+class ReportsScreen extends StatefulWidget {
   final String? cashbookName;
 
   const ReportsScreen({super.key, this.cashbookName});
+
+  @override
+  State<ReportsScreen> createState() => _ReportsScreenState();
+}
+
+class _ReportsScreenState extends State<ReportsScreen> {
+  bool _showInsight = true;
 
   String formatCurrency(double amount) {
     final String sign = amount < 0 ? '-' : '';
@@ -55,8 +62,8 @@ class ReportsScreen extends StatelessWidget {
     final isDefault = settings.appTheme == 'Default';
 
     final allRecords = recordProvider.records;
-    final records = cashbookName != null
-        ? allRecords.where((r) => r.cashbookName == cashbookName).toList()
+    final records = widget.cashbookName != null
+        ? allRecords.where((r) => r.cashbookName == widget.cashbookName).toList()
         : allRecords;
 
     final double totalReceived = records
@@ -89,68 +96,9 @@ class ReportsScreen extends StatelessWidget {
         backgroundColor: Colors.transparent,
         elevation: 0,
         title: Text(
-          cashbookName != null ? "$cashbookName Reports" : "Smart Analytics",
+          widget.cashbookName != null ? "${widget.cashbookName} Reports" : "Smart Analytics",
           style: GoogleFonts.poppins(fontWeight: FontWeight.bold, fontSize: 18),
         ),
-        actions: [
-          Container(
-            margin: const EdgeInsets.only(right: 16, top: 8, bottom: 8),
-            decoration: BoxDecoration(
-              gradient: isDefault
-                  ? const LinearGradient(
-                      colors: [Color(0xFF4143D5), Color(0xFF7459F7)],
-                    )
-                  : premiumTheme.gradient,
-              borderRadius: BorderRadius.circular(20),
-              boxShadow: [
-                BoxShadow(
-                  color:
-                      (isDefault
-                              ? const Color(0xFF4143D5)
-                              : premiumTheme.primaryColor)
-                          .withValues(alpha: 0.3),
-                  blurRadius: 8,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-            ),
-            child: Material(
-              color: Colors.transparent,
-              child: InkWell(
-                borderRadius: BorderRadius.circular(20),
-                onTap: () {
-                  HapticFeedback.lightImpact();
-                  ExportHelper.showExportOptions(context);
-                },
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 8,
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(
-                        Icons.download_rounded,
-                        size: 16,
-                        color: Colors.white,
-                      ),
-                      const SizedBox(width: 6),
-                      Text(
-                        "Export",
-                        style: GoogleFonts.poppins(
-                          color: Colors.white,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
       ),
       body: settings.appTheme == 'Cherry Blossom'
           ? FloatingPetalsBackground(
@@ -343,16 +291,16 @@ class ReportsScreen extends StatelessWidget {
                       const SizedBox(height: 20),
 
                       // 4. AI Insight Card
-                      _buildInsightCard(
-                        context,
-                        totalReceived,
-                        totalGiven,
-                        balance,
-                        premiumTheme,
-                        isDefault,
-                      ),
-
-                      const SizedBox(height: 32),
+                      if (_showInsight)
+                        _buildInsightCard(
+                          context,
+                          totalReceived,
+                          totalGiven,
+                          balance,
+                          premiumTheme,
+                          isDefault,
+                        ),
+                      if (_showInsight) const SizedBox(height: 24),
 
                       // 5. Key Events
                       Row(
@@ -863,6 +811,9 @@ class ReportsScreen extends StatelessWidget {
     final primaryColor = isDefault
         ? const Color(0xFF4143D5)
         : premiumTheme.primaryColor;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textColor = isDark ? Colors.white : primaryColor;
+    final subTextColor = isDark ? Colors.white70 : primaryColor.withValues(alpha: 0.8);
 
     String insightText = "";
     if (balance > 0) {
@@ -879,19 +830,19 @@ class ReportsScreen extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: primaryColor.withValues(alpha: 0.1),
+        color: isDark ? primaryColor.withValues(alpha: 0.2) : primaryColor.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(28),
-        border: Border.all(color: primaryColor.withValues(alpha: 0.2)),
+        border: Border.all(color: primaryColor.withValues(alpha: 0.3)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
             padding: const EdgeInsets.all(16),
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.all(Radius.circular(20)),
-              boxShadow: [
+            decoration: BoxDecoration(
+              color: isDark ? Colors.white10 : Colors.white,
+              borderRadius: const BorderRadius.all(Radius.circular(20)),
+              boxShadow: const [
                 BoxShadow(
                   color: Colors.black12,
                   blurRadius: 10,
@@ -901,7 +852,7 @@ class ReportsScreen extends StatelessWidget {
             ),
             child: Icon(
               Icons.auto_awesome_rounded,
-              color: primaryColor,
+              color: isDark ? Colors.white : primaryColor,
               size: 28,
             ),
           ),
@@ -915,7 +866,7 @@ class ReportsScreen extends StatelessWidget {
                   style: GoogleFonts.poppins(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
-                    color: primaryColor,
+                    color: textColor,
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -923,7 +874,7 @@ class ReportsScreen extends StatelessWidget {
                   insightText,
                   style: GoogleFonts.poppins(
                     fontSize: 13,
-                    color: primaryColor.withValues(alpha: 0.8),
+                    color: subTextColor,
                     height: 1.5,
                   ),
                 ),
@@ -931,7 +882,40 @@ class ReportsScreen extends StatelessWidget {
                 Row(
                   children: [
                     ElevatedButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        showDialog(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            backgroundColor: Theme.of(context).cardColor,
+                            title: Text(
+                              "SmartKhata Insight",
+                              style: GoogleFonts.poppins(
+                                fontWeight: FontWeight.bold,
+                                color: textColor,
+                              ),
+                            ),
+                            content: Text(
+                              insightText,
+                              style: GoogleFonts.poppins(
+                                fontSize: 14,
+                                color: isDark ? Colors.white : Colors.black87,
+                              ),
+                            ),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.pop(context),
+                                child: Text(
+                                  "Close",
+                                  style: TextStyle(color: primaryColor),
+                                ),
+                              ),
+                            ],
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                          ),
+                        );
+                      },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: primaryColor,
                         foregroundColor: Colors.white,
@@ -951,9 +935,13 @@ class ReportsScreen extends StatelessWidget {
                     ),
                     const SizedBox(width: 12),
                     TextButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        setState(() {
+                          _showInsight = false;
+                        });
+                      },
                       style: TextButton.styleFrom(
-                        foregroundColor: primaryColor,
+                        foregroundColor: isDark ? Colors.white70 : primaryColor,
                       ),
                       child: Text(
                         "Dismiss",
