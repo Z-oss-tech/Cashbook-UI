@@ -34,6 +34,7 @@ class RecordModel {
   final String note;
   final DateTime date;
   final String? cashbookName;
+  final String? attachmentUrl;
 
   // Computed properties for UI backwards compatibility
   String get personName => title;
@@ -50,6 +51,7 @@ class RecordModel {
     required this.note,
     required this.date,
     this.cashbookName,
+    this.attachmentUrl,
   });
 
   factory RecordModel.fromMap(Map<String, dynamic> map) {
@@ -68,6 +70,7 @@ class RecordModel {
                 ? DateTime.parse(map['date'])
                 : DateTime.now()),
       cashbookName: map['cashbookName'] ?? 'TestBook',
+      attachmentUrl: map['attachmentUrl'],
     );
   }
 
@@ -83,6 +86,7 @@ class RecordModel {
       'note': note,
       'transactionDate': date.toIso8601String(),
       'cashbookName': cashbookName,
+      'attachmentUrl': attachmentUrl,
     };
   }
 }

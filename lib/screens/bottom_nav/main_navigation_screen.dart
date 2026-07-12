@@ -350,16 +350,18 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
     required int index,
   }) {
     final bool isSelected = currentIndex == index;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
+    
     final settings = Provider.of<SettingsProvider>(context, listen: false);
     final premiumTheme = PremiumThemes.getTheme(settings.appTheme);
     final isDefault = settings.appTheme == 'Default';
 
-    final activeColor =
-        (isDefault || premiumTheme.themeData.brightness == Brightness.dark)
-        ? const Color(0xFFFFFFFF)
-        : const Color(0xFF191C1E);
+    final isDark = isDefault
+        ? Theme.of(context).brightness == Brightness.dark
+        : premiumTheme.themeData.brightness == Brightness.dark;
+
+
+
+    final activeColor = const Color(0xFFFFFFFF);
 
     final activeBg = isDefault
         ? const Color(0xFF7459F7)

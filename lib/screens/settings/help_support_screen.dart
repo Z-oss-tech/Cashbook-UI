@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
-import '../../core/constants/app_colors.dart';
+import 'package:provider/provider.dart';
+import '../../core/widgets/theme_background_wrapper.dart';
+import '../../providers/settings_provider.dart';
+import '../../core/theme/premium_themes.dart';
 import '../../core/utils/toast_helper.dart';
 
 class HelpSupportScreen extends StatelessWidget {
@@ -10,7 +13,7 @@ class HelpSupportScreen extends StatelessWidget {
   Future<void> _launchEmail(BuildContext context) async {
     final Uri emailLaunchUri = Uri(
       scheme: 'mailto',
-      path: 'samrtkhatasupport@gmail.com',
+      path: 'smartkhatasupport@gmail.com',
       query: 'subject=SmartKhata Support Request', // Add subject
     );
 
@@ -39,10 +42,11 @@ class HelpSupportScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      appBar: AppBar(
+    final isDark = _getIsDark(context);
+    return ThemeBackgroundWrapper(
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
@@ -237,8 +241,9 @@ class HelpSupportScreen extends StatelessWidget {
           ],
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 
   Widget _buildDetailSection({
     required BuildContext context,
@@ -246,7 +251,7 @@ class HelpSupportScreen extends StatelessWidget {
     required String title,
     required String content,
   }) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isDark = _getIsDark(context);
     return Padding(
       padding: const EdgeInsets.only(bottom: 24.0),
       child: Row(
@@ -303,7 +308,7 @@ class HelpSupportScreen extends StatelessWidget {
     required String question,
     required String answer,
   }) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isDark = _getIsDark(context);
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
@@ -348,7 +353,15 @@ class HelpSupportScreen extends StatelessWidget {
             ),
           ],
         ),
-      ),
-    );
+        ),
+      );
+  }
+
+  bool _getIsDark(BuildContext context) {
+    final appTheme = Provider.of<SettingsProvider>(context, listen: false).appTheme;
+    if (appTheme == 'Default') {
+      return Theme.of(context).brightness == Brightness.dark;
+    }
+    return PremiumThemes.getTheme(appTheme).themeData.brightness == Brightness.dark;
   }
 }

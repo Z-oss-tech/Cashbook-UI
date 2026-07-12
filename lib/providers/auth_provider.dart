@@ -85,6 +85,20 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
+    Future<bool> deleteAccount() async {
+    _setLoading(true);
+    _setError(null);
+    try {
+      await _apiService.deleteAccount();
+      _setLoading(false);
+      return true;
+    } catch (e) {
+      _setError(e.toString().replaceAll('Exception: ', ''));
+      _setLoading(false);
+      return false;
+    }
+  }
+
   Future<bool> updateProfile(String name, String email) async {
     _setLoading(true);
     _setError(null);

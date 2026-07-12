@@ -23,6 +23,7 @@ class AppDrawer extends StatelessWidget {
     final settings = Provider.of<SettingsProvider>(context);
     final premiumTheme = PremiumThemes.getTheme(settings.appTheme);
     final isDefault = settings.appTheme == 'Default';
+    final activePrimary = isDefault ? AppColors.primary : premiumTheme.primaryColor;
     final isDark = isDefault
         ? Theme.of(context).brightness == Brightness.dark
         : premiumTheme.themeData.brightness == Brightness.dark;
@@ -61,7 +62,7 @@ class AppDrawer extends StatelessWidget {
                       center: Alignment.bottomRight,
                       radius: 1.5,
                       colors: [
-                        AppColors.primary.withValues(
+                        activePrimary.withValues(
                           alpha: isDark ? 0.15 : 0.05,
                         ),
                         Colors.transparent,
@@ -125,7 +126,7 @@ class AppDrawer extends StatelessWidget {
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: AppColors.primary.withValues(alpha: 0.12),
+                            color: activePrimary.withValues(alpha: 0.12),
                             blurRadius: 40,
                             offset: const Offset(0, 10),
                           ),
@@ -141,11 +142,9 @@ class AppDrawer extends StatelessWidget {
                               Container(
                                 width: 80,
                                 height: 80,
-                                decoration: const BoxDecoration(
+                                decoration: BoxDecoration(
                                   shape: BoxShape.circle,
-                                  color: Color(
-                                    0xFF8B5CF6,
-                                  ), // Tailwind violet-500
+                                  color: isDefault ? const Color(0xFF8B5CF6) : activePrimary,
                                 ),
                                 child: Center(
                                   child: Consumer<SettingsProvider>(
@@ -262,14 +261,14 @@ class AppDrawer extends StatelessWidget {
                                     children: [
                                       Icon(
                                         Icons.school_rounded,
-                                        color: Theme.of(context).primaryColor,
+                                        color: activePrimary,
                                       ),
                                       const SizedBox(width: 10),
                                       Text(
                                         "Quick Tutorial",
                                         style: GoogleFonts.poppins(
                                           fontWeight: FontWeight.bold,
-                                          color: AppColors.primary,
+                                          color: activePrimary,
                                         ),
                                       ),
                                     ],
@@ -336,7 +335,7 @@ class AppDrawer extends StatelessWidget {
                                         );
                                       },
                                       style: ElevatedButton.styleFrom(
-                                        backgroundColor: AppColors.primary,
+                                        backgroundColor: activePrimary,
                                         shape: RoundedRectangleBorder(
                                           borderRadius: BorderRadius.circular(
                                             10,
@@ -406,7 +405,7 @@ class AppDrawer extends StatelessWidget {
                                     onChanged: (val) {
                                       settings.setDarkMode(val);
                                     },
-                                    activeThumbColor: AppColors.primary,
+                                    activeThumbColor: activePrimary,
                                     materialTapTargetSize:
                                         MaterialTapTargetSize.shrinkWrap,
                                   ),
@@ -483,6 +482,10 @@ class AppDrawer extends StatelessWidget {
     required String title,
     required VoidCallback onTap,
   }) {
+    final settings = Provider.of<SettingsProvider>(context, listen: false);
+    final premiumTheme = PremiumThemes.getTheme(settings.appTheme);
+    final activePrimary = settings.appTheme == 'Default' ? AppColors.primary : premiumTheme.primaryColor;
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: GestureDetector(
@@ -490,13 +493,13 @@ class AppDrawer extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              colors: [AppColors.primary, AppColors.secondary],
+            gradient: LinearGradient(
+              colors: [activePrimary, AppColors.secondary],
             ),
             borderRadius: BorderRadius.circular(12),
             boxShadow: [
               BoxShadow(
-                color: AppColors.primary.withValues(alpha: 0.12),
+                color: activePrimary.withValues(alpha: 0.12),
                 blurRadius: 40,
                 offset: const Offset(0, 10),
               ),
@@ -537,6 +540,7 @@ class AppDrawer extends StatelessWidget {
     final settings = Provider.of<SettingsProvider>(context);
     final premiumTheme = PremiumThemes.getTheme(settings.appTheme);
     final isDefault = settings.appTheme == 'Default';
+    final activePrimary = isDefault ? AppColors.primary : premiumTheme.primaryColor;
     final isDark = isDefault
         ? Theme.of(context).brightness == Brightness.dark
         : premiumTheme.themeData.brightness == Brightness.dark;
@@ -548,9 +552,9 @@ class AppDrawer extends StatelessWidget {
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(12),
-        hoverColor: AppColors.primary.withValues(alpha: 0.1),
-        highlightColor: AppColors.primary.withValues(alpha: 0.1),
-        splashColor: AppColors.primary.withValues(alpha: 0.2),
+        hoverColor: activePrimary.withValues(alpha: 0.1),
+        highlightColor: activePrimary.withValues(alpha: 0.1),
+        splashColor: activePrimary.withValues(alpha: 0.2),
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           child: Row(
@@ -586,6 +590,9 @@ class AppDrawer extends StatelessWidget {
     required bool isDark,
     required BuildContext context,
   }) {
+    final settings = Provider.of<SettingsProvider>(context, listen: false);
+    final premiumTheme = PremiumThemes.getTheme(settings.appTheme);
+    final activePrimary = settings.appTheme == 'Default' ? AppColors.primary : premiumTheme.primaryColor;
     return Padding(
       padding: const EdgeInsets.only(bottom: 16.0),
       child: Row(
@@ -597,7 +604,7 @@ class AppDrawer extends StatelessWidget {
               color: Theme.of(context).primaryColor.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(10),
             ),
-            child: Icon(icon, color: Theme.of(context).primaryColor, size: 24),
+            child: Icon(icon, color: activePrimary, size: 24),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -617,7 +624,7 @@ class AppDrawer extends StatelessWidget {
                   description,
                   style: GoogleFonts.poppins(
                     fontSize: 12,
-                    color: Theme.of(context).dividerColor,
+                    color: isDark ? Colors.white70 : Colors.black54,
                   ),
                 ),
               ],

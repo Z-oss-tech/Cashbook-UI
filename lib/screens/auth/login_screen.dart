@@ -85,10 +85,10 @@ class _LoginScreenState extends State<LoginScreen> {
         );
       } else {
         if (res['name'] != null) {
-          Provider.of<SettingsProvider>(
-            context,
-            listen: false,
-          ).setUserName(res['name']);
+          Provider.of<SettingsProvider>(context, listen: false).setUserName(res['name']);
+        }
+        if (res['email'] != null) {
+          Provider.of<SettingsProvider>(context, listen: false).setUserEmail(res['email']);
         }
         Navigator.pushReplacement(
           context,

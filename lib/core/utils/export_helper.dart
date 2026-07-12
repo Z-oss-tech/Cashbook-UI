@@ -1,6 +1,7 @@
 import 'package:cashbook/l10n/generated/app_localizations.dart';
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:pdf/pdf.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:csv/csv.dart';
@@ -12,6 +13,8 @@ import 'toast_helper.dart';
 import 'premium_pdf_generator.dart';
 import 'date_helper.dart';
 import '../../providers/record_provider.dart';
+import '../../providers/settings_provider.dart';
+import '../theme/premium_themes.dart';
 
 class ExportHelper {
   static void showExportOptions(BuildContext context, {String? cashbookName}) {
@@ -58,14 +61,25 @@ class ExportHelper {
                 },
               ),
               ListTile(
-                leading: const Icon(Icons.picture_as_pdf, color: Colors.red),
+                leading: const Icon(Icons.picture_as_pdf, color: Colors.orange),
                 title: Text(
-                  AppLocalizations.of(context)!.pdfDocument,
+                  "Simple PDF",
                   style: GoogleFonts.poppins(),
                 ),
                 onTap: () {
                   Navigator.pop(context);
-                  _exportToPdf(context, records, cashbookName);
+                  _exportToPdf(context, records, cashbookName, isDetailed: false);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.picture_as_pdf, color: Colors.red),
+                title: Text(
+                  "Detailed PDF",
+                  style: GoogleFonts.poppins(),
+                ),
+                onTap: () {
+                  Navigator.pop(context);
+                  _exportToPdf(context, records, cashbookName, isDetailed: true);
                 },
               ),
               const SizedBox(height: 20),
@@ -138,12 +152,24 @@ class ExportHelper {
   static Future<void> _exportToPdf(
     BuildContext context,
     List<RecordModel> records,
-    String? cashbookName,
-  ) async {
+    String? cashbookName, {
+    bool isDetailed = true,
+  }) async {
+    final settings = Provider.of<SettingsProvider>(context, listen: false);
+    final isDefault = settings.appTheme == 'Default';
+    final primary = isDefault 
+        ? const Color(0xFF4143D5) 
+        : PremiumThemes.getTheme(settings.appTheme).primaryColor;
+        
+    // Note: PdfColor.fromInt expects ARGB format which matches Flutter Color.value
+    final pdfColor = PdfColor.fromInt(primary.value);
+
     await PremiumPdfGenerator.generateAndSharePdf(
       context,
       records,
       cashbookName,
+      isDetailed: isDetailed,
+      themeColor: pdfColor,
     );
   }
 }

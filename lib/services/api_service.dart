@@ -354,6 +354,30 @@ class ApiService {
     }
   }
 
+  Future<String?> uploadImage(File file) async {
+    try {
+      final request = http.MultipartRequest(
+        'POST',
+        Uri.parse('$baseUrl/upload'),
+      );
+      final headers = await _getHeaders();
+      request.headers.addAll(headers);
+      request.files.add(await http.MultipartFile.fromPath('image', file.path));
+
+      final streamedResponse = await request.send().timeout(const Duration(seconds: 15));
+      final response = await http.Response.fromStream(streamedResponse);
+      
+      final res = _handleResponse(response);
+      return res['imageUrl'];
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<dynamic> deleteAccount() async {
+    return await _delete('/auth/delete-account');
+  }
+
   Future<Map<String, dynamic>> getLatestAppUpdate() async {
     try {
       return await _get('/updates/latest');

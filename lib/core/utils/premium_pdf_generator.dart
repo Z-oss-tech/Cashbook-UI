@@ -27,8 +27,10 @@ class PremiumPdfGenerator {
   static Future<void> generateAndSharePdf(
     BuildContext context,
     List<RecordModel> records,
-    String? cashbookName,
-  ) async {
+    String? cashbookName, {
+    bool isDetailed = true,
+    PdfColor? themeColor,
+  }) async {
     try {
       final settings = Provider.of<SettingsProvider>(context, listen: false);
       final userName = settings.userName;
@@ -36,6 +38,9 @@ class PremiumPdfGenerator {
       final fontRegular = await PdfGoogleFonts.robotoRegular();
       final fontBold = await PdfGoogleFonts.robotoBold();
       final theme = pw.ThemeData.withFont(base: fontRegular, bold: fontBold);
+
+      final primaryPdfColor = themeColor ?? primaryPdfColor;
+
 
       final pdf = pw.Document(theme: theme);
       final isGlobal = cashbookName == null;

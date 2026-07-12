@@ -7,6 +7,9 @@ import '../records/cashbook_screen.dart';
 import '../../core/utils/date_helper.dart';
 import 'package:flutter/services.dart';
 import 'package:animate_do/animate_do.dart';
+import '../../core/widgets/theme_background_wrapper.dart';
+import '../../providers/settings_provider.dart';
+import '../../core/theme/premium_themes.dart';
 
 class PeopleListScreen extends StatefulWidget {
   const PeopleListScreen({super.key});
@@ -83,11 +86,15 @@ class _PeopleListScreenState extends State<PeopleListScreen> {
       cashbookList.sort((a, b) => b.createdAt.compareTo(a.createdAt));
     }
 
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isDark = _getIsDark(context);
+    final _settings = Provider.of<SettingsProvider>(context, listen: false);
+    final activePrimary = _settings.appTheme == 'Default' ? const Color(0xFF4143D5) : PremiumThemes.getTheme(_settings.appTheme).primaryColor;
 
-    return Scaffold(
-      appBar: AppBar(
+    return ThemeBackgroundWrapper(
+      child: Scaffold(
         backgroundColor: Colors.transparent,
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
         elevation: 0,
         leading: Builder(
           builder: (context) => IconButton(
@@ -111,7 +118,7 @@ class _PeopleListScreenState extends State<PeopleListScreen> {
       ),
 
       body: RefreshIndicator(
-        color: const Color(0xFF4143D5),
+        color: activePrimary,
         onRefresh: () async {
           HapticFeedback.lightImpact();
           await Future.delayed(const Duration(milliseconds: 800));
@@ -183,7 +190,7 @@ class _PeopleListScreenState extends State<PeopleListScreen> {
                           ),
                         ),
                         selected: isSelected,
-                        selectedColor: const Color(0xFF4143D5),
+                        selectedColor: activePrimary,
                         backgroundColor: isDark
                             ? const Color(0xFF2D3133)
                             : const Color(0xFFF2F4F6),
@@ -286,10 +293,11 @@ class _PeopleListScreenState extends State<PeopleListScreen> {
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 
-  Widget _buildBookCard({
+Widget _buildBookCard({
     required String id,
     required String name,
     required String date,
@@ -298,7 +306,7 @@ class _PeopleListScreenState extends State<PeopleListScreen> {
     required String amount,
     required bool isPositive,
   }) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isDark = _getIsDark(context);
     final cardColor = Theme.of(context).cardColor;
     final borderColor = isDark
         ? const Color(0xFF464555)
@@ -540,7 +548,9 @@ class _PeopleListScreenState extends State<PeopleListScreen> {
     showDialog(
       context: context,
       builder: (context) {
-        final isDark = Theme.of(context).brightness == Brightness.dark;
+        final isDark = _getIsDark(context);
+    final _settings = Provider.of<SettingsProvider>(context, listen: false);
+    final activePrimary = _settings.appTheme == 'Default' ? const Color(0xFF4143D5) : PremiumThemes.getTheme(_settings.appTheme).primaryColor;
         return AlertDialog(
           backgroundColor: Theme.of(context).cardColor,
           shape: RoundedRectangleBorder(
@@ -570,7 +580,7 @@ class _PeopleListScreenState extends State<PeopleListScreen> {
             ),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF4143D5),
+                backgroundColor: activePrimary,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),
                 ),
@@ -597,9 +607,8 @@ class _PeopleListScreenState extends State<PeopleListScreen> {
     showDialog(
       context: context,
       builder: (context) {
-        final isDark = Theme.of(context).brightness == Brightness.dark;
+        final isDark = _getIsDark(context);
         return AlertDialog(
-          backgroundColor: Theme.of(context).cardColor,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),
@@ -644,5 +653,13 @@ class _PeopleListScreenState extends State<PeopleListScreen> {
         );
       },
     );
+  }
+
+  bool _getIsDark(BuildContext context) {
+    final appTheme = Provider.of<SettingsProvider>(context, listen: false).appTheme;
+    if (appTheme == 'Default') {
+      return Theme.of(context).brightness == Brightness.dark;
+    }
+    return PremiumThemes.getTheme(appTheme).themeData.brightness == Brightness.dark;
   }
 }

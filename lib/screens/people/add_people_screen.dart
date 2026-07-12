@@ -3,7 +3,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_contacts/flutter_contacts.dart';
 
-import '../../core/constants/app_colors.dart';
 import '../../models/people_model.dart';
 import '../../providers/person_provider.dart';
 import '../../core/utils/toast_helper.dart';

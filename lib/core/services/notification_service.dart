@@ -46,17 +46,21 @@ class NotificationService {
     return prefs.getBool('notifications') ?? true;
   }
 
-  Future<void> showTransactionNotification({
-    required double amount,
-    required bool isIncome,
-    required String cashbook,
-  }) async {
+
+
+  Future<void> scheduleDueReminder(double balance, String cashbookName) async {
+    // Only schedule if there is a significant due amount (e.g. > 100)
+    if (balance.abs() < 100) return;
     if (!await _areNotificationsEnabled()) return;
+
+    // Cancel existing due reminder to avoid spam
+    await _notificationsPlugin.cancel(666);
+
     const AndroidNotificationDetails androidDetails =
         AndroidNotificationDetails(
-          'transaction_channel',
-          'Transactions',
-          channelDescription: 'Notifications for new transactions',
+          'due_channel',
+          'Due Reminders',
+          channelDescription: 'Reminders for outstanding balances',
           importance: Importance.high,
           priority: Priority.high,
           color: Color(0xFF4143D5),
@@ -66,14 +70,22 @@ class NotificationService {
       android: androidDetails,
     );
 
-    final typeStr = isIncome ? 'Income' : 'Expense';
-    final sign = isIncome ? '+' : '-';
+    // Schedule for 3 days from now
+    final scheduledDate = tz.TZDateTime.now(tz.local).add(const Duration(days: 3));
 
-    await _notificationsPlugin.show(
-      id: DateTime.now().millisecond,
-      title: 'New Transaction Added',
-      body: '$typeStr of $sign₹${amount.toStringAsFixed(0)} in $cashbook',
+    final isYouOwe = balance < 0; // Assuming negative balance means you owe money
+    final title = isYouOwe ? 'Payment Due Reminder' : 'Collection Due Reminder';
+    final body = isYouOwe 
+        ? 'You have an outstanding balance of ₹${balance.abs().toStringAsFixed(0)} in $cashbookName. Don\'t forget to pay!'
+        : 'You need to collect ₹${balance.abs().toStringAsFixed(0)} in $cashbookName. Send a reminder!';
+
+    await _notificationsPlugin.zonedSchedule(
+      id: 666,
+      title: title,
+      body: body,
+      scheduledDate: scheduledDate,
       notificationDetails: details,
+      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
     );
   }
 

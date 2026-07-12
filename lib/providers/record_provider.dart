@@ -142,8 +142,28 @@ class RecordProvider extends ChangeNotifier {
         // Swap temp cashbook with official one
         final index = _cashbooks.indexWhere((c) => c.id == tempId);
         if (index != -1) {
-          _cashbooks[index] = CashbookModel.fromMap(res['cashbook']);
+          final syncedBook = CashbookModel.fromMap(res['cashbook']);
+          _cashbooks[index] = syncedBook;
+          
+          for (int i = 0; i < _records.length; i++) {
+            if (_records[i].cashbookId == tempId) {
+              _records[i] = RecordModel(
+                id: _records[i].id,
+                cashbookId: syncedBook.id,
+                title: _records[i].title,
+                amount: _records[i].amount,
+                type: _records[i].type,
+                category: _records[i].category,
+                paymentMethod: _records[i].paymentMethod,
+                note: _records[i].note,
+                date: _records[i].date,
+                cashbookName: syncedBook.name,
+              );
+            }
+          }
+          
           await _saveLocalBooks();
+          await _saveLocalRecords();
           notifyListeners();
         }
       }
@@ -170,7 +190,27 @@ class RecordProvider extends ChangeNotifier {
         createdAt: oldBook.createdAt,
         description: oldBook.description,
       );
+      
+      // Update associated records' cashbookName
+      for (int i = 0; i < _records.length; i++) {
+        if (_records[i].cashbookId == id) {
+          _records[i] = RecordModel(
+            id: _records[i].id,
+            cashbookId: _records[i].cashbookId,
+            title: _records[i].title,
+            amount: _records[i].amount,
+            type: _records[i].type,
+            category: _records[i].category,
+            paymentMethod: _records[i].paymentMethod,
+            note: _records[i].note,
+            date: _records[i].date,
+            cashbookName: newName,
+          );
+        }
+      }
+      
       await _saveLocalBooks();
+      await _saveLocalRecords();
       notifyListeners();
     }
 
@@ -195,8 +235,28 @@ class RecordProvider extends ChangeNotifier {
       if (res['cashbook'] != null) {
         final index = _cashbooks.indexWhere((c) => c.id == id);
         if (index != -1) {
-          _cashbooks[index] = CashbookModel.fromMap(res['cashbook']);
+          final syncedBook = CashbookModel.fromMap(res['cashbook']);
+          _cashbooks[index] = syncedBook;
+          
+          for (int i = 0; i < _records.length; i++) {
+            if (_records[i].cashbookId == id) {
+              _records[i] = RecordModel(
+                id: _records[i].id,
+                cashbookId: _records[i].cashbookId,
+                title: _records[i].title,
+                amount: _records[i].amount,
+                type: _records[i].type,
+                category: _records[i].category,
+                paymentMethod: _records[i].paymentMethod,
+                note: _records[i].note,
+                date: _records[i].date,
+                cashbookName: syncedBook.name,
+              );
+            }
+          }
+          
           await _saveLocalBooks();
+          await _saveLocalRecords();
           notifyListeners();
         }
       }
@@ -288,11 +348,8 @@ class RecordProvider extends ChangeNotifier {
     await _saveLocalRecords();
 
     // Trigger Notifications
-    NotificationService().showTransactionNotification(
-      amount: record.amount,
-      isIncome: !record.isGiven,
-      cashbook: record.cashbookName ?? 'Unknown',
-    );
+    // Trigger Due Reminder if applicable
+    NotificationService().scheduleDueReminder(cashbook.openingBalance + _calculateCashbookBalance(cashbook.id), record.cashbookName ?? 'Unknown');
     // Trigger milestone check
     NotificationService().showMilestoneNotification(_records.length);
     // Reset inactivity timer since user added a transaction

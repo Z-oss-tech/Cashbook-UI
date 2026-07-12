@@ -1,4 +1,4 @@
-import 'dart:ui';
+// import 'dart:ui'; removed
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
@@ -32,6 +32,7 @@ class _VoiceEntryScreenState extends State<VoiceEntryScreen>
   double? parsedAmount;
   bool parsedIsGiven = true;
   String? parsedCategory;
+  String? parsedTitle;
 
   @override
   void initState() {
@@ -83,6 +84,7 @@ class _VoiceEntryScreenState extends State<VoiceEntryScreen>
         parsedCashbook = null;
         parsedAmount = null;
         parsedCategory = null;
+        parsedTitle = null;
       });
       _speechToText.listen(
         onResult: (result) {
@@ -102,175 +104,142 @@ class _VoiceEntryScreenState extends State<VoiceEntryScreen>
   }
 
   void _parseSpeechText(String text, List<CashbookModel> existingCashbooks) {
-    text = text.toLowerCase();
+    // Normalize text: remove punctuation and extra spaces
+    final normalizedText = text.replaceAll(RegExp(r'[^\w\s]'), '').toLowerCase();
+    final words = normalizedText.split(RegExp(r'\s+'));
 
-    // 1. Find numbers for amount
-    final amountMatch = RegExp(r'\d+').firstMatch(text);
+    // 1. AMOUNT
+    final amountMatch = RegExp(r'\d+([.,]\d+)?').firstMatch(text);
     if (amountMatch != null) {
-      parsedAmount = double.tryParse(amountMatch.group(0)!);
+      parsedAmount = double.tryParse(amountMatch.group(0)!.replaceAll(',', ''));
     }
 
-    // 2. Find transaction type (Income vs Expense)
+    // 2. EXPENSE/INCOME
     final incomeWords = [
-      'receive',
-      'received',
-      'got',
-      'liye',
-      'mila',
-      'aaye',
-      'income',
-      'credit',
-      'deposit',
-      'earn',
-      'earned',
+      'receive', 'received', 'got', 'liye', 'mila', 'aaye', 'income',
+      'credit', 'deposit', 'earn', 'earned', 'aaya', 'mile', 'liya',
+      'add', 'added', 'jama', 'in', 'daale'
     ];
     final expenseWords = [
-      'give',
-      'gave',
-      'paid',
-      'diye',
-      'diya',
-      'gaye',
-      'kharch',
-      'expense',
-      'debit',
-      'spend',
-      'spent',
-      'sent',
+      'give', 'gave', 'paid', 'diye', 'diya', 'gaye', 'kharch',
+      'expense', 'debit', 'spend', 'spent', 'sent', 'bheje', 'de',
+      'kharcha', 'kharacha', 'nikale', 'pay', 'cut', 'minus', 'out', 'nikala'
     ];
 
-    bool foundIncome = incomeWords.any((w) => text.contains(w));
-    bool foundExpense = expenseWords.any((w) => text.contains(w));
+    int incomeScore = 0;
+    int expenseScore = 0;
+    for (var w in words) {
+      if (incomeWords.contains(w)) incomeScore++;
+      if (expenseWords.contains(w)) expenseScore++;
+    }
 
-    if (foundIncome && !foundExpense) {
+    if (incomeScore > expenseScore) {
       parsedIsGiven = false;
-    } else if (foundExpense && !foundIncome) {
+    } else if (expenseScore > incomeScore) {
       parsedIsGiven = true;
     } else {
-      // If both or neither, stick to default (Expense/Given)
-      // or prioritize the one that appears first
-      int incomeIdx = incomeWords
-          .map((w) => text.indexOf(w))
-          .where((i) => i >= 0)
-          .fold(9999, (a, b) => a < b ? a : b);
-      int expenseIdx = expenseWords
-          .map((w) => text.indexOf(w))
-          .where((i) => i >= 0)
-          .fold(9999, (a, b) => a < b ? a : b);
-      if (incomeIdx < expenseIdx) {
-        parsedIsGiven = false;
-      } else if (expenseIdx < incomeIdx) {
-        parsedIsGiven = true;
-      } else {
-        parsedIsGiven = true;
-      }
+      parsedIsGiven = true; // Default to expense
     }
 
-    // 3. Simple category inference
-    if (text.contains('food') ||
-        text.contains('dinner') ||
-        text.contains('lunch') ||
-        text.contains('restaurant') ||
-        text.contains('khana')) {
-      parsedCategory = "Food & Dining";
-    } else if (text.contains('rent') ||
-        text.contains('house') ||
-        text.contains('kiraya')) {
-      parsedCategory = "Housing";
-    } else if (text.contains('salary') || text.contains('tankha')) {
-      parsedCategory = "Income";
-    } else if (text.contains('stock') || text.contains('investment')) {
-      parsedCategory = "Investment";
-    }
-
-    // 4. Extract Cashbook Name
+    // 3. CASHBOOK
     parsedCashbook = null;
+    final textNoSpaces = normalizedText.replaceAll(' ', '');
 
-    // First try exact match from existing cashbooks
+    // Look for exact cashbook name first or without spaces
     for (var cb in existingCashbooks) {
-      if (text.contains(cb.name.toLowerCase())) {
+      final cbNameLower = cb.name.toLowerCase();
+      if (normalizedText.contains(cbNameLower)) {
+        parsedCashbook = cb.name;
+        break;
+      }
+      final cbNameNoSpaces = cbNameLower.replaceAll(' ', '');
+      if (textNoSpaces.contains(cbNameNoSpaces)) {
         parsedCashbook = cb.name;
         break;
       }
     }
-
-    // If still not found, try fuzzy match or fallback logic
+    
+    // If not found, check if they said "cashbook", "khata", "book", "account", use the word before it.
     if (parsedCashbook == null) {
-      final words = text.split(' ');
-      bool foundCashbook = false;
-      for (int i = 0; i < words.length; i++) {
-        final w = words[i];
-        if (w == 'me' || w == 'in' || w == 'to' || w == 'from') {
-          if (i < words.length - 1 && !_isStopWord(words[i + 1])) {
-            parsedCashbook = _capitalize(words[i + 1]);
-            foundCashbook = true;
-            break;
-          } else if (i > 0 && !_isStopWord(words[i - 1])) {
-            parsedCashbook = _capitalize(words[i - 1]);
-            foundCashbook = true;
-            break;
-          }
+      final bookKeywords = ['cashbook', 'khata', 'book', 'account'];
+      int keywordIndex = -1;
+      for (var i = 0; i < words.length; i++) {
+        if (bookKeywords.contains(words[i])) {
+          keywordIndex = i;
+          break;
         }
       }
 
-      if (!foundCashbook && words.isNotEmpty) {
-        for (var w in words) {
-          if (!_isStopWord(w) && double.tryParse(w) == null && w.length > 2) {
-            parsedCashbook = _capitalize(w);
-            break;
-          }
-        }
+      if (keywordIndex > 0) {
+        parsedCashbook = _capitalize(words[keywordIndex - 1]);
+      } else if (keywordIndex == 0 && words.length > 1) {
+        parsedCashbook = _capitalize(words[1]);
       }
     }
-  }
 
-  bool _isStopWord(String w) {
+    // 4. CATEGORY AND TITLE
+    parsedCategory = null;
+    parsedTitle = null;
+
+    final categoryMap = {
+      "Food & Dining": [
+        'food', 'dinner', 'lunch', 'restaurant', 'khana', 'pizza',
+        'burger', 'chai', 'coffee', 'nashta', 'snack'
+      ],
+      "Housing": [
+        'rent', 'house', 'kiraya', 'room', 'flat', 'electricity',
+        'bijli', 'water', 'pani'
+      ],
+      "Income": ['salary', 'tankha', 'kamai', 'profit', 'bonus'],
+      "Investment": ['stock', 'investment', 'share', 'mutual', 'crypto', 'fd'],
+      "Transport": [
+        'travel', 'bus', 'train', 'flight', 'auto', 'cab', 'uber',
+        'ola', 'petrol', 'diesel', 'fuel'
+      ],
+      "Shopping": [
+        'shop', 'shopping', 'kapde', 'clothes', 'buy', 'bought',
+        'kharida', 'shoes'
+      ],
+    };
+
+    for (var cat in categoryMap.keys) {
+      if (categoryMap[cat]!.any((w) => words.contains(w))) {
+        parsedCategory = cat;
+        break;
+      }
+    }
+
+    // Identify the TITLE
     final stopWords = [
-      'i',
-      'we',
-      'he',
-      'she',
-      'they',
-      'received',
-      'got',
-      'gave',
-      'paid',
-      'diye',
-      'diya',
-      'liye',
-      'mila',
-      'ko',
-      'se',
-      'me',
-      'in',
-      'for',
-      'to',
-      'from',
-      'a',
-      'the',
-      'my',
-      'and',
-      'of',
-      'on',
-      'rupees',
-      'rs',
-      'bucks',
+      'i', 'we', 'he', 'she', 'they', 'ko', 'se', 'me', 'in', 'for', 'to',
+      'from', 'a', 'the', 'my', 'and', 'of', 'on', 'rupees', 'rs', 'bucks',
+      'cashbook', 'khata', 'book', 'account', 'ke', 'ka', 'ki', 'mein'
     ];
-    final actionWords = [
-      'receive',
-      'got',
-      'liye',
-      'salary',
-      'give',
-      'gave',
-      'diye',
-      'paid',
-      'kharch',
-      'expense',
-      'income',
-      'aaye',
-    ];
-    return stopWords.contains(w) || actionWords.contains(w);
+    List<String> leftoverWords = [];
+
+    for (var w in words) {
+      if (w.isEmpty) continue;
+      if (RegExp(r'\d+').hasMatch(w)) continue; // skip numbers
+      if (incomeWords.contains(w) || expenseWords.contains(w) || stopWords.contains(w)) continue;
+      
+      if (parsedCashbook != null) {
+        if (w == parsedCashbook!.toLowerCase() || parsedCashbook!.toLowerCase().split(' ').contains(w)) {
+           continue;
+        }
+      }
+
+      bool isCatWord = false;
+      if (parsedCategory != null && categoryMap[parsedCategory]!.contains(w)) {
+        isCatWord = true;
+      }
+      if (isCatWord) continue;
+
+      leftoverWords.add(_capitalize(w));
+    }
+
+    if (leftoverWords.isNotEmpty) {
+      parsedTitle = leftoverWords.join(' ');
+    }
   }
 
   String _capitalize(String s) {
@@ -310,7 +279,7 @@ class _VoiceEntryScreenState extends State<VoiceEntryScreen>
     final record = RecordModel(
       id: '',
       cashbookId: cashbook.id,
-      title: parsedCategory ?? 'Voice Entry',
+      title: parsedTitle ?? parsedCategory ?? 'Voice Entry',
       amount: parsedAmount!,
       type: parsedIsGiven ? 'expense' : 'income',
       note: "Added via AI Voice",
@@ -339,6 +308,7 @@ class _VoiceEntryScreenState extends State<VoiceEntryScreen>
       parsedAmount = null;
       parsedCashbook = null;
       parsedCategory = null;
+      parsedTitle = null;
     });
   }
 

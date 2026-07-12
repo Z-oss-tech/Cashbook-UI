@@ -549,7 +549,6 @@ class _CashbookScreenState extends State<CashbookScreen> {
   Widget build(BuildContext context) {
     final recordProvider = Provider.of<RecordProvider>(context);
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final bgColor = Theme.of(context).scaffoldBackgroundColor;
     final textColor =
         Theme.of(context).textTheme.bodyLarge?.color ??
         (isDark ? Colors.white : const Color(0xFF0B1C30));
@@ -722,7 +721,7 @@ class _CashbookScreenState extends State<CashbookScreen> {
           bottom: false,
           child: RefreshIndicator(
             color: isDefault
-                ? const Color(0xFF4143D5)
+                ? Theme.of(context).primaryColor
                 : premiumTheme.primaryColor,
             onRefresh: () async {
               HapticFeedback.lightImpact();
@@ -1273,7 +1272,7 @@ class _CashbookScreenState extends State<CashbookScreen> {
                                         style: GoogleFonts.inter(
                                           fontWeight: FontWeight.w600,
                                           color: isDefault
-                                              ? const Color(0xFF4143D5)
+                                              ? Theme.of(context).primaryColor
                                               : premiumTheme.primaryColor,
                                           fontSize: 14,
                                         ),

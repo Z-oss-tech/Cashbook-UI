@@ -3,6 +3,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
 import '../../providers/settings_provider.dart';
+import '../../providers/auth_provider.dart';
+import '../../core/utils/export_helper.dart';
 import '../../providers/record_provider.dart';
 import '../../core/utils/toast_helper.dart';
 import '../../core/widgets/theme_background_wrapper.dart';
@@ -160,23 +162,27 @@ class _ProfileScreenState extends State<ProfileScreen>
                             const SizedBox(height: 24),
                             _buildMenuTile(
                               context: context,
-                              icon: Icons.info_rounded,
+                              icon: Icons.business_center_rounded,
                               iconBgColor: primaryColor.withValues(alpha: 0.1),
                               iconColor: primaryColor,
                               title: "Business Profile",
-                              subtitle: "Update business details",
-                              onTap: () {},
+                              subtitle: "Coming soon",
+                              onTap: () {
+                                ToastHelper.showToast(context, 'Business Profiles are coming in the next update!');
+                              },
                               isDark: isDark,
                               showBorder: true,
                             ),
                             _buildMenuTile(
                               context: context,
-                              icon: Icons.people_alt_rounded,
+                              icon: Icons.share_rounded,
                               iconBgColor: primaryColor.withValues(alpha: 0.1),
                               iconColor: primaryColor,
-                              title: "Cashbook Sharing",
-                              subtitle: "Manage team access",
-                              onTap: () {},
+                              title: "Share Export",
+                              subtitle: "Export & Share cashbooks",
+                              onTap: () {
+                                ExportHelper.showExportOptions(context);
+                              },
                               isDark: isDark,
                               showBorder: true,
                             ),
@@ -382,7 +388,7 @@ class _ProfileScreenState extends State<ProfileScreen>
               ),
               const SizedBox(height: 4),
               Text(
-                "sakura.bloom@hanami.com", // Example email for layout purposes, since it wasn't in original
+                settings.userEmail.isNotEmpty ? settings.userEmail : "user@example.com",
                 style: GoogleFonts.plusJakartaSans(
                   fontSize: 14,
                   color: isDark ? Colors.white70 : const Color(0xFF5B4041),
@@ -392,43 +398,31 @@ class _ProfileScreenState extends State<ProfileScreen>
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 6,
-                    ),
-                    decoration: BoxDecoration(
-                      color: primaryColor.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Text(
-                      "Premium Plan",
-                      style: GoogleFonts.manrope(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: primaryColor,
+                  if (Provider.of<RecordProvider>(context, listen: false).records.length >= 50)
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                      margin: const EdgeInsets.only(right: 8),
+                      decoration: BoxDecoration(
+                        color: primaryColor.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Text(
+                        "Premium Plan",
+                        style: GoogleFonts.manrope(fontSize: 12, fontWeight: FontWeight.w600, color: primaryColor),
                       ),
                     ),
-                  ),
-                  const SizedBox(width: 8),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 6,
-                    ),
-                    decoration: BoxDecoration(
-                      color: secondaryColor.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Text(
-                      "Verified Member",
-                      style: GoogleFonts.manrope(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: secondaryColor,
+                  if (settings.userEmail.isNotEmpty)
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: secondaryColor.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Text(
+                        "Verified Member",
+                        style: GoogleFonts.manrope(fontSize: 12, fontWeight: FontWeight.w600, color: secondaryColor),
                       ),
                     ),
-                  ),
                 ],
               ),
             ],
@@ -619,16 +613,66 @@ class _ProfileScreenState extends State<ProfileScreen>
     Color primaryColor,
   ) {
     return GestureDetector(
-      onTap: () async {
-        await settings.clearAllSettings();
-        if (context.mounted) {
-          Provider.of<RecordProvider>(context, listen: false).clear();
-          Navigator.pushAndRemoveUntil(
-            context,
-            MaterialPageRoute(builder: (context) => const LoginScreen()),
-            (route) => false,
-          );
-        }
+      onTap: () {
+        showDialog(
+          context: context,
+          builder: (dialogContext) {
+            return AlertDialog(
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+              title: Text(
+                'Sign Out or Delete Account',
+                style: GoogleFonts.inter(fontWeight: FontWeight.bold),
+              ),
+              content: Text(
+                'Are you sure you want to sign out? Deleting your account will permanently wipe all your cashbooks and transactions from the server.',
+                style: GoogleFonts.inter(),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(dialogContext),
+                  child: const Text('Cancel', style: TextStyle(color: Colors.grey)),
+                ),
+                TextButton(
+                  onPressed: () async {
+                    Navigator.pop(dialogContext);
+                    await settings.clearAllSettings();
+                    if (context.mounted) {
+                      Provider.of<RecordProvider>(context, listen: false).clear();
+                      Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(builder: (context) => const LoginScreen()),
+                        (route) => false,
+                      );
+                    }
+                  },
+                  child: const Text('Logout Only', style: TextStyle(color: Colors.blue)),
+                ),
+                ElevatedButton(
+                  onPressed: () async {
+                    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+                    final success = await authProvider.deleteAccount();
+                    if (success) {
+                      await settings.clearAllSettings();
+                      if (context.mounted) {
+                        Provider.of<RecordProvider>(context, listen: false).clear();
+                        Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(builder: (context) => const LoginScreen()),
+                          (route) => false,
+                        );
+                        ToastHelper.showToast(context, 'Account deleted permanently');
+                      }
+                    } else if (context.mounted) {
+                      ToastHelper.showToast(context, authProvider.error ?? 'Failed to delete account', isError: true);
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                  child: const Text('Permanent Delete', style: TextStyle(color: Colors.white)),
+                ),
+              ],
+            );
+          },
+        );
       },
       child: Container(
         width: double.infinity,
@@ -705,9 +749,20 @@ class _ProfileScreenState extends State<ProfileScreen>
               child: const Text('Cancel'),
             ),
             ElevatedButton(
-              onPressed: () {
-                settings.setUserName(controller.text);
-                Navigator.pop(context);
+              onPressed: () async {
+                final authProvider = Provider.of<AuthProvider>(context, listen: false);
+                final success = await authProvider.updateProfile(controller.text, settings.userEmail);
+                if (success) {
+                  settings.setUserName(controller.text);
+                  if (context.mounted) {
+                    Navigator.pop(context);
+                    ToastHelper.showToast(context, 'Profile updated successfully!');
+                  }
+                } else {
+                  if (context.mounted) {
+                    ToastHelper.showToast(context, authProvider.error ?? 'Update failed', isError: true);
+                  }
+                }
               },
               child: const Text('Save'),
             ),
@@ -778,10 +833,28 @@ class _ProfileScreenState extends State<ProfileScreen>
               child: const Text('Cancel'),
             ),
             ElevatedButton(
-              onPressed: () {
-                // Dummy logic for now
-                ToastHelper.showToast(context, 'Password changed successfully');
-                Navigator.pop(context);
+              onPressed: () async {
+                final authProvider = Provider.of<AuthProvider>(context, listen: false);
+                final oldPw = oldPasswordController.text;
+                final newPw = newPasswordController.text;
+                final confirmPw = confirmPasswordController.text;
+                
+                if (oldPw.isEmpty || newPw.isEmpty || confirmPw.isEmpty) {
+                  ToastHelper.showToast(context, 'Please fill all fields', isError: true);
+                  return;
+                }
+                if (newPw != confirmPw) {
+                  ToastHelper.showToast(context, 'New passwords do not match', isError: true);
+                  return;
+                }
+                
+                final success = await authProvider.changePassword(oldPw, newPw);
+                if (success && context.mounted) {
+                  ToastHelper.showToast(context, 'Password changed successfully');
+                  Navigator.pop(context);
+                } else if (context.mounted) {
+                  ToastHelper.showToast(context, authProvider.error ?? 'Failed to change password', isError: true);
+                }
               },
               child: const Text('Update'),
             ),

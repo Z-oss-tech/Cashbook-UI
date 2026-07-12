@@ -2,10 +2,16 @@
 import 'dart:ui';
 import 'package:cashbook/l10n/generated/app_localizations.dart';
 import 'package:flutter/material.dart';
+import '../../providers/settings_provider.dart';
+import '../../core/theme/premium_themes.dart';
 import 'package:flutter/services.dart';
 import '../../core/utils/date_helper.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'dart:io';
+import 'package:image_picker/image_picker.dart';
+import '../../services/api_service.dart';
+
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 
 import '../../providers/record_provider.dart';
@@ -187,6 +193,23 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
       selectedTime.minute,
     );
 
+    setState(() {
+      _isLoading = true;
+    });
+
+    String? uploadedImageUrl;
+    if (_attachmentImage != null) {
+      try {
+        uploadedImageUrl = await ApiService().uploadImage(_attachmentImage!);
+      } catch (e) {
+        if (mounted) {
+          ToastHelper.showToast(context, "Image upload failed: $e", isError: true);
+          setState(() { _isLoading = false; });
+        }
+        return;
+      }
+    }
+
     final record = RecordModel(
       id: '',
       cashbookId: cashbook.id,
@@ -198,11 +221,9 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
       note: note,
       date: finalDateTime,
       cashbookName: widget.cashbookName,
+      attachmentUrl: uploadedImageUrl,
     );
 
-    setState(() {
-      _isLoading = true;
-    });
     await recordProvider.addRecord(record);
     if (mounted)
       setState(() {
@@ -228,8 +249,33 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
     Navigator.pop(context);
   }
 
+  Future<void> _pickImage() async {
+    try {
+      final XFile? image = await _picker.pickImage(
+        source: ImageSource.gallery,
+        imageQuality: 70, // Compress to save bandwidth
+      );
+      if (image != null) {
+        setState(() {
+          _attachmentImage = File(image.path);
+        });
+      }
+    } catch (e) {
+      ToastHelper.showToast(context, 'Failed to pick image', isError: true);
+    }
+  }
+
+  void _removeImage() {
+    setState(() {
+      _attachmentImage = null;
+    });
+  }
+
   void _showCategoryPicker() {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final activePrimary = Provider.of<SettingsProvider>(context, listen: false).appTheme == 'Default'
+        ? const Color(0xFF4143D5)
+        : PremiumThemes.getTheme(Provider.of<SettingsProvider>(context, listen: false).appTheme).primaryColor;
     final options = isGiven ? givenReasons : receivedReasons;
 
     showModalBottomSheet(
@@ -288,14 +334,14 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
                           color: isSelected
-                              ? const Color(0xFF4143D5).withValues(alpha: 0.1)
+                              ? activePrimary.withValues(alpha: 0.1)
                               : (isDark
                                     ? Colors.white10
                                     : const Color(0xFFF5F2FE)),
                           borderRadius: BorderRadius.circular(16),
                           border: isSelected
                               ? Border.all(
-                                  color: const Color(0xFF4143D5),
+                                  color: activePrimary,
                                   width: 1.5,
                                 )
                               : null,
@@ -305,7 +351,7 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
                             Icon(
                               _getCategoryIcon(option),
                               color: isSelected
-                                  ? const Color(0xFF4143D5)
+                                  ? activePrimary
                                   : (isDark ? Colors.white54 : Colors.black54),
                               size: 24,
                             ),
@@ -325,10 +371,7 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
                               ),
                             ),
                             if (isSelected)
-                              const Icon(
-                                Icons.check_circle_rounded,
-                                color: Color(0xFF4143D5),
-                              ),
+                              Icon(Icons.check_circle_rounded, color: activePrimary,),
                           ],
                         ),
                       ),
@@ -345,6 +388,9 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
 
   void _showPaymentModePicker() {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final activePrimary = Provider.of<SettingsProvider>(context, listen: false).appTheme == 'Default'
+        ? const Color(0xFF4143D5)
+        : PremiumThemes.getTheme(Provider.of<SettingsProvider>(context, listen: false).appTheme).primaryColor;
 
     showModalBottomSheet(
       context: context,
@@ -398,10 +444,7 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
                     ),
                   ),
                   trailing: isSelected
-                      ? const Icon(
-                          Icons.check_circle_rounded,
-                          color: Color(0xFF4143D5),
-                        )
+                      ? Icon(Icons.check_circle_rounded, color: activePrimary,)
                       : null,
                   onTap: () {
                     setState(() {
@@ -421,6 +464,10 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final settings = Provider.of<SettingsProvider>(context);
+    final premiumTheme = PremiumThemes.getTheme(settings.appTheme);
+    final activePrimary = settings.appTheme == 'Default' ? const Color(0xFF4143D5) : premiumTheme.primaryColor;
+
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final bgColor = Theme.of(context).scaffoldBackgroundColor;
     final surfaceColor = Theme.of(context).cardColor;
@@ -461,7 +508,7 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
                     IconButton(
                       icon: Icon(
                         Icons.close_rounded,
-                        color: const Color(0xFF4143D5),
+                        color: activePrimary,
                       ),
                       onPressed: () => Navigator.pop(context),
                     ),
@@ -470,13 +517,13 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
                       style: GoogleFonts.hankenGrotesk(
                         fontSize: 18,
                         fontWeight: FontWeight.w600,
-                        color: const Color(0xFF4143D5),
+                        color: activePrimary,
                       ),
                     ),
                     IconButton(
                       icon: Icon(
                         Icons.calculate_outlined,
-                        color: const Color(0xFF4143D5),
+                        color: activePrimary,
                       ),
                       onPressed: () {
                         showDialog(
@@ -790,7 +837,7 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
                                       ),
                                       decoration: BoxDecoration(
                                         color: isSelected
-                                            ? const Color(0xFF4143D5)
+                                            ? activePrimary
                                             : (isDark
                                                   ? Colors.white10
                                                   : const Color(0xFFE4E1ED)),
@@ -862,7 +909,7 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
                                     selectedReason != null
                                         ? _getCategoryIcon(selectedReason!)
                                         : Icons.category_rounded,
-                                    color: const Color(0xFF5B5FEF),
+                                    color: activePrimary,
                                   ),
                                 ),
                                 const SizedBox(width: 16),
@@ -1001,7 +1048,7 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
                                             : Icons.mic_rounded,
                                         color: _isListening
                                             ? Colors.red
-                                            : const Color(0xFF4143D5),
+                                            : activePrimary,
                                         size: 18,
                                       ),
                                     ),
@@ -1213,16 +1260,14 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
                       height: 64,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(24),
-                        gradient: const LinearGradient(
-                          colors: [Color(0xFF4143D5), Color(0xFF5B3CDD)],
+                        gradient: LinearGradient(
+                          colors: [activePrimary, activePrimary.withValues(alpha: 0.8)],
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: const Color(
-                              0xFF4143D5,
-                            ).withValues(alpha: 0.4),
+                            color: activePrimary.withValues(alpha: 0.4),
                             blurRadius: 24,
                             offset: const Offset(0, 8),
                           ),
@@ -1267,6 +1312,7 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
       ),
     );
   }
+
 }
 
 extension BackgroundExtension on Widget {

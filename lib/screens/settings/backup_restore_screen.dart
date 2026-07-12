@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
-import '../../core/constants/app_colors.dart';
 import '../../providers/record_provider.dart';
 import '../../core/utils/date_helper.dart';
 import '../../services/backup_service.dart';

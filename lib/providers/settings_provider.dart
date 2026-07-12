@@ -9,6 +9,7 @@ class SettingsProvider with ChangeNotifier {
   bool _biometricLock = false;
 
   String _userName = "SmartKhata User";
+  String _userEmail = "";
   String _userAvatar = "S";
 
   String _themeColor = 'Ocean Blue';
@@ -20,6 +21,7 @@ class SettingsProvider with ChangeNotifier {
   bool get notifications => _notifications;
   bool get biometricLock => _biometricLock;
   String get userName => _userName;
+  String get userEmail => _userEmail;
   String get userAvatar => _userAvatar;
   String get themeColor => _themeColor;
   String get appTheme => _appTheme;
@@ -37,6 +39,7 @@ class SettingsProvider with ChangeNotifier {
     _biometricLock = _prefs?.getBool('biometricLock') ?? false;
 
     _userName = _prefs?.getString('userName') ?? "SmartKhata User";
+    _userEmail = _prefs?.getString('userEmail') ?? "";
     if (_userName.isNotEmpty) {
       _userAvatar = _userName.substring(0, 1).toUpperCase();
     } else {
@@ -67,6 +70,12 @@ class SettingsProvider with ChangeNotifier {
   void setBiometricLock(bool value) {
     _biometricLock = value;
     _prefs?.setBool('biometricLock', value);
+    notifyListeners();
+  }
+
+    void setUserEmail(String email) {
+    _userEmail = email;
+    _prefs?.setString('userEmail', email);
     notifyListeners();
   }
 

@@ -104,8 +104,10 @@ class DashboardScreen extends StatelessWidget {
       Icons.shopping_bag,
       Icons.directions_car,
     ];
+    final _settings = Provider.of<SettingsProvider>(context, listen: false);
+    final activePrimary = _settings.appTheme == 'Default' ? const Color(0xFF4143D5) : PremiumThemes.getTheme(_settings.appTheme).primaryColor;
     final List<Color> colors = [
-      const Color(0xFF4143D5),
+      activePrimary,
       const Color(0xFFFF6B6B),
       const Color(0xFF34D399),
       const Color(0xFFFBBF24),
@@ -460,7 +462,6 @@ class DashboardScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final recordProvider = Provider.of<RecordProvider>(context);
-    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     // Calculate this week's volume
     double thisWeekAmount = 0.0;
@@ -797,13 +798,9 @@ class DashboardScreen extends StatelessWidget {
     final premiumTheme = PremiumThemes.getTheme(settings.appTheme);
     final isDefault = settings.appTheme == 'Default';
 
-    final c1 = isDefault ? const Color(0xFF4143D5) : premiumTheme.primaryColor;
-    final c2 = isDefault
-        ? const Color(0xFF5B3CDD)
-        : premiumTheme.gradient.colors.last;
-    final c3 = isDefault
-        ? const Color(0xFF008339)
-        : premiumTheme.gradient.colors.first;
+    final c1 = const Color(0xFF4143D5);
+    final c2 = const Color(0xFF5B3CDD);
+    final c3 = const Color(0xFF008339);
 
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
@@ -927,16 +924,10 @@ class DashboardScreen extends StatelessWidget {
     final premiumTheme = PremiumThemes.getTheme(settings.appTheme);
     final isDefault = settings.appTheme == 'Default';
 
-    final c1 = isDefault ? const Color(0xFF4143D5) : premiumTheme.primaryColor;
-    final c2 = isDefault
-        ? const Color(0xFF008339)
-        : premiumTheme.gradient.colors.last;
-    final c3 = isDefault
-        ? const Color(0xFFE53935)
-        : premiumTheme.gradient.colors.first;
-    final c4 = isDefault
-        ? const Color(0xFF5B3CDD)
-        : premiumTheme.primaryColor.withValues(alpha: 0.8);
+    final c1 = const Color(0xFF4143D5);
+    final c2 = const Color(0xFF008339);
+    final c3 = const Color(0xFFE53935);
+    final c4 = const Color(0xFF5B3CDD);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1028,10 +1019,6 @@ class DashboardScreen extends StatelessWidget {
     required VoidCallback onTap,
   }) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final cardColor = Theme.of(context).cardColor;
-    final borderColor = isDark
-        ? const Color(0xFF464555)
-        : const Color(0xFFE6E8EA);
     final textColor =
         Theme.of(context).textTheme.bodyLarge?.color ??
         (isDark ? Colors.white : const Color(0xFF0B1C30));
@@ -1165,7 +1152,6 @@ class DashboardScreen extends StatelessWidget {
     required bool isPositive,
   }) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final cardColor = Theme.of(context).cardColor;
     final borderColor = isDark
         ? const Color(0xFF464555)
         : const Color(0xFFE6E8EA);
@@ -1387,7 +1373,7 @@ class DashboardScreen extends StatelessWidget {
             ),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF4143D5),
+                backgroundColor: Theme.of(context).primaryColor,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),
                 ),

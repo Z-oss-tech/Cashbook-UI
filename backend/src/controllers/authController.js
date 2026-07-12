@@ -250,7 +250,30 @@ const changePassword = async (req, res, next) => {
 };
 
 
+
+const deleteAccount = async (req, res, next) => {
+  try {
+    const user = await prisma.user.findUnique({ where: { id: req.user.id } });
+    if (!user) {
+      res.status(404);
+      throw new Error('User not found');
+    }
+
+    await prisma.user.delete({
+      where: { id: req.user.id }
+    });
+
+    res.json({
+      success: true,
+      message: 'Account deleted successfully'
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
+  deleteAccount,
   register,
   login,
   updateProfile,

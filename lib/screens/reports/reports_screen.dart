@@ -12,6 +12,7 @@ import '../../core/theme/premium_themes.dart';
 import '../../core/widgets/theme_background_wrapper.dart';
 import '../../core/widgets/glass_card.dart';
 import 'package:intl/intl.dart';
+import 'cherry_reports_components.dart';
 
 class ReportsScreen extends StatelessWidget {
   final String? cashbookName;
@@ -151,159 +152,253 @@ class ReportsScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: ThemeBackgroundWrapper(
-        child: SafeArea(
-          bottom: false,
-          child: SingleChildScrollView(
-            physics: const BouncingScrollPhysics(),
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Header Titles
-                Text(
-                  "Financial Bloom",
-                  style: GoogleFonts.poppins(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    letterSpacing: 2,
-                    color: isDefault
-                        ? Colors.blueGrey
-                        : premiumTheme.gradient.colors.last,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  "Monthly Analytics",
-                  style: GoogleFonts.poppins(
-                    fontSize: 28,
-                    fontWeight: FontWeight.bold,
-                    color: isDefault
-                        ? Colors.black87
-                        : (premiumTheme.themeData.brightness == Brightness.dark
-                              ? Colors.white
-                              : premiumTheme.primaryColor),
-                  ),
-                ),
-                const SizedBox(height: 16),
-
-                // Month Pill
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 8,
-                  ),
-                  decoration: BoxDecoration(
-                    color: (isDefault ? Colors.grey : premiumTheme.primaryColor)
-                        .withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(
-                      color:
-                          (isDefault ? Colors.grey : premiumTheme.primaryColor)
-                              .withValues(alpha: 0.2),
-                    ),
-                  ),
-                  child: Text(
-                    monthName,
-                    style: GoogleFonts.poppins(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      color: isDefault
-                          ? Colors.black54
-                          : (premiumTheme.themeData.brightness ==
-                                    Brightness.dark
-                                ? Colors.white70
-                                : premiumTheme.gradient.colors.last),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 24),
-
-                // 1. Summary Card
-                _buildSummaryCard(
-                  context,
-                  balance,
-                  totalReceived,
-                  totalGiven,
-                  premiumTheme,
-                  isDefault,
-                ),
-
-                const SizedBox(height: 20),
-
-                // 2. Spending Tendency (Bar Chart)
-                _buildSpendingTendency(
-                  context,
-                  weeklyData,
-                  premiumTheme,
-                  isDefault,
-                ),
-
-                const SizedBox(height: 20),
-
-                // 3. Category Mix (Donut Chart)
-                _buildCategoryMix(
-                  context,
-                  totalReceived,
-                  totalGiven,
-                  premiumTheme,
-                  isDefault,
-                ),
-
-                const SizedBox(height: 20),
-
-                // 4. AI Insight Card
-                _buildInsightCard(
-                  context,
-                  totalReceived,
-                  totalGiven,
-                  balance,
-                  premiumTheme,
-                  isDefault,
-                ),
-
-                const SizedBox(height: 32),
-
-                // 5. Key Events
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      "Key Events",
-                      style: GoogleFonts.poppins(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: isDefault
-                            ? Colors.black87
-                            : (premiumTheme.themeData.brightness ==
-                                      Brightness.dark
-                                  ? Colors.white
-                                  : premiumTheme.primaryColor),
+      body: settings.appTheme == 'Cherry Blossom'
+          ? FloatingPetalsBackground(
+              child: Stack(
+                children: [
+                  Positioned.fill(
+                    child: Opacity(
+                      opacity: 0.2,
+                      child: Image.network(
+                        'https://lh3.googleusercontent.com/aida-public/AB6AXuCdfXLR2tCS9YpT8JQ0AdQEbU1Mis3pObtMYAs_qHXplGsSUIkBTeR7cA0zHiH8ICt3Qb00582xEbg1-FSc41m3B9XGiy85RUCzDEwvBWcoKvd2t45EvEFJOMOtxm_Kn-REdNzTwNjXsIdlHGCvAs4s4Cpfn9jk7UaVhpOxlagV4ynoVX1pv5dnElZfMwJh2HygLQF_vVWO63WJ6HA-3Me5iJWj9HAsRVGRaKepMZli11DXXjzIBJ5t',
+                        fit: BoxFit.cover,
                       ),
                     ),
-                    Text(
-                      "View All",
-                      style: GoogleFonts.poppins(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: isDefault
-                            ? Colors.blue
-                            : premiumTheme.gradient.colors.last,
+                  ),
+                  SafeArea(
+                    bottom: false,
+                    child: SingleChildScrollView(
+                      physics: const BouncingScrollPhysics(),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 40,
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          CherryReportsComponents.buildSavingsCard(
+                            context,
+                            balance,
+                            premiumTheme,
+                          ),
+                          const SizedBox(height: 24),
+                          CherryReportsComponents.buildInsightsCard(
+                            context,
+                            weeklyData,
+                            premiumTheme,
+                          ),
+                          const SizedBox(height: 24),
+                          CherryReportsComponents.buildTopCategories(
+                            context,
+                            records,
+                            premiumTheme,
+                          ),
+                          const SizedBox(height: 24),
+                          CherryReportsComponents.buildRecentBloom(
+                            context,
+                            recentEvents,
+                            premiumTheme,
+                          ),
+                          const SizedBox(height: 24),
+                          // Keep existing cashflow mix card but styled inside a container if needed
+                          Container(
+                            padding: const EdgeInsets.all(24),
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).cardColor,
+                              borderRadius: BorderRadius.circular(24),
+                              border: Border.all(
+                                color: premiumTheme.primaryColor.withValues(alpha: 
+                                  0.1,
+                                ),
+                              ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withValues(alpha: 0.02),
+                                  blurRadius: 10,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ],
+                            ),
+                            child: _buildCategoryMix(
+                              context,
+                              totalReceived,
+                              totalGiven,
+                              premiumTheme,
+                              isDefault,
+                            ),
+                          ),
+                          const SizedBox(height: 100),
+                        ],
                       ),
                     ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                ...recentEvents.map(
-                  (r) => _buildEventTile(context, r, premiumTheme, isDefault),
-                ),
+                  ),
+                ],
+              ),
+            )
+          : ThemeBackgroundWrapper(
+              child: SafeArea(
+                bottom: false,
+                child: SingleChildScrollView(
+                  physics: const BouncingScrollPhysics(),
+                  padding: const EdgeInsets.all(20),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Header Titles
+                      Text(
+                        "Financial Bloom",
+                        style: GoogleFonts.poppins(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: 2,
+                          color: isDefault
+                              ? Colors.blueGrey
+                              : premiumTheme.gradient.colors.last,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        "Monthly Analytics",
+                        style: GoogleFonts.poppins(
+                          fontSize: 28,
+                          fontWeight: FontWeight.bold,
+                          color: isDefault
+                              ? Colors.black87
+                              : (premiumTheme.themeData.brightness ==
+                                        Brightness.dark
+                                    ? Colors.white
+                                    : premiumTheme.primaryColor),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
 
-                const SizedBox(height: 100), // Bottom padding for Nav Bar
-              ],
+                      // Month Pill
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 8,
+                        ),
+                        decoration: BoxDecoration(
+                          color:
+                              (isDefault
+                                      ? Colors.grey
+                                      : premiumTheme.primaryColor)
+                                  .withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(
+                            color:
+                                (isDefault
+                                        ? Colors.grey
+                                        : premiumTheme.primaryColor)
+                                    .withValues(alpha: 0.2),
+                          ),
+                        ),
+                        child: Text(
+                          monthName,
+                          style: GoogleFonts.poppins(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: isDefault
+                                ? Colors.black54
+                                : (premiumTheme.themeData.brightness ==
+                                          Brightness.dark
+                                      ? Colors.white70
+                                      : premiumTheme.gradient.colors.last),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+
+                      // 1. Summary Card
+                      _buildSummaryCard(
+                        context,
+                        balance,
+                        totalReceived,
+                        totalGiven,
+                        premiumTheme,
+                        isDefault,
+                      ),
+
+                      const SizedBox(height: 20),
+
+                      // 2. Spending Tendency (Bar Chart)
+                      _buildSpendingTendency(
+                        context,
+                        weeklyData,
+                        premiumTheme,
+                        isDefault,
+                      ),
+
+                      const SizedBox(height: 20),
+
+                      // 3. Category Mix (Donut Chart)
+                      _buildCategoryMix(
+                        context,
+                        totalReceived,
+                        totalGiven,
+                        premiumTheme,
+                        isDefault,
+                      ),
+
+                      const SizedBox(height: 20),
+
+                      // 4. AI Insight Card
+                      _buildInsightCard(
+                        context,
+                        totalReceived,
+                        totalGiven,
+                        balance,
+                        premiumTheme,
+                        isDefault,
+                      ),
+
+                      const SizedBox(height: 32),
+
+                      // 5. Key Events
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            "Key Events",
+                            style: GoogleFonts.poppins(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: isDefault
+                                  ? Colors.black87
+                                  : (premiumTheme.themeData.brightness ==
+                                            Brightness.dark
+                                        ? Colors.white
+                                        : premiumTheme.primaryColor),
+                            ),
+                          ),
+                          Text(
+                            "View All",
+                            style: GoogleFonts.poppins(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: isDefault
+                                  ? Colors.blue
+                                  : premiumTheme.gradient.colors.last,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      ...recentEvents.map(
+                        (r) => _buildEventTile(
+                          context,
+                          r,
+                          premiumTheme,
+                          isDefault,
+                        ),
+                      ),
+
+                      const SizedBox(height: 100), // Bottom padding for Nav Bar
+                    ],
+                  ),
+                ),
+              ),
             ),
-          ),
-        ),
-      ),
     );
   }
 
