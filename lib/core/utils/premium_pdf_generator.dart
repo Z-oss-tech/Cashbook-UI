@@ -426,8 +426,9 @@ class PremiumPdfGenerator {
       );
 
       // 2. Executive Summary & Health
-      pdf.addPage(
-        pw.MultiPage(
+      if (isDetailed) {
+        pdf.addPage(
+          pw.MultiPage(
           pageFormat: PdfPageFormat.a4.copyWith(
             marginTop: 40,
             marginBottom: 40,
@@ -1226,6 +1227,7 @@ class PremiumPdfGenerator {
           },
         ),
       );
+      }
 
       // 6. Detailed Transaction History
       pdf.addPage(
@@ -1354,8 +1356,9 @@ class PremiumPdfGenerator {
       );
 
       // 6. Final Summary Page
-      pdf.addPage(
-        pw.Page(
+      if (isDetailed) {
+        pdf.addPage(
+          pw.Page(
           pageFormat: PdfPageFormat.a4,
           build: (pw.Context context) {
             return pw.Container(
@@ -1483,6 +1486,7 @@ class PremiumPdfGenerator {
           },
         ),
       );
+      }
 
       final directory = await getTemporaryDirectory();
       final prefix = cashbookName != null
