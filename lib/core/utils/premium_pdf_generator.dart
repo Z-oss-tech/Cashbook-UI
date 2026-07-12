@@ -39,7 +39,7 @@ class PremiumPdfGenerator {
       final fontBold = await PdfGoogleFonts.robotoBold();
       final theme = pw.ThemeData.withFont(base: fontRegular, bold: fontBold);
 
-      final primaryPdfColor = themeColor ?? primaryPdfColor;
+      final primaryPdfColor = themeColor ?? PdfColors.indigo600;
 
 
       final pdf = pw.Document(theme: theme);

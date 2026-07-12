@@ -162,7 +162,7 @@ class ExportHelper {
         : PremiumThemes.getTheme(settings.appTheme).primaryColor;
         
     // Note: PdfColor.fromInt expects ARGB format which matches Flutter Color.value
-    final pdfColor = PdfColor.fromInt(primary.value);
+    final pdfColor = PdfColor.fromInt(primary.toARGB32());
 
     await PremiumPdfGenerator.generateAndSharePdf(
       context,

@@ -54,7 +54,7 @@ class NotificationService {
     if (!await _areNotificationsEnabled()) return;
 
     // Cancel existing due reminder to avoid spam
-    await _notificationsPlugin.cancel(666);
+    await _notificationsPlugin.cancel(id: 666);
 
     const AndroidNotificationDetails androidDetails =
         AndroidNotificationDetails(

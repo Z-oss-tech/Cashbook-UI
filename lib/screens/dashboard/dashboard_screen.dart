@@ -795,8 +795,6 @@ class DashboardScreen extends StatelessWidget {
     final subTextColor = isDark ? Colors.white70 : const Color(0xFF464555);
 
     final settings = Provider.of<SettingsProvider>(context);
-    final premiumTheme = PremiumThemes.getTheme(settings.appTheme);
-    final isDefault = settings.appTheme == 'Default';
 
     final c1 = const Color(0xFF4143D5);
     final c2 = const Color(0xFF5B3CDD);

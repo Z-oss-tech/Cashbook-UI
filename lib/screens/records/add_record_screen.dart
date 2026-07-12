@@ -35,6 +35,8 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
   bool isGiven = true;
   bool _isLoading = false;
   String? selectedReason;
+  File? _attachmentImage;
+  final ImagePicker _picker = ImagePicker();
   bool _showAdvancedOptions = false;
   String selectedPaymentMode = 'Cash';
   final List<String> paymentModes = [
@@ -1079,6 +1081,94 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
                                   ),
                                 ),
                               ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+
+                        // Image Attachment
+                        Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: glassColor,
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(color: glassBorder),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "Receipt / Attachment",
+                                style: GoogleFonts.hankenGrotesk(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                  color: textMuted,
+                                ),
+                              ),
+                              const SizedBox(height: 12),
+                              if (_attachmentImage != null)
+                                Stack(
+                                  children: [
+                                    ClipRRect(
+                                      borderRadius: BorderRadius.circular(8),
+                                      child: Image.file(
+                                        _attachmentImage!,
+                                        height: 120,
+                                        width: double.infinity,
+                                        fit: BoxFit.cover,
+                                      ),
+                                    ),
+                                    Positioned(
+                                      top: 4,
+                                      right: 4,
+                                      child: GestureDetector(
+                                        onTap: _removeImage,
+                                        child: Container(
+                                          padding: const EdgeInsets.all(4),
+                                          decoration: BoxDecoration(
+                                            color: Colors.black54,
+                                            shape: BoxShape.circle,
+                                          ),
+                                          child: const Icon(
+                                            Icons.close,
+                                            color: Colors.white,
+                                            size: 16,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                )
+                              else
+                                GestureDetector(
+                                  onTap: _pickImage,
+                                  child: Container(
+                                    height: 60,
+                                    width: double.infinity,
+                                    decoration: BoxDecoration(
+                                      color: isDark ? const Color(0xFF2D2D3A) : const Color(0xFFE4E1ED),
+                                      borderRadius: BorderRadius.circular(8),
+                                      border: Border.all(
+                                        color: isDark ? Colors.white12 : Colors.black12,
+                                        style: BorderStyle.solid,
+                                      ),
+                                    ),
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        Icon(Icons.add_photo_alternate_rounded, color: activePrimary),
+                                        const SizedBox(width: 8),
+                                        Text(
+                                          "Attach Image",
+                                          style: GoogleFonts.manrope(
+                                            color: activePrimary,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
                             ],
                           ),
                         ),
