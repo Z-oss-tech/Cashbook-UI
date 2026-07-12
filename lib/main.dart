@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:cashbook/l10n/generated/app_localizations.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 
 import 'providers/person_provider.dart';
 import 'providers/record_provider.dart';
@@ -17,8 +19,29 @@ import 'core/services/notification_service.dart';
 
 import 'screens/splash/splash_screen.dart';
 
+@pragma('vm:entry-point')
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  await Firebase.initializeApp();
+}
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  
+  try {
+    await Firebase.initializeApp();
+    FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+    
+    // Request permission for push notifications
+    FirebaseMessaging messaging = FirebaseMessaging.instance;
+    await messaging.requestPermission(
+      alert: true,
+      badge: true,
+      sound: true,
+    );
+  } catch (e) {
+    debugPrint("Firebase initialization error: $e");
+  }
+
   await NotificationService().init();
   NotificationService().scheduleInactivityReminder();
 

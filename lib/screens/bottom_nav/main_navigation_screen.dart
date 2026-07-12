@@ -14,6 +14,7 @@ import '../records/cashbook_screen.dart';
 import '../reports/reports_screen.dart';
 import '../settings/profile_screen.dart';
 import 'app_drawer.dart';
+import '../../core/services/update_service.dart';
 
 class MainNavigationScreen extends StatefulWidget {
   const MainNavigationScreen({super.key});
@@ -56,6 +57,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<RecordProvider>(context, listen: false).fetchData();
+      UpdateService.checkForUpdates(context);
     });
   }
 
