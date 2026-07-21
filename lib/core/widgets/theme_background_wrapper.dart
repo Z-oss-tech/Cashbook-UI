@@ -62,6 +62,72 @@ class ThemeBackgroundWrapper extends StatelessWidget {
                   ),
                 ),
               ),
+            ] else if (themeName == 'Forest Emerald') ...[
+              Positioned.fill(
+                child: Image.asset(
+                  'assets/images/forest_emerald_bg.png',
+                  fit: BoxFit.cover,
+                ),
+              ),
+              Positioned(
+                top: -100,
+                right: -50,
+                child: ImageFiltered(
+                  imageFilter: ImageFilter.blur(sigmaX: 100, sigmaY: 100),
+                  child: Container(
+                    width: 350,
+                    height: 350,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: premiumTheme.primaryColor.withValues(alpha: 0.15),
+                    ),
+                  ),
+                ),
+              ),
+            ] else if (themeName == 'Midnight Ocean') ...[
+              Positioned.fill(
+                child: Image.asset(
+                  'assets/images/midnight_ocean_bg.png',
+                  fit: BoxFit.cover,
+                ),
+              ),
+              Positioned(
+                top: -100,
+                right: -50,
+                child: ImageFiltered(
+                  imageFilter: ImageFilter.blur(sigmaX: 100, sigmaY: 100),
+                  child: Container(
+                    width: 350,
+                    height: 350,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: premiumTheme.primaryColor.withValues(alpha: 0.15),
+                    ),
+                  ),
+                ),
+              ),
+            ] else if (themeName == 'Sunset Glow') ...[
+              Positioned.fill(
+                child: Image.asset(
+                  'assets/images/sunset_glow_bg.png',
+                  fit: BoxFit.cover,
+                ),
+              ),
+              Positioned(
+                top: -100,
+                right: -50,
+                child: ImageFiltered(
+                  imageFilter: ImageFilter.blur(sigmaX: 100, sigmaY: 100),
+                  child: Container(
+                    width: 350,
+                    height: 350,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: premiumTheme.primaryColor.withValues(alpha: 0.15),
+                    ),
+                  ),
+                ),
+              ),
             ] else if (themeName != 'Default') ...[
               // Generic glowing orbs based on primary color
               Positioned(

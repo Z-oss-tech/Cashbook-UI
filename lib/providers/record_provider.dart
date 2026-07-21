@@ -341,6 +341,7 @@ class RecordProvider extends ChangeNotifier {
       note: record.note,
       date: record.date,
       cashbookName: record.cashbookName,
+      attachmentUrl: record.attachmentUrl,
     );
 
     // Optimistic insert

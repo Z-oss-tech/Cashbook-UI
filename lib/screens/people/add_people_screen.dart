@@ -26,7 +26,7 @@ class _AddPeopleScreenState extends State<AddPeopleScreen> {
       final pickedContact = await FlutterContacts.native.showPicker();
       if (pickedContact != null) {
         final contact = await FlutterContacts.get(
-          pickedContact,
+          pickedContact as String,
           properties: {ContactProperty.phone},
         );
         if (contact != null) {

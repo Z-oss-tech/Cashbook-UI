@@ -1,5 +1,7 @@
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -41,6 +43,21 @@ class PremiumPdfGenerator {
 
       final primaryPdfColor = themeColor ?? PdfColors.indigo600;
 
+      // --- PRE-FETCH RECEIPT IMAGES ---
+      // Download all attachment images before PDF generation so they can be embedded
+      final Map<String, Uint8List> receiptImageBytes = {};
+      for (final record in records) {
+        if (record.attachmentUrl != null && record.attachmentUrl!.isNotEmpty) {
+          try {
+            final response = await http.get(Uri.parse(record.attachmentUrl!)).timeout(const Duration(seconds: 10));
+            if (response.statusCode == 200) {
+              receiptImageBytes[record.id] = response.bodyBytes;
+            }
+          } catch (_) {
+            // Skip images that fail to download
+          }
+        }
+      }
 
       final pdf = pw.Document(theme: theme);
       final isGlobal = cashbookName == null;
@@ -1276,7 +1293,7 @@ class PremiumPdfGenerator {
                 record.category ?? 'General',
                 record.personName,
                 record.note.isNotEmpty ? record.note : '-',
-                record.attachmentUrl != null && record.attachmentUrl!.isNotEmpty ? 'View Link' : 'No',
+                record.attachmentUrl != null && record.attachmentUrl!.isNotEmpty ? '\u2713 Yes' : '-',
                 record.isGiven ? 'Expense' : 'Income',
                 _formatCurrency(record.amount),
                 _formatCurrency(runningBalance),
@@ -1355,7 +1372,109 @@ class PremiumPdfGenerator {
         ),
       );
 
-      // 6. Final Summary Page
+      // 7. Receipt Gallery Page (only if any records have attachments)
+      final recordsWithReceipts = sortedRecords
+          .where((r) => r.attachmentUrl != null && r.attachmentUrl!.isNotEmpty && receiptImageBytes.containsKey(r.id))
+          .toList();
+
+      if (recordsWithReceipts.isNotEmpty) {
+        pdf.addPage(
+          pw.MultiPage(
+            pageFormat: PdfPageFormat.a4.copyWith(
+              marginTop: 40,
+              marginBottom: 40,
+              marginLeft: 40,
+              marginRight: 40,
+            ),
+            header: _buildPageHeader(title),
+            footer: _buildPageFooter,
+            build: (pw.Context context) {
+              return [
+                pw.Text(
+                  'Receipt Gallery',
+                  style: pw.TextStyle(
+                    fontSize: 24,
+                    fontWeight: pw.FontWeight.bold,
+                    color: PdfColor.fromHex('#191C1E'),
+                  ),
+                ),
+                pw.SizedBox(height: 6),
+                pw.Text(
+                  'Attached receipts and proof-of-payment for recorded transactions.',
+                  style: pw.TextStyle(fontSize: 12, color: PdfColors.grey600),
+                ),
+                pw.SizedBox(height: 20),
+                ...recordsWithReceipts.map((record) {
+                  final imgBytes = receiptImageBytes[record.id]!;
+                  return pw.Column(
+                    crossAxisAlignment: pw.CrossAxisAlignment.start,
+                    children: [
+                      pw.Container(
+                        padding: const pw.EdgeInsets.all(12),
+                        decoration: pw.BoxDecoration(
+                          color: PdfColors.grey50,
+                          border: pw.Border.all(color: PdfColor.fromHex('#E0E0E0')),
+                          borderRadius: pw.BorderRadius.circular(8),
+                        ),
+                        child: pw.Column(
+                          crossAxisAlignment: pw.CrossAxisAlignment.start,
+                          children: [
+                            pw.Row(
+                              mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                              children: [
+                                pw.Text(
+                                  record.personName,
+                                  style: pw.TextStyle(
+                                    fontSize: 13,
+                                    fontWeight: pw.FontWeight.bold,
+                                    color: PdfColor.fromHex('#191C1E'),
+                                  ),
+                                ),
+                                pw.Text(
+                                  '${record.isGiven ? '-' : '+'}\u20B9${record.amount.toStringAsFixed(2)}',
+                                  style: pw.TextStyle(
+                                    fontSize: 13,
+                                    fontWeight: pw.FontWeight.bold,
+                                    color: record.isGiven
+                                        ? PdfColor.fromHex('#E53935')
+                                        : PdfColor.fromHex('#008339'),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            pw.SizedBox(height: 4),
+                            pw.Text(
+                              '${DateHelper.formatDate(record.date)}  \u2022  ${record.category ?? 'General'}  \u2022  ${record.paymentMethod ?? 'Cash'}',
+                              style: pw.TextStyle(
+                                fontSize: 10,
+                                color: PdfColors.grey600,
+                              ),
+                            ),
+                            pw.SizedBox(height: 10),
+                            pw.ClipRRect(
+                              horizontalRadius: 6,
+                              verticalRadius: 6,
+                              child: pw.Image(
+                                pw.MemoryImage(imgBytes),
+                                fit: pw.BoxFit.contain,
+                                height: 280,
+                                width: double.infinity,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      pw.SizedBox(height: 16),
+                    ],
+                  );
+                }),
+              ];
+            },
+          ),
+        );
+      }
+
+      // 8. Final Summary Page
       if (isDetailed) {
         pdf.addPage(
           pw.Page(

@@ -13,6 +13,7 @@ import '../../core/widgets/theme_background_wrapper.dart';
 import '../../core/widgets/glass_card.dart';
 import 'package:intl/intl.dart';
 import 'cherry_reports_components.dart';
+import '../calendar/calendar_screen.dart';
 
 class ReportsScreen extends StatefulWidget {
   final String? cashbookName;
@@ -99,6 +100,22 @@ class _ReportsScreenState extends State<ReportsScreen> {
           widget.cashbookName != null ? "${widget.cashbookName} Reports" : "Smart Analytics",
           style: GoogleFonts.poppins(fontWeight: FontWeight.bold, fontSize: 18),
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.calendar_month_rounded),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => CalendarScreen(
+                    cashbookName: widget.cashbookName,
+                  ),
+                ),
+              );
+            },
+          ),
+          const SizedBox(width: 8),
+        ],
       ),
       body: settings.appTheme == 'Cherry Blossom'
           ? FloatingPetalsBackground(

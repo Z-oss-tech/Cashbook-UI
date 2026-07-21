@@ -18,6 +18,7 @@ import '../../core/widgets/glass_card.dart';
 import '../../core/widgets/theme_background_wrapper.dart';
 import '../../core/theme/premium_themes.dart';
 import '../../providers/settings_provider.dart';
+import '../calendar/calendar_screen.dart';
 
 class CashbookScreen extends StatefulWidget {
   final String cashbookName;
@@ -676,6 +677,19 @@ class _CashbookScreenState extends State<CashbookScreen> {
                           ),
                         ),
                         IconButton(
+                          icon: Icon(Icons.calendar_month_rounded, color: textColor),
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => CalendarScreen(
+                                  cashbookName: selectedCashbook,
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                        IconButton(
                           icon: Icon(Icons.analytics_rounded, color: textColor),
                           onPressed: () {
                             Navigator.push(
@@ -686,28 +700,8 @@ class _CashbookScreenState extends State<CashbookScreen> {
                                 ),
                               ),
                             );
-                          },
-                        ),
-                        IconButton(
-                          icon: Icon(
-                            _filterDate == null
-                                ? Icons.calendar_today_rounded
-                                : Icons.event_busy_rounded,
-                            color: textColor,
-                          ),
-                          onPressed: () {
-                            if (_filterDate != null) {
-                              setState(() => _filterDate = null);
-                              return;
-                            }
-                            final rawRecords = recordProvider.records
-                                .where(
-                                  (r) => r.cashbookName == selectedCashbook,
-                                )
-                                .toList();
-                            _showCustomCalendarPicker(context, rawRecords);
-                          },
-                        ),
+                            },
+                        )
                       ],
                     ),
                   ],

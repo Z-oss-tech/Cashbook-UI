@@ -7,6 +7,7 @@ import 'package:local_auth/local_auth.dart';
 import '../../providers/settings_provider.dart';
 import '../../providers/record_provider.dart';
 import '../../core/utils/toast_helper.dart';
+import '../../core/services/update_service.dart';
 import 'package:permission_handler/permission_handler.dart';
 import '../../core/widgets/theme_background_wrapper.dart';
 import '../../core/widgets/glass_card.dart';
@@ -347,7 +348,7 @@ class _SettingsScreenState extends State<SettingsScreen>
                               iconColor: primaryColor,
                               title: "App Update",
                               subtitle: "Check for latest version",
-                              onTap: () => _showUpdateDialog(context),
+                              onTap: () => UpdateService.checkForUpdates(context, showUpToDate: true),
                               isDark: isDark,
                               showBorder: false,
                             ),
@@ -627,132 +628,5 @@ class _SettingsScreenState extends State<SettingsScreen>
     );
   }
 
-  void _showUpdateDialog(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          backgroundColor: Theme.of(context).cardColor,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(24),
-          ),
-          title: Row(
-            children: [
-              const Icon(
-                Icons.system_update_rounded,
-                color: Color(0xFF4143D5),
-                size: 28,
-              ),
-              const SizedBox(width: 12),
-              Text(
-                "App Update",
-                style: GoogleFonts.inter(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 20,
-                  color:
-                      Theme.of(context).textTheme.bodyLarge?.color ??
-                      (isDark ? Colors.white : const Color(0xFF191C1E)),
-                ),
-              ),
-            ],
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                "A new version of SmartKhata is available!",
-                style: GoogleFonts.inter(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color:
-                      Theme.of(context).textTheme.bodyLarge?.color ??
-                      (isDark ? Colors.white : const Color(0xFF191C1E)),
-                ),
-              ),
-              const SizedBox(height: 12),
-              Text(
-                "Version 1.1.0 features new reports, voice-to-text notes, and UI enhancements.",
-                style: GoogleFonts.inter(
-                  fontSize: 14,
-                  color:
-                      Theme.of(context).textTheme.bodyMedium?.color ??
-                      (isDark ? Colors.white70 : Colors.grey.shade600),
-                ),
-              ),
-              const SizedBox(height: 16),
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: isDark
-                      ? const Color(0xFF191C1E)
-                      : const Color(0xFFF2F4F6),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Row(
-                  children: [
-                    const Icon(
-                      Icons.download_rounded,
-                      color: Color(0xFF4143D5),
-                      size: 20,
-                    ),
-                    const SizedBox(width: 12),
-                    Text(
-                      "Update size: 14.2 MB",
-                      style: GoogleFonts.inter(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w500,
-                        color: isDark
-                            ? Colors.white70
-                            : const Color(0xFF464555),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text(
-                "Later",
-                style: GoogleFonts.inter(
-                  color: Theme.of(context).dividerColor,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pop(context);
-                ToastHelper.showToast(
-                  context,
-                  'Downloading update in background...',
-                );
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF4143D5),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 12,
-                ),
-              ),
-              child: Text(
-                "Install Update",
-                style: GoogleFonts.inter(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          ],
-        );
-      },
-    );
-  }
+
 }

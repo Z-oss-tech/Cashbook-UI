@@ -15,23 +15,54 @@ class UpdateService {
       'https://api.github.com/repos/$_repoOwner/$_repoName/releases/latest';
 
   /// Check GitHub for a newer release and show an in-app download dialog.
-  static Future<void> checkForUpdates(BuildContext context) async {
+  ///
+  /// When [showUpToDate] is true (user manually tapped "Check for Updates"),
+  /// a toast is shown if the app is already on the latest version.
+  /// When false (automatic check on app launch), no feedback is shown if up-to-date.
+  static Future<void> checkForUpdates(
+    BuildContext context, {
+    bool showUpToDate = false,
+  }) async {
     try {
       final packageInfo = await PackageInfo.fromPlatform();
       final currentVersionStr =
           packageInfo.version.replaceAll(RegExp(r'[^0-9.]'), '');
 
       final response = await http.get(Uri.parse(_githubApiUrl));
-      if (response.statusCode != 200) return;
+      if (response.statusCode != 200) {
+        if (showUpToDate && context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Could not check for updates. Please try again later.')),
+          );
+        }
+        return;
+      }
 
       final data = json.decode(response.body);
       final latestVersionTag = data['tag_name'] as String?;
-      if (latestVersionTag == null) return;
+      if (latestVersionTag == null) {
+        if (showUpToDate && context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('No releases found.')),
+          );
+        }
+        return;
+      }
 
       final latestVersionStr =
           latestVersionTag.replaceAll(RegExp(r'[^0-9.]'), '');
 
-      if (!_isUpdateAvailable(currentVersionStr, latestVersionStr)) return;
+      if (!_isUpdateAvailable(currentVersionStr, latestVersionStr)) {
+        if (showUpToDate && context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('You\'re on the latest version (v$currentVersionStr) ✓'),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
+        return;
+      }
 
       // Find the APK asset download URL from the release assets
       String? apkDownloadUrl;
@@ -60,6 +91,14 @@ class UpdateService {
       }
     } catch (e) {
       debugPrint('Error checking for updates: $e');
+      if (showUpToDate && context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Failed to check for updates. Check your internet connection.'),
+            backgroundColor: Colors.redAccent,
+          ),
+        );
+      }
     }
   }
 

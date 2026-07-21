@@ -13,7 +13,7 @@ class SettingsProvider with ChangeNotifier {
   String _userAvatar = "S";
 
   String _themeColor = 'Ocean Blue';
-  String _appTheme = 'Default';
+  String _appTheme = 'Forest Emerald';
 
   Locale _locale = const Locale('en');
 
@@ -50,7 +50,7 @@ class SettingsProvider with ChangeNotifier {
     _locale = Locale(languageCode);
 
     _themeColor = _prefs?.getString('themeColor') ?? 'Ocean Blue';
-    _appTheme = _prefs?.getString('appTheme') ?? 'Default';
+    _appTheme = _prefs?.getString('appTheme') ?? 'Forest Emerald';
 
     notifyListeners();
   }

@@ -7,6 +7,7 @@ import '../../providers/auth_provider.dart';
 import '../../core/utils/export_helper.dart';
 import '../../providers/record_provider.dart';
 import '../../core/utils/toast_helper.dart';
+import '../../core/services/update_service.dart';
 import '../../core/widgets/theme_background_wrapper.dart';
 import '../../core/widgets/glass_card.dart';
 import '../../core/theme/premium_themes.dart';
@@ -205,9 +206,9 @@ class _ProfileScreenState extends State<ProfileScreen>
                               title: "Check for Updates",
                               subtitle: "Current version: $_appVersion",
                               onTap: () {
-                                ToastHelper.showToast(
+                                UpdateService.checkForUpdates(
                                   context,
-                                  'You are up to date!',
+                                  showUpToDate: true,
                                 );
                               },
                               isDark: isDark,
@@ -442,7 +443,7 @@ class _ProfileScreenState extends State<ProfileScreen>
       'Default',
       'Midnight Ocean',
       'Sunset Glow',
-      'Forest Retreat',
+      'Forest Emerald',
       'Cherry Blossom',
     ];
 

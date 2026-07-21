@@ -37,6 +37,7 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
 
     if (success && mounted) {
       Provider.of<SettingsProvider>(context, listen: false).setUserName(name);
+      Provider.of<SettingsProvider>(context, listen: false).setUserEmail(email);
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (_) => const MainNavigationScreen()),

@@ -70,6 +70,10 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
   void _showCreateCashbookDialog(BuildContext context) {
     final TextEditingController nameController = TextEditingController();
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final settings = Provider.of<SettingsProvider>(context, listen: false);
+    final activePrimary = settings.appTheme == 'Default' 
+        ? const Color(0xFF4143D5) 
+        : PremiumThemes.getTheme(settings.appTheme).primaryColor;
     bool isCreating = false;
 
     showDialog(
@@ -181,8 +185,8 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
                                 ),
                                 focusedBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(8),
-                                  borderSide: const BorderSide(
-                                    color: Color(0xFF4143D5),
+                                  borderSide: BorderSide(
+                                    color: activePrimary,
                                     width: 2,
                                   ),
                                 ),
@@ -227,7 +231,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
                                           }
                                         },
                                   style: ElevatedButton.styleFrom(
-                                    backgroundColor: const Color(0xFF4143D5),
+                                    backgroundColor: activePrimary,
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(24),
                                     ),
@@ -273,6 +277,9 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
 
   @override
   Widget build(BuildContext context) {
+    // Listen to SettingsProvider so the nav bar rebuilds on theme change
+    Provider.of<SettingsProvider>(context);
+    
     return Scaffold(
       extendBody: true,
       drawer: const AppDrawer(),
@@ -353,6 +360,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
   }) {
     final bool isSelected = currentIndex == index;
     
+    // Use listen: false here because we're already listening in build()
     final settings = Provider.of<SettingsProvider>(context, listen: false);
     final premiumTheme = PremiumThemes.getTheme(settings.appTheme);
     final isDefault = settings.appTheme == 'Default';

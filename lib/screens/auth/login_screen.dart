@@ -382,6 +382,12 @@ class _LoginScreenState extends State<LoginScreen> {
                                               listen: false,
                                             ).setUserName(res['name']);
                                           }
+                                          if (res['email'] != null) {
+                                            Provider.of<SettingsProvider>(
+                                              context,
+                                              listen: false,
+                                            ).setUserEmail(res['email']);
+                                          }
                                           Navigator.pushReplacement(
                                             context,
                                             MaterialPageRoute(
